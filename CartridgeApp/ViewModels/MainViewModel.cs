@@ -22,6 +22,20 @@ public class MainViewModel
 
     private void SpinRevolver()
     {
-        // TODO
+        if (Games == null || Games.Count == 0)
+        {
+            Application.Current.MainPage.DisplayAlert("Oops", "Барабан пустий! Додай ігри.", "OK");
+            return;
+        }
+
+        var random = new Random();
+        int winnerIndex = random.Next(Games.Count);
+        var winnerGame = Games[winnerIndex];
+
+        Application.Current.MainPage.DisplayAlert(
+            "Roulette Result",
+            $"Твоя наступна гра:\n{winnerGame.Title}",
+            "Пішов грати!"
+        );
     }
 }

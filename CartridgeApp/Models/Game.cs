@@ -1,12 +1,20 @@
 namespace CartridgeApp.Models;
 
+public enum GameStatus
+{
+    Backlog,
+    Playing,
+    Completed,
+    Abandoned
+}
+
 public class Game
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Title { get; set; } = string.Empty;
     public string Developer { get; set; } = string.Empty;
 
-    public string Status { get; set; } = "Backlog";
+    public GameStatus Status { get; set; } = GameStatus.Backlog;
 
     public int? Rating { get; set; }
 }

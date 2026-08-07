@@ -12,21 +12,21 @@ public class MockGameService
             {
                 Title = "Persona 4 Golden",
                 Developer = "Atlus",
-                Status = "Completed",
+                Status = GameStatus.Completed,
                 Rating = 10
             },
             new Game
             {
                 Title = "Slay the Spire",
                 Developer = "Mega Crit",
-                Status = "Playing",
+                Status = GameStatus.Playing,
                 Rating = 9
             },
             new Game
             {
                 Title = "Cyberpunk 2077",
                 Developer = "CD Projekt Red",
-                Status = "Backlog"
+                Status = GameStatus.Backlog
             }
         };
     }

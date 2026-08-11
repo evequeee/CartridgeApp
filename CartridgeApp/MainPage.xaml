@@ -1,37 +1,35 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="CartridgeApp.MainPage">
+             xmlns:viewmodels="clr-namespace:CartridgeApp.ViewModels"
+             xmlns:converters="clr-namespace:CartridgeApp.Converters"
+             x:Class="CartridgeApp.MainPage"
+             x:DataType="viewmodels:MainViewModel">
 
-    <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0"
-            Spacing="25">
-            <Label Text="Cartridge Roulette" 
-               FontSize="28" 
-               FontAttributes="Bold" 
-               HorizontalOptions="Center" />
+    <ContentPage.Resources>
+        <converters:StatusColorConverter x:Key="StatusColorConverter" />
+    </ContentPage.Resources>
 
-            <Button Text="Spin the Cylinder" 
-                Command="{Binding SpinCommand}" 
-                HorizontalOptions="Center" 
-                Padding="20,10" />
+    <VerticalStackLayout Padding="20" Spacing="15">
+        
+        <Label Text="Cartridge Roulette" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" />
 
-            <CollectionView ItemsSource="{Binding Games}">
+        <Button Text="Spin the Cylinder!" Command="{Binding SpinCommand}" HorizontalOptions="Center" Padding="20,10" />
+
+        <CollectionView ItemsSource="{Binding Games}">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame Margin="0,8" Padding="15" CornerRadius="10">
+                    <Frame Margin="0,8" Padding="15" CornerRadius="10"
+                           BackgroundColor="{Binding Status, Converter={StaticResource StatusColorConverter}}">
                         <VerticalStackLayout>
-                            <Label Text="{Binding Title}" FontSize="18" FontAttributes="Bold" />
-                            <Label Text="{Binding Developer}" FontSize="14" TextColor="Gray" />
-                            <Label Text="{Binding Status}" FontSize="12" Margin="0,5,0,0" />
+                            <Label Text="{Binding Title}" FontSize="18" FontAttributes="Bold" TextColor="Black" />
+                            <Label Text="{Binding Developer}" FontSize="14" TextColor="Black" />
+                            <Label Text="{Binding Status}" FontSize="12" Margin="0,5,0,0" TextColor="Black" />
                         </VerticalStackLayout>
                     </Frame>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
-        
-        </VerticalStackLayout>
-    </ScrollView>
 
+    </VerticalStackLayout>
 </ContentPage>

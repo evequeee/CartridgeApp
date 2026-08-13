@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+
 using CartridgeApp.Models;
 using CartridgeApp.Services;
 
@@ -11,6 +12,7 @@ public class MainViewModel
     public ObservableCollection<Game> Games { get; set; }
 
     public ICommand SpinCommand { get; private set; }
+    public ICommand AddGameCommand { get; private set; }
 
     public MainViewModel()
     {
@@ -18,6 +20,7 @@ public class MainViewModel
         Games = new ObservableCollection<Game>(_gameService.GetGames());
 
         SpinCommand = new Command(SpinRevolver);
+        AddGameCommand = new Command(AddNewGame); // Ініціалізуємо
     }
 
     private void SpinRevolver()
@@ -37,5 +40,15 @@ public class MainViewModel
             $"Твоя наступна гра:\n{winnerGame.Title}",
             "Пішов грати!"
         );
+    }
+
+    private void AddNewGame()
+    {
+        Games.Add(new Game
+        {
+            Title = "Terraria",
+            Developer = "Re-Logic",
+            Status = GameStatus.Playing
+        });
     }
 }

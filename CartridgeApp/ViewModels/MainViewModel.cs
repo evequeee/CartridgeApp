@@ -13,6 +13,8 @@ public class MainViewModel
 
     public ICommand SpinCommand { get; private set; }
     public ICommand AddGameCommand { get; private set; }
+    public ICommand AddGameCommand { get; private set; }
+    public ICommand RemoveGameCommand { get; private set; }
 
     public MainViewModel()
     {
@@ -20,7 +22,9 @@ public class MainViewModel
         Games = new ObservableCollection<Game>(_gameService.GetGames());
 
         SpinCommand = new Command(SpinRevolver);
-        AddGameCommand = new Command(AddNewGame); // Ініціалізуємо
+        AddGameCommand = new Command(AddNewGame);
+
+        RemoveGameCommand = new Command<Game>(RemoveGame);
     }
 
     private void SpinRevolver()
@@ -50,5 +54,13 @@ public class MainViewModel
             Developer = "Re-Logic",
             Status = GameStatus.Playing
         });
+    }
+
+    private void RemoveGame(Game gameToRemove)
+    {
+        if (gameToRemove != null && Games.Contains(gameToRemove))
+        {
+            Games.Remove(gameToRemove);
+        }
     }
 }

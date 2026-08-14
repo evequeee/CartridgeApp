@@ -23,14 +23,26 @@
         <CollectionView ItemsSource="{Binding Games}">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame Margin="0,8" Padding="15" CornerRadius="10"
-                           BackgroundColor="{Binding Status, Converter={StaticResource StatusColorConverter}}">
-                        <VerticalStackLayout>
-                            <Label Text="{Binding Title}" FontSize="18" FontAttributes="Bold" TextColor="Black" />
-                            <Label Text="{Binding Developer}" FontSize="14" TextColor="Black" />
-                            <Label Text="{Binding Status}" FontSize="12" Margin="0,5,0,0" TextColor="Black" />
-                        </VerticalStackLayout>
-                    </Frame>
+                    <SwipeView>
+                        <SwipeView.RightItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Delete" 
+                                           BackgroundColor="Red"
+                                           Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=RemoveGameCommand}"
+                                           CommandParameter="{Binding .}" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+
+                        <Frame Margin="0,8" Padding="15" CornerRadius="10"
+                               BackgroundColor="{Binding Status, Converter={StaticResource StatusColorConverter}}">
+                            <VerticalStackLayout>
+                                <Label Text="{Binding Title}" FontSize="18" FontAttributes="Bold" TextColor="Black" />
+                                <Label Text="{Binding Developer}" FontSize="14" TextColor="Black" />
+                                <Label Text="{Binding Status}" FontSize="12" Margin="0,5,0,0" TextColor="Black" />
+                            </VerticalStackLayout>
+                        </Frame>
+                        
+                    </SwipeView>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

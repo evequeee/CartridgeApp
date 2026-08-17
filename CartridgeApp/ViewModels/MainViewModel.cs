@@ -22,7 +22,8 @@ public class MainViewModel
         Games = new ObservableCollection<Game>(_gameService.GetGames());
 
         SpinCommand = new Command(SpinRevolver);
-        AddGameCommand = new Command(AddNewGame);
+
+        AddGameCommand = new Command(async () => await AddNewGame());
 
         RemoveGameCommand = new Command<Game>(RemoveGame);
     }
@@ -46,14 +47,22 @@ public class MainViewModel
         );
     }
 
-    private void AddNewGame()
+    private async Task AddNewGame()
     {
-        Games.Add(new Game
+        string result = await Application.Current.MainPage.DisplayPromptAsync(
+            "Додати в Cartridge",
+            "Введи назву нової гри:"
+        );
+
+        if (!string.IsNullOrWhiteSpace(result))
         {
-            Title = "Terraria",
-            Developer = "Re-Logic",
-            Status = GameStatus.Playing
-        });
+            Games.Add(new Game
+            {
+                Title = result,
+                Developer = "Unknown",
+                Status = GameStatus.Backlog
+            });
+        }
     }
 
     private void RemoveGame(Game gameToRemove)

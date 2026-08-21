@@ -13,6 +13,7 @@ public class Game
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Title { get; set; } = string.Empty;
     public string Developer { get; set; } = string.Empty;
+    public string Platform { get; set; } = "PC";
 
     public GameStatus Status { get; set; } = GameStatus.Backlog;
 

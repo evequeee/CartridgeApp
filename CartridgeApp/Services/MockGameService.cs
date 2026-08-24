@@ -12,6 +12,7 @@ public class MockGameService
             {
                 Title = "Persona 4 Golden",
                 Developer = "Atlus",
+                Platform = "PC",
                 Status = GameStatus.Completed,
                 Rating = 10
             },
@@ -19,6 +20,7 @@ public class MockGameService
             {
                 Title = "Slay the Spire",
                 Developer = "Mega Crit",
+                Platform = "Steam Deck",
                 Status = GameStatus.Playing,
                 Rating = 9
             },
@@ -26,6 +28,7 @@ public class MockGameService
             {
                 Title = "Cyberpunk 2077",
                 Developer = "CD Projekt Red",
+                Platform = "PC",
                 Status = GameStatus.Backlog
             }
         };

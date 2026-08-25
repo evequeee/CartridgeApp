@@ -26,6 +26,11 @@
                     <Frame Margin="0,8" Padding="15" CornerRadius="10"
                            BackgroundColor="{Binding Status, Converter={StaticResource StatusColorConverter}}">
                         <VerticalStackLayout>
+                            <HorizontalStackLayout Spacing="5">
+                                <Label FontSize="14" Text="{Binding Developer}" TextColor="#333333"/>
+                                <Label FontSize="14" Text="|" TextColor="Gray"/>
+                                <Label FontAttributes="Italic" FontSize="14" Text="{Binding Platform}" TextColor="Gray"/>
+                            </HorizontalStackLayout>
                             <Label Text="{Binding Title}" FontSize="18" FontAttributes="Bold" TextColor="Black" />
                             <Label Text="{Binding Developer}" FontSize="14" TextColor="Black" />
                             <Label Text="{Binding Status}" FontSize="12" Margin="0,5,0,0" TextColor="Black" />

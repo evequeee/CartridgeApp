@@ -18,4 +18,5 @@ public class Game
     public GameStatus Status { get; set; } = GameStatus.Backlog;
 
     public int? Rating { get; set; }
+    public bool IsFavorite { get; set; } = false;
 }

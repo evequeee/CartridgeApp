@@ -14,7 +14,8 @@ public class MockGameService
                 Developer = "Atlus",
                 Platform = "PC",
                 Status = GameStatus.Completed,
-                Rating = 10
+                Rating = 10,
+                IsFavorite = true
             },
             new Game
             {
@@ -22,14 +23,16 @@ public class MockGameService
                 Developer = "Mega Crit",
                 Platform = "Steam Deck",
                 Status = GameStatus.Playing,
-                Rating = 9
+                Rating = 9,
+                IsFavorite = true
             },
             new Game
             {
                 Title = "Cyberpunk 2077",
                 Developer = "CD Projekt Red",
                 Platform = "PC",
-                Status = GameStatus.Backlog
+                Status = GameStatus.Backlog,
+                IsFavorite = true
             }
         };
     }

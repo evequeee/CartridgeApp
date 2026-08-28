@@ -15,27 +15,12 @@
         <Label Text="Cartridge Roulette" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" />
 
         <Button Text="Spin the Cylinder!" Command="{Binding SpinCommand}" HorizontalOptions="Center" Padding="20,10" />
-
-        <Button Text="Spin the Cylinder!" Command="{Binding SpinCommand}" HorizontalOptions="Center" Padding="20,10" />
         
         <Button Text="+ Add Game" Command="{Binding AddGameCommand}" HorizontalOptions="Center" Margin="0,0,0,10" />
 
         <CollectionView ItemsSource="{Binding Games}">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame Margin="0,8" Padding="15" CornerRadius="10"
-                           BackgroundColor="{Binding Status, Converter={StaticResource StatusColorConverter}}">
-                        <VerticalStackLayout>
-                            <HorizontalStackLayout Spacing="5">
-                                <Label FontSize="14" Text="{Binding Developer}" TextColor="#333333"/>
-                                <Label FontSize="14" Text="|" TextColor="Gray"/>
-                                <Label FontAttributes="Italic" FontSize="14" Text="{Binding Platform}" TextColor="Gray"/>
-                            </HorizontalStackLayout>
-                            <Label Text="{Binding Title}" FontSize="18" FontAttributes="Bold" TextColor="Black" />
-                            <Label Text="{Binding Developer}" FontSize="14" TextColor="Black" />
-                            <Label Text="{Binding Status}" FontSize="12" Margin="0,5,0,0" TextColor="Black" />
-                        </VerticalStackLayout>
-                    </Frame>
                     <SwipeView>
                         <SwipeView.RightItems>
                             <SwipeItems>
@@ -48,24 +33,34 @@
 
                         <Frame Margin="0,8" Padding="15" CornerRadius="10"
                                BackgroundColor="{Binding Status, Converter={StaticResource StatusColorConverter}}">
-                        <Grid ColumnDefinitions="*, Auto">
-                            <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
-                                <Label Text="{Binding Title}" FontSize="18" FontAttributes="Bold" TextColor="Black" />
-                                <Label Text="{Binding Developer}" FontSize="14" TextColor="#333333" />
-                            </VerticalStackLayout>
-                            
-                            <Frame Grid.Column="1" 
-                                   BackgroundColor="{AppThemeBinding Light=White, Dark=#333333}" 
-                                   Padding="8,5" 
-                                   CornerRadius="5" 
-                                   HasShadow="False" 
-                                   VerticalOptions="Center">
-                                <Label Text="{Binding Status}" 
-                                       FontSize="12" 
-                                       FontAttributes="Bold" 
-                                       TextColor="{AppThemeBinding Light=Black, Dark=White}" />
-                            </Frame>
-                        </Grid>
+                            <Grid ColumnDefinitions="*, Auto">
+                                <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                                    
+                                    <HorizontalStackLayout Spacing="5">
+                                        <Label Text="{Binding Title}" FontSize="18" FontAttributes="Bold" TextColor="Black" />
+                                        <Label Text="⭐" FontSize="16" IsVisible="{Binding IsFavorite}" VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                    
+                                    <HorizontalStackLayout Spacing="5">
+                                        <Label Text="{Binding Developer}" FontSize="14" TextColor="#333333" />
+                                        <Label Text="|" FontSize="14" TextColor="Gray" />
+                                        <Label Text="{Binding Platform}" FontSize="14" FontAttributes="Italic" TextColor="Gray" />
+                                    </HorizontalStackLayout>
+                                    
+                                </VerticalStackLayout>
+                                
+                                <Frame Grid.Column="1" 
+                                       BackgroundColor="{AppThemeBinding Light=White, Dark=#333333}" 
+                                       Padding="8,5" 
+                                       CornerRadius="5" 
+                                       HasShadow="False" 
+                                       VerticalOptions="Center">
+                                    <Label Text="{Binding Status}" 
+                                           FontSize="12" 
+                                           FontAttributes="Bold" 
+                                           TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                                </Frame>
+                            </Grid>
                         </Frame>
                         
                     </SwipeView>

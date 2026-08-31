@@ -72,4 +72,30 @@ public class MainViewModel
             Games.Remove(gameToRemove);
         }
     }
+
+    public ICommand ToggleFavoriteCommand { get; private set; }
+
+    public MainViewModel()
+    {
+        _gameService = new MockGameService();
+        Games = new ObservableCollection<Game>(_gameService.GetGames());
+
+        SpinCommand = new Command(SpinRevolver);
+        AddGameCommand = new Command(async () => await AddNewGame());
+        RemoveGameCommand = new Command<Game>(RemoveGame);
+
+        ToggleFavoriteCommand = new Command<Game>(ToggleFavorite);
+    }
+
+    private void ToggleFavorite(Game game)
+    {
+        if (game != null && Games.Contains(game))
+        {
+            int index = Games.IndexOf(game);
+            game.IsFavorite = !game.IsFavorite;
+
+            Games.RemoveAt(index);
+            Games.Insert(index, game);
+        }
+    }
 }

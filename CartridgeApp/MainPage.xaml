@@ -13,7 +13,6 @@
     <VerticalStackLayout Padding="20" Spacing="15">
         
         <Label Text="Cartridge Roulette" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" />
-
         <Button Text="Spin the Cylinder!" Command="{Binding SpinCommand}" HorizontalOptions="Center" Padding="20,10" />
         
         <Button Text="+ Add Game" Command="{Binding AddGameCommand}" HorizontalOptions="Center" Margin="0,0,0,10" />
@@ -22,6 +21,14 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <SwipeView>
+                        <SwipeView.LeftItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Favorite" 
+                                           BackgroundColor="Gold"
+                                           Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=ToggleFavoriteCommand}"
+                                           CommandParameter="{Binding .}" />
+                            </SwipeItems>
+                        </SwipeView.LeftItems>
                         <SwipeView.RightItems>
                             <SwipeItems>
                                 <SwipeItem Text="Delete" 

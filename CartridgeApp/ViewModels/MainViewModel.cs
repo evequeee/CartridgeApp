@@ -10,22 +10,21 @@ public class MainViewModel
 {
     private readonly MockGameService _gameService;
     public ObservableCollection<Game> Games { get; set; }
-
     public ICommand SpinCommand { get; private set; }
     public ICommand AddGameCommand { get; private set; }
-    public ICommand AddGameCommand { get; private set; }
     public ICommand RemoveGameCommand { get; private set; }
-
+    public ICommand ToggleFavoriteCommand { get; private set; }
+    public ICommand ClearAllCommand { get; private set; }
     public MainViewModel()
     {
         _gameService = new MockGameService();
         Games = new ObservableCollection<Game>(_gameService.GetGames());
 
         SpinCommand = new Command(SpinRevolver);
-
         AddGameCommand = new Command(async () => await AddNewGame());
-
         RemoveGameCommand = new Command<Game>(RemoveGame);
+        ToggleFavoriteCommand = new Command<Game>(ToggleFavorite);
+        ClearAllCommand = new Command(() => Games.Clear());
     }
 
     private void SpinRevolver()
@@ -71,20 +70,6 @@ public class MainViewModel
         {
             Games.Remove(gameToRemove);
         }
-    }
-
-    public ICommand ToggleFavoriteCommand { get; private set; }
-
-    public MainViewModel()
-    {
-        _gameService = new MockGameService();
-        Games = new ObservableCollection<Game>(_gameService.GetGames());
-
-        SpinCommand = new Command(SpinRevolver);
-        AddGameCommand = new Command(async () => await AddNewGame());
-        RemoveGameCommand = new Command<Game>(RemoveGame);
-
-        ToggleFavoriteCommand = new Command<Game>(ToggleFavorite);
     }
 
     private void ToggleFavorite(Game game)

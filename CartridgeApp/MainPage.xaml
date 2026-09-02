@@ -17,6 +17,11 @@
         
         <Button Text="+ Add Game" Command="{Binding AddGameCommand}" HorizontalOptions="Center" Margin="0,0,0,10" />
 
+        <HorizontalStackLayout HorizontalOptions="Center" Spacing="15" Margin="0,0,0,10">
+            <Button Text="+ Add Game" Command="{Binding AddGameCommand}" />
+            <Button Text="Clear All" Command="{Binding ClearAllCommand}" BackgroundColor="IndianRed" />
+        </HorizontalStackLayout>
+
         <CollectionView ItemsSource="{Binding Games}">
             <CollectionView.ItemTemplate>
                 <DataTemplate>

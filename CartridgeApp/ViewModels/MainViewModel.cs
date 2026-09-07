@@ -12,14 +12,15 @@ public class MainViewModel : INotifyPropertyChanged
 {
     private readonly MockGameService _gameService;
     private string _searchQuery = string.Empty;
-    private string _selectedSortOption = "By Title";
+    private SortOption _selectedSortOption = SortOption.ByTitle;
 
     public ObservableCollection<Game> Games { get; set; }
     public ObservableCollection<Game> FilteredGames { get; }
-    public ObservableCollection<string> SortOptions { get; } = new()
+    public ObservableCollection<SortOption> SortOptions { get; } = new()
     {
-        "By Title",
-        "By Status"
+        SortOption.ByTitle,
+        SortOption.ByStatus,
+        SortOption.ByRating
     };
 
     public string SearchQuery
@@ -38,7 +39,7 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    public string SelectedSortOption
+    public SortOption SelectedSortOption
     {
         get => _selectedSortOption;
         set
@@ -60,6 +61,7 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand ToggleFavoriteCommand { get; private set; }
     public ICommand ClearAllCommand { get; private set; }
     public ICommand SortCommand { get; private set; }
+    public ICommand ApplySortingCommand { get; private set; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -76,6 +78,7 @@ public class MainViewModel : INotifyPropertyChanged
         ToggleFavoriteCommand = new Command<Game>(ToggleFavorite);
         ClearAllCommand = new Command(ClearAll);
         SortCommand = new Command(SortGames);
+        ApplySortingCommand = new Command(ApplyFilter);
     }
 
     private void SpinRevolver()
@@ -157,9 +160,12 @@ public class MainViewModel : INotifyPropertyChanged
                 game.Title.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase));
         }
 
-        filteredGames = SelectedSortOption == "By Status"
-            ? filteredGames.OrderBy(game => game.Status).ThenBy(game => game.Title)
-            : filteredGames.OrderBy(game => game.Title);
+        filteredGames = SelectedSortOption switch
+        {
+            SortOption.ByStatus => filteredGames.OrderBy(game => game.Status).ThenBy(game => game.Title),
+            SortOption.ByRating => filteredGames.OrderByDescending(game => game.Rating ?? 0).ThenBy(game => game.Title),
+            _ => filteredGames.OrderBy(game => game.Title)
+        };
 
         FilteredGames.Clear();
         foreach (Game game in filteredGames)

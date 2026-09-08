@@ -13,6 +13,7 @@ public class MainViewModel : INotifyPropertyChanged
     private readonly MockGameService _gameService;
     private string _searchQuery = string.Empty;
     private SortOption _selectedSortOption = SortOption.ByTitle;
+    private GameStatus? _selectedStatusFilter;
 
     public ObservableCollection<Game> Games { get; set; }
     public ObservableCollection<Game> FilteredGames { get; }
@@ -22,6 +23,7 @@ public class MainViewModel : INotifyPropertyChanged
         SortOption.ByStatus,
         SortOption.ByRating
     };
+    public ObservableCollection<GameStatus> StatusOptions { get; } = new(Enum.GetValues<GameStatus>());
 
     public string SearchQuery
     {
@@ -51,6 +53,22 @@ public class MainViewModel : INotifyPropertyChanged
 
             _selectedSortOption = value;
             OnPropertyChanged(nameof(SelectedSortOption));
+            ApplyFilter();
+        }
+    }
+
+    public GameStatus? SelectedStatusFilter
+    {
+        get => _selectedStatusFilter;
+        set
+        {
+            if (_selectedStatusFilter == value)
+            {
+                return;
+            }
+
+            _selectedStatusFilter = value;
+            OnPropertyChanged(nameof(SelectedStatusFilter));
             ApplyFilter();
         }
     }
@@ -159,6 +177,11 @@ public class MainViewModel : INotifyPropertyChanged
             filteredGames = filteredGames.Where(game =>
                 game.Title.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase));
         }
+
+            if (SelectedStatusFilter.HasValue)
+            {
+                filteredGames = filteredGames.Where(game => game.Status == SelectedStatusFilter.Value);
+            }
 
         filteredGames = SelectedSortOption switch
         {

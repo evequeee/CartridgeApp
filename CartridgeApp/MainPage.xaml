@@ -36,6 +36,10 @@
                     ItemsSource="{Binding SortOptions}"
                     SelectedItem="{Binding SelectedSortOption}"
                     WidthRequest="140" />
+                <Picker Title="Status"
+                    ItemsSource="{Binding StatusOptions}"
+                    SelectedItem="{Binding SelectedStatusFilter}"
+                    WidthRequest="140" />
             </HorizontalStackLayout>
         </HorizontalStackLayout>
 

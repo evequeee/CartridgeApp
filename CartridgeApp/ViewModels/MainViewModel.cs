@@ -80,6 +80,7 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand ClearAllCommand { get; private set; }
     public ICommand SortCommand { get; private set; }
     public ICommand ApplySortingCommand { get; private set; }
+    public ICommand ResetFiltersCommand { get; private set; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -97,6 +98,7 @@ public class MainViewModel : INotifyPropertyChanged
         ClearAllCommand = new Command(ClearAll);
         SortCommand = new Command(SortGames);
         ApplySortingCommand = new Command(ApplyFilter);
+        ResetFiltersCommand = new Command(ResetFilters);
     }
 
     private void SpinRevolver()
@@ -200,6 +202,13 @@ public class MainViewModel : INotifyPropertyChanged
     private void SortGames()
     {
         ApplyFilter();
+    }
+
+    private void ResetFilters()
+    {
+        SearchQuery = string.Empty;
+        SelectedSortOption = SortOption.ByTitle;
+        SelectedStatusFilter = null;
     }
 
     private void OnPropertyChanged(string propertyName)

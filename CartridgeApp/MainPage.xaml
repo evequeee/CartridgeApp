@@ -44,6 +44,12 @@
         </HorizontalStackLayout>
 
         <CollectionView ItemsSource="{Binding FilteredGames}">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="30" Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label Text="Ігор не знайдено" FontSize="22" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+                    <Label Text="Спробуйте змінити пошук або фільтри." HorizontalTextAlignment="Center" TextColor="Gray" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <SwipeView>

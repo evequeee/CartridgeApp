@@ -13,10 +13,10 @@
     <VerticalStackLayout Padding="20" Spacing="15">
         
         <Label Text="Cartridge Roulette" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" />
+
         <Button Text="Spin the Cylinder!" Command="{Binding SpinCommand}" HorizontalOptions="Center" Padding="20,10" />
         
-        <Button Text="+ Add Game" Command="{Binding AddGameCommand}" HorizontalOptions="Center" Margin="0,0,0,10" />
-
+        <!-- Новий блок: групуємо кнопки в один рядок -->
         <HorizontalStackLayout HorizontalOptions="Center" Spacing="15" Margin="0,0,0,10">
             <Button Text="+ Add Game" Command="{Binding AddGameCommand}" />
             <Button Text="Clear All" Command="{Binding ClearAllCommand}" BackgroundColor="IndianRed" />
@@ -34,6 +34,7 @@
                                            CommandParameter="{Binding .}" />
                             </SwipeItems>
                         </SwipeView.LeftItems>
+
                         <SwipeView.RightItems>
                             <SwipeItems>
                                 <SwipeItem Text="Delete" 
@@ -47,7 +48,6 @@
                                BackgroundColor="{Binding Status, Converter={StaticResource StatusColorConverter}}">
                             <Grid ColumnDefinitions="*, Auto">
                                 <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
-                                    
                                     <HorizontalStackLayout Spacing="5">
                                         <Label Text="{Binding Title}" FontSize="18" FontAttributes="Bold" TextColor="Black" />
                                         <Label Text="⭐" FontSize="16" IsVisible="{Binding IsFavorite}" VerticalOptions="Center" />
@@ -58,7 +58,6 @@
                                         <Label Text="|" FontSize="14" TextColor="Gray" />
                                         <Label Text="{Binding Platform}" FontSize="14" FontAttributes="Italic" TextColor="Gray" />
                                     </HorizontalStackLayout>
-                                    
                                 </VerticalStackLayout>
                                 
                                 <Frame Grid.Column="1" 

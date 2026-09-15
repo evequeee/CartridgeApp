@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Linq;
 
 using CartridgeApp.Models;
 using CartridgeApp.Services;
@@ -29,15 +30,17 @@ public class MainViewModel
 
     private void SpinRevolver()
     {
-        if (Games == null || Games.Count == 0)
+        var backlogGames = Games.Where(g => g.Status == GameStatus.Backlog).ToList();
+
+        if (backlogGames.Count == 0)
         {
-            Application.Current.MainPage.DisplayAlert("Oops", "Барабан пустий! Додай ігри.", "OK");
+            Application.Current.MainPage.DisplayAlert("Oops", "Беклог пустий! Часом додати щось нове.", "OK");
             return;
         }
 
         var random = new Random();
-        int winnerIndex = random.Next(Games.Count);
-        var winnerGame = Games[winnerIndex];
+        int winnerIndex = random.Next(backlogGames.Count);
+        var winnerGame = backlogGames[winnerIndex];
 
         Application.Current.MainPage.DisplayAlert(
             "Roulette Result",

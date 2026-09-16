@@ -14,9 +14,14 @@
         
         <Label Text="Cartridge Roulette" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" />
 
-        <Button Text="Spin the Cylinder!" Command="{Binding SpinCommand}" HorizontalOptions="Center" Padding="20,10" />
+        <Button Text="🎲 Spin the Backlog!" 
+                Command="{Binding SpinCommand}" 
+                HorizontalOptions="Center" 
+                Padding="20,10" 
+                BackgroundColor="DarkOrange"
+                TextColor="White"
+                FontAttributes="Bold" />
         
-        <!-- Новий блок: групуємо кнопки в один рядок -->
         <HorizontalStackLayout HorizontalOptions="Center" Spacing="15" Margin="0,0,0,10">
             <Button Text="+ Add Game" Command="{Binding AddGameCommand}" />
             <Button Text="Clear All" Command="{Binding ClearAllCommand}" BackgroundColor="IndianRed" />

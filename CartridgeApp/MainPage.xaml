@@ -85,6 +85,7 @@
                                         <Label Text="|" FontSize="14" TextColor="Gray" />
                                         <Label Text="{Binding Platform}" FontSize="14" FontAttributes="Italic" TextColor="Gray" />
                                     </HorizontalStackLayout>
+                                    <Label Text="{Binding HoursPlayed, StringFormat='{}{0} год. зіграно'}" FontSize="13" TextColor="#555555" />
                                 </VerticalStackLayout>
                                 
                                 <Frame Grid.Column="1" 

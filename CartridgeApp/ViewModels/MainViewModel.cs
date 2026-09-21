@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows.Input;
 using System.Linq;
 
@@ -7,19 +8,42 @@ using CartridgeApp.Services;
 
 namespace CartridgeApp.ViewModels;
 
-public class MainViewModel
+public class MainViewModel : INotifyPropertyChanged
 {
     private readonly MockGameService _gameService;
+    private string _searchQuery = string.Empty;
+
     public ObservableCollection<Game> Games { get; set; }
+    public ObservableCollection<Game> FilteredGames { get; }
+
+    public string SearchQuery
+    {
+        get => _searchQuery;
+        set
+        {
+            if (_searchQuery == value)
+            {
+                return;
+            }
+
+            _searchQuery = value;
+            OnPropertyChanged(nameof(SearchQuery));
+        }
+    }
+
     public ICommand SpinCommand { get; private set; }
     public ICommand AddGameCommand { get; private set; }
     public ICommand RemoveGameCommand { get; private set; }
     public ICommand ToggleFavoriteCommand { get; private set; }
     public ICommand ClearAllCommand { get; private set; }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
     public MainViewModel()
     {
         _gameService = new MockGameService();
         Games = new ObservableCollection<Game>(_gameService.GetGames());
+        FilteredGames = new ObservableCollection<Game>(Games);
 
         SpinCommand = new Command(SpinRevolver);
         AddGameCommand = new Command(async () => await AddNewGame());
@@ -85,5 +109,10 @@ public class MainViewModel
             Games.RemoveAt(index);
             Games.Insert(index, game);
         }
+    }
+
+    private void OnPropertyChanged(string propertyName)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

@@ -28,6 +28,7 @@ public class MainViewModel : INotifyPropertyChanged
 
             _searchQuery = value;
             OnPropertyChanged(nameof(SearchQuery));
+            ApplyFilter();
         }
     }
 
@@ -44,12 +45,13 @@ public class MainViewModel : INotifyPropertyChanged
         _gameService = new MockGameService();
         Games = new ObservableCollection<Game>(_gameService.GetGames());
         FilteredGames = new ObservableCollection<Game>(Games);
+        ApplyFilter();
 
         SpinCommand = new Command(SpinRevolver);
         AddGameCommand = new Command(async () => await AddNewGame());
         RemoveGameCommand = new Command<Game>(RemoveGame);
         ToggleFavoriteCommand = new Command<Game>(ToggleFavorite);
-        ClearAllCommand = new Command(() => Games.Clear());
+        ClearAllCommand = new Command(ClearAll);
     }
 
     private void SpinRevolver()
@@ -88,6 +90,8 @@ public class MainViewModel : INotifyPropertyChanged
                 Developer = "Unknown",
                 Status = GameStatus.Backlog
             });
+
+            ApplyFilter();
         }
     }
 
@@ -96,6 +100,7 @@ public class MainViewModel : INotifyPropertyChanged
         if (gameToRemove != null && Games.Contains(gameToRemove))
         {
             Games.Remove(gameToRemove);
+            ApplyFilter();
         }
     }
 
@@ -108,6 +113,30 @@ public class MainViewModel : INotifyPropertyChanged
 
             Games.RemoveAt(index);
             Games.Insert(index, game);
+            ApplyFilter();
+        }
+    }
+
+    private void ClearAll()
+    {
+        Games.Clear();
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        IEnumerable<Game> filteredGames = Games;
+
+        if (!string.IsNullOrWhiteSpace(SearchQuery))
+        {
+            filteredGames = filteredGames.Where(game =>
+                game.Title.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase));
+        }
+
+        FilteredGames.Clear();
+        foreach (Game game in filteredGames)
+        {
+            FilteredGames.Add(game);
         }
     }
 

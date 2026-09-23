@@ -27,7 +27,12 @@
             <Button Text="Clear All" Command="{Binding ClearAllCommand}" BackgroundColor="IndianRed" />
         </HorizontalStackLayout>
 
-        <CollectionView ItemsSource="{Binding Games}">
+        <HorizontalStackLayout Spacing="10">
+            <SearchBar Placeholder="Search games..."
+                       Text="{Binding SearchQuery}" />
+        </HorizontalStackLayout>
+
+        <CollectionView ItemsSource="{Binding FilteredGames}">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <SwipeView>

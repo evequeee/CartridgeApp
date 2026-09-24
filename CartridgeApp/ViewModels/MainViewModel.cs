@@ -12,9 +12,15 @@ public class MainViewModel : INotifyPropertyChanged
 {
     private readonly MockGameService _gameService;
     private string _searchQuery = string.Empty;
+    private string _selectedSortOption = "By Title";
 
     public ObservableCollection<Game> Games { get; set; }
     public ObservableCollection<Game> FilteredGames { get; }
+    public ObservableCollection<string> SortOptions { get; } = new()
+    {
+        "By Title",
+        "By Status"
+    };
 
     public string SearchQuery
     {
@@ -32,11 +38,28 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
+    public string SelectedSortOption
+    {
+        get => _selectedSortOption;
+        set
+        {
+            if (_selectedSortOption == value)
+            {
+                return;
+            }
+
+            _selectedSortOption = value;
+            OnPropertyChanged(nameof(SelectedSortOption));
+            ApplyFilter();
+        }
+    }
+
     public ICommand SpinCommand { get; private set; }
     public ICommand AddGameCommand { get; private set; }
     public ICommand RemoveGameCommand { get; private set; }
     public ICommand ToggleFavoriteCommand { get; private set; }
     public ICommand ClearAllCommand { get; private set; }
+    public ICommand SortCommand { get; private set; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -52,6 +75,7 @@ public class MainViewModel : INotifyPropertyChanged
         RemoveGameCommand = new Command<Game>(RemoveGame);
         ToggleFavoriteCommand = new Command<Game>(ToggleFavorite);
         ClearAllCommand = new Command(ClearAll);
+        SortCommand = new Command(SortGames);
     }
 
     private void SpinRevolver()
@@ -133,11 +157,20 @@ public class MainViewModel : INotifyPropertyChanged
                 game.Title.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase));
         }
 
+        filteredGames = SelectedSortOption == "By Status"
+            ? filteredGames.OrderBy(game => game.Status).ThenBy(game => game.Title)
+            : filteredGames.OrderBy(game => game.Title);
+
         FilteredGames.Clear();
         foreach (Game game in filteredGames)
         {
             FilteredGames.Add(game);
         }
+    }
+
+    private void SortGames()
+    {
+        ApplyFilter();
     }
 
     private void OnPropertyChanged(string propertyName)

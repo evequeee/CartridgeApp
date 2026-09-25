@@ -28,8 +28,15 @@
         </HorizontalStackLayout>
 
         <HorizontalStackLayout Spacing="10">
-            <SearchBar Placeholder="Search games..."
-                       Text="{Binding SearchQuery}" />
+            <HorizontalStackLayout Spacing="10">
+                <SearchBar Placeholder="Search games..."
+                       Text="{Binding SearchQuery}"
+                       HorizontalOptions="FillAndExpand" />
+                <Picker Title="Sort by"
+                    ItemsSource="{Binding SortOptions}"
+                    SelectedItem="{Binding SelectedSortOption}"
+                    WidthRequest="140" />
+            </HorizontalStackLayout>
         </HorizontalStackLayout>
 
         <CollectionView ItemsSource="{Binding FilteredGames}">

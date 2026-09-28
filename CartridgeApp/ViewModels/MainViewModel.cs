@@ -81,6 +81,7 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand SortCommand { get; private set; }
     public ICommand ApplySortingCommand { get; private set; }
     public ICommand ResetFiltersCommand { get; private set; }
+    public ICommand QuickChangeStatusCommand { get; private set; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -99,6 +100,7 @@ public class MainViewModel : INotifyPropertyChanged
         SortCommand = new Command(SortGames);
         ApplySortingCommand = new Command(ApplyFilter);
         ResetFiltersCommand = new Command(ResetFilters);
+        QuickChangeStatusCommand = new Command<Game>(async game => await QuickChangeStatus(game));
     }
 
     private void SpinRevolver()
@@ -209,6 +211,11 @@ public class MainViewModel : INotifyPropertyChanged
         SearchQuery = string.Empty;
         SelectedSortOption = SortOption.ByTitle;
         SelectedStatusFilter = null;
+    }
+
+    private Task QuickChangeStatus(Game game)
+    {
+        return Task.CompletedTask;
     }
 
     private void OnPropertyChanged(string propertyName)

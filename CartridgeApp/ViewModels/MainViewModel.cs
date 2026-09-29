@@ -213,9 +213,34 @@ public class MainViewModel : INotifyPropertyChanged
         SelectedStatusFilter = null;
     }
 
-    private Task QuickChangeStatus(Game game)
+    private async Task QuickChangeStatus(Game game)
     {
-        return Task.CompletedTask;
+        if (game == null || !Games.Contains(game))
+        {
+            return;
+        }
+
+        Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page == null)
+        {
+            return;
+        }
+
+        string[] statusOptions = Enum.GetNames<GameStatus>();
+        string selectedStatus = await page.DisplayActionSheet(
+            "Змінити статус",
+            "Скасувати",
+            null,
+            statusOptions);
+
+        if (Enum.TryParse(selectedStatus, out GameStatus status))
+        {
+            int index = Games.IndexOf(game);
+            game.Status = status;
+            Games.RemoveAt(index);
+            Games.Insert(index, game);
+            ApplyFilter();
+        }
     }
 
     private void OnPropertyChanged(string propertyName)

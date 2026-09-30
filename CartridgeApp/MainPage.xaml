@@ -73,6 +73,10 @@
 
                         <Frame Margin="0,8" Padding="15" CornerRadius="10"
                                BackgroundColor="{Binding Status, Converter={StaticResource StatusColorConverter}}">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=QuickChangeStatusCommand}"
+                                                       CommandParameter="{Binding .}" />
+                            </Frame.GestureRecognizers>
                             <Grid ColumnDefinitions="*, Auto">
                                 <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
                                     <HorizontalStackLayout Spacing="5">

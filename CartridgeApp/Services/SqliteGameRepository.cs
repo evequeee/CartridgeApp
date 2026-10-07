@@ -23,11 +23,27 @@ public class SqliteGameRepository : IGameRepository
         return _database;
     }
 
-    public Task<IReadOnlyList<Game>> GetGamesAsync() => throw new NotImplementedException();
+    public async Task<IReadOnlyList<Game>> GetGamesAsync()
+    {
+        SQLiteAsyncConnection connection = await GetConnectionAsync();
+        return await connection.Table<Game>().ToListAsync();
+    }
 
-    public Task AddGameAsync(Game game) => throw new NotImplementedException();
+    public async Task AddGameAsync(Game game)
+    {
+        SQLiteAsyncConnection connection = await GetConnectionAsync();
+        await connection.InsertAsync(game);
+    }
 
-    public Task UpdateGameAsync(Game game) => throw new NotImplementedException();
+    public async Task UpdateGameAsync(Game game)
+    {
+        SQLiteAsyncConnection connection = await GetConnectionAsync();
+        await connection.UpdateAsync(game);
+    }
 
-    public Task DeleteGameAsync(Game game) => throw new NotImplementedException();
+    public async Task DeleteGameAsync(Game game)
+    {
+        SQLiteAsyncConnection connection = await GetConnectionAsync();
+        await connection.DeleteAsync(game);
+    }
 }

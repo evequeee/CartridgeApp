@@ -23,6 +23,7 @@ public static class MauiProgram
 #endif
 
         builder.Services.AddSingleton<MockGameService>();
+        builder.Services.AddSingleton<IGameRepository, SqliteGameRepository>();
         builder.Services.AddTransient<MainViewModel>();
 
         builder.Services.AddTransient<MainPage>();

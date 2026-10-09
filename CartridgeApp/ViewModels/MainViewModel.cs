@@ -10,10 +10,11 @@ namespace CartridgeApp.ViewModels;
 
 public class MainViewModel : INotifyPropertyChanged
 {
-    private readonly MockGameService _gameService;
+    private readonly IGameRepository _gameRepository;
     private string _searchQuery = string.Empty;
     private SortOption _selectedSortOption = SortOption.ByTitle;
     private GameStatus? _selectedStatusFilter;
+    private bool _isBusy;
 
     public ObservableCollection<Game> Games { get; set; }
     public ObservableCollection<Game> FilteredGames { get; }
@@ -73,6 +74,21 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
+    public bool IsBusy
+    {
+        get => _isBusy;
+        private set
+        {
+            if (_isBusy == value)
+            {
+                return;
+            }
+
+            _isBusy = value;
+            OnPropertyChanged(nameof(IsBusy));
+        }
+    }
+
     public ICommand SpinCommand { get; private set; }
     public ICommand AddGameCommand { get; private set; }
     public ICommand RemoveGameCommand { get; private set; }
@@ -85,12 +101,11 @@ public class MainViewModel : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public MainViewModel()
+    public MainViewModel(IGameRepository gameRepository)
     {
-        _gameService = new MockGameService();
-        Games = new ObservableCollection<Game>(_gameService.GetGames());
-        FilteredGames = new ObservableCollection<Game>(Games);
-        ApplyFilter();
+        _gameRepository = gameRepository;
+        Games = new ObservableCollection<Game>();
+        FilteredGames = new ObservableCollection<Game>();
 
         SpinCommand = new Command(SpinRevolver);
         AddGameCommand = new Command(async () => await AddNewGame());
@@ -101,6 +116,26 @@ public class MainViewModel : INotifyPropertyChanged
         ApplySortingCommand = new Command(ApplyFilter);
         ResetFiltersCommand = new Command(ResetFilters);
         QuickChangeStatusCommand = new Command<Game>(async game => await QuickChangeStatus(game));
+        _ = LoadGamesAsync();
+    }
+
+    public async Task LoadGamesAsync()
+    {
+        if (IsBusy)
+        {
+            return;
+        }
+
+        IsBusy = true;
+        IReadOnlyList<Game> games = await _gameRepository.GetGamesAsync();
+        Games.Clear();
+        foreach (Game game in games)
+        {
+            Games.Add(game);
+        }
+
+        ApplyFilter();
+        IsBusy = false;
     }
 
     private void SpinRevolver()
@@ -182,10 +217,10 @@ public class MainViewModel : INotifyPropertyChanged
                 game.Title.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase));
         }
 
-            if (SelectedStatusFilter.HasValue)
-            {
-                filteredGames = filteredGames.Where(game => game.Status == SelectedStatusFilter.Value);
-            }
+        if (SelectedStatusFilter.HasValue)
+        {
+            filteredGames = filteredGames.Where(game => game.Status == SelectedStatusFilter.Value);
+        }
 
         filteredGames = SelectedSortOption switch
         {

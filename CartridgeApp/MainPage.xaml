@@ -13,6 +13,10 @@
     <VerticalStackLayout Padding="20" Spacing="15">
         
         <Label Text="Cartridge Roulette" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" />
+        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                   IsVisible="{Binding IsBusy}"
+                   Color="DarkOrange"
+                   HorizontalOptions="Center" />
 
         <Button Text="🎲 Spin the Backlog!" 
                 Command="{Binding SpinCommand}" 

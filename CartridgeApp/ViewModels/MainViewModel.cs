@@ -127,15 +127,29 @@ public class MainViewModel : INotifyPropertyChanged
         }
 
         IsBusy = true;
-        IReadOnlyList<Game> games = await _gameRepository.GetGamesAsync();
-        Games.Clear();
-        foreach (Game game in games)
+        try
         {
-            Games.Add(game);
-        }
+            IReadOnlyList<Game> games = await _gameRepository.GetGamesAsync();
+            Games.Clear();
+            foreach (Game game in games)
+            {
+                Games.Add(game);
+            }
 
-        ApplyFilter();
-        IsBusy = false;
+            ApplyFilter();
+        }
+        catch (Exception exception)
+        {
+            Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
+            if (page != null)
+            {
+                await page.DisplayAlert("Помилка", $"Не вдалося завантажити ігри: {exception.Message}", "OK");
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     private void SpinRevolver()

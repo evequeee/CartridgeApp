@@ -12,7 +12,10 @@
 
     <VerticalStackLayout Padding="20" Spacing="15">
         
-        <Label Text="Cartridge Roulette" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" />
+        <HorizontalStackLayout HorizontalOptions="Center" Spacing="12">
+            <Label Text="Cartridge Roulette" FontSize="28" FontAttributes="Bold" />
+            <Label Text="{Binding BacklogCount, StringFormat='Беклог: {0}'}" FontSize="16" VerticalOptions="Center" TextColor="DarkOrange" />
+        </HorizontalStackLayout>
         <ActivityIndicator IsRunning="{Binding IsBusy}"
                    IsVisible="{Binding IsBusy}"
                    Color="DarkOrange"

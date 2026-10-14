@@ -18,6 +18,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     public ObservableCollection<Game> Games { get; set; }
     public ObservableCollection<Game> FilteredGames { get; }
+    public int BacklogCount => Games.Count(game => game.Status == GameStatus.Backlog);
     public ObservableCollection<SortOption> SortOptions { get; } = new()
     {
         SortOption.ByTitle,
@@ -106,6 +107,7 @@ public class MainViewModel : INotifyPropertyChanged
         _gameRepository = gameRepository;
         Games = new ObservableCollection<Game>();
         FilteredGames = new ObservableCollection<Game>();
+        Games.CollectionChanged += (_, _) => OnPropertyChanged(nameof(BacklogCount));
 
         SpinCommand = new Command(SpinRevolver);
         AddGameCommand = new Command(async () => await AddNewGame());

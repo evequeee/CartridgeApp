@@ -1,5 +1,3 @@
-using SQLite;
-
 namespace CartridgeApp.Models;
 
 public enum GameStatus
@@ -12,7 +10,6 @@ public enum GameStatus
 
 public class Game
 {
-    [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Developer { get; set; } = string.Empty;

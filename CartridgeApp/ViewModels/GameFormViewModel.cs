@@ -1,7 +1,10 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
+using System.Windows.Input;
+
 using CartridgeApp.Models;
+using CartridgeApp.Services;
 
 namespace CartridgeApp.ViewModels;
 
@@ -10,6 +13,7 @@ namespace CartridgeApp.ViewModels;
 /// </summary>
 public class GameFormViewModel : INotifyPropertyChanged
 {
+    private readonly IGameRepository _gameRepository;
     private int _id;
     private string _title = string.Empty;
     private string _developer = string.Empty;
@@ -74,7 +78,80 @@ public class GameFormViewModel : INotifyPropertyChanged
 
     public IReadOnlyList<GameStatus> Statuses { get; } = Enum.GetValues<GameStatus>();
 
+    public ICommand SaveGameCommand { get; }
+
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    public GameFormViewModel(IGameRepository gameRepository)
+    {
+        _gameRepository = gameRepository;
+        SaveGameCommand = new Command(async () => await SaveGameAsync());
+    }
+
+    public void LoadGame(Game game)
+    {
+        Id = game.Id;
+        Title = game.Title;
+        Developer = game.Developer;
+        Platform = game.Platform;
+        Status = game.Status;
+        Rating = game.Rating;
+        HoursPlayed = game.HoursPlayed;
+        Notes = game.Notes;
+    }
+
+    private async Task SaveGameAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Title))
+        {
+            await ShowAlertAsync("Помилка", "Назва гри є обов'язковою.");
+            return;
+        }
+
+        if (Rating.HasValue && (Rating.Value < 1 || Rating.Value > 10))
+        {
+            await ShowAlertAsync("Помилка", "Рейтинг має бути в діапазоні від 1 до 10.");
+            return;
+        }
+
+        if (HoursPlayed < 0)
+        {
+            await ShowAlertAsync("Помилка", "Кількість годин не може бути від'ємною.");
+            return;
+        }
+
+        var game = new Game
+        {
+            Id = Id,
+            Title = Title.Trim(),
+            Developer = string.IsNullOrWhiteSpace(Developer) ? "Unknown" : Developer.Trim(),
+            Platform = Platform,
+            Status = Status,
+            Rating = Rating,
+            HoursPlayed = HoursPlayed,
+            Notes = Notes.Trim()
+        };
+
+        if (game.Id == 0)
+        {
+            await _gameRepository.AddGameAsync(game);
+        }
+        else
+        {
+            await _gameRepository.UpdateGameAsync(game);
+        }
+
+        await Shell.Current.GoToAsync("..");
+    }
+
+    private static async Task ShowAlertAsync(string title, string message)
+    {
+        Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page != null)
+        {
+            await page.DisplayAlert(title, message, "OK");
+        }
+    }
 
     private bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {

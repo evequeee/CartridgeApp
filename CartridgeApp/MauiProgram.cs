@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using CartridgeApp.Data;
 using CartridgeApp.Services;
 using CartridgeApp.ViewModels;
+using CartridgeApp.Views;
 
 namespace CartridgeApp;
 
@@ -33,8 +34,10 @@ public static class MauiProgram
             options.UseNpgsql(connectionString));
         builder.Services.AddSingleton<IGameRepository, PostgresGameRepository>();
         builder.Services.AddTransient<MainViewModel>();
+        builder.Services.AddTransient<GameFormViewModel>();
 
         builder.Services.AddTransient<MainPage>();
+        builder.Services.AddTransient<GameFormPage>();
 
         return builder.Build();
     }

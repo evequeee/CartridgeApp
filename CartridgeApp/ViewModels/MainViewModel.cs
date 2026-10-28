@@ -99,6 +99,7 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand ApplySortingCommand { get; private set; }
     public ICommand ResetFiltersCommand { get; private set; }
     public ICommand QuickChangeStatusCommand { get; private set; }
+    public ICommand EditGameCommand { get; private set; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -118,6 +119,7 @@ public class MainViewModel : INotifyPropertyChanged
         ApplySortingCommand = new Command(ApplyFilter);
         ResetFiltersCommand = new Command(ResetFilters);
         QuickChangeStatusCommand = new Command<Game>(async game => await QuickChangeStatus(game));
+        EditGameCommand = new Command<Game>(async game => await EditGame(game));
         _ = LoadGamesAsync();
     }
 
@@ -177,22 +179,20 @@ public class MainViewModel : INotifyPropertyChanged
 
     private async Task AddNewGame()
     {
-        string result = await Application.Current.MainPage.DisplayPromptAsync(
-            "Додати в Cartridge",
-            "Введи назву нової гри:"
-        );
+        await Shell.Current.GoToAsync("GameFormPage");
+    }
 
-        if (!string.IsNullOrWhiteSpace(result))
+    private async Task EditGame(Game game)
+    {
+        if (game == null)
         {
-            Games.Add(new Game
-            {
-                Title = result,
-                Developer = "Unknown",
-                Status = GameStatus.Backlog
-            });
-
-            ApplyFilter();
+            return;
         }
+
+        await Shell.Current.GoToAsync("GameFormPage", new Dictionary<string, object>
+        {
+            ["Game"] = game
+        });
     }
 
     private void RemoveGame(Game gameToRemove)

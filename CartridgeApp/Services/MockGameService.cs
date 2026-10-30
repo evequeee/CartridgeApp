@@ -66,4 +66,22 @@ public class MockGameService : IGameRepository
         _games.RemoveAll(existing => existing.Id == game.Id);
         return Task.CompletedTask;
     }
+
+    public Task<BacklogStats> GetStatisticsAsync()
+    {
+        int total = _games.Count;
+        int completed = _games.Count(game => game.Status == GameStatus.Completed);
+        var stats = new BacklogStats
+        {
+            TotalGames = total,
+            CompletedPercentage = total == 0 ? 0 : completed * 100d / total,
+            TotalHoursPlayed = _games.Sum(game => game.HoursPlayed),
+            FavoriteGames = _games.Count(game => game.IsFavorite),
+            GamesByPlatform = _games
+                .GroupBy(game => game.Platform)
+                .ToDictionary(group => group.Key, group => group.Count())
+        };
+
+        return Task.FromResult(stats);
+    }
 }

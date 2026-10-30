@@ -82,4 +82,22 @@ public class PostgresGameRepository : IGameRepository
         _dbContext.Games.Remove(game);
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task<BacklogStats> GetStatisticsAsync()
+    {
+        IReadOnlyList<Game> games = await _dbContext.Games.AsNoTracking().ToListAsync();
+        int total = games.Count;
+        int completed = games.Count(game => game.Status == GameStatus.Completed);
+
+        return new BacklogStats
+        {
+            TotalGames = total,
+            CompletedPercentage = total == 0 ? 0 : completed * 100d / total,
+            TotalHoursPlayed = games.Sum(game => game.HoursPlayed),
+            FavoriteGames = games.Count(game => game.IsFavorite),
+            GamesByPlatform = games
+                .GroupBy(game => game.Platform)
+                .ToDictionary(group => group.Key, group => group.Count())
+        };
+    }
 }

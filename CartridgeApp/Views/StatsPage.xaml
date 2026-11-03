@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:CartridgeApp.ViewModels"
+             x:Class="CartridgeApp.Views.StatsPage"
+             x:DataType="viewmodels:StatsViewModel"
+             Title="Statistics">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="14">
+            <Label Text="Беклог аналітика" FontSize="28" FontAttributes="Bold" />
+
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+                <Frame Grid.Row="0" Grid.Column="0" Padding="14"><VerticalStackLayout>
+                    <Label Text="Всього ігор" FontSize="13" /><Label Text="{Binding TotalGames}" FontSize="24" FontAttributes="Bold" />
+                </VerticalStackLayout></Frame>
+                <Frame Grid.Row="0" Grid.Column="1" Padding="14"><VerticalStackLayout>
+                    <Label Text="Улюблені" FontSize="13" /><Label Text="{Binding FavoriteGames}" FontSize="24" FontAttributes="Bold" />
+                </VerticalStackLayout></Frame>
+                <Frame Grid.Row="1" Grid.Column="0" Padding="14"><VerticalStackLayout>
+                    <Label Text="Зіграно годин" FontSize="13" /><Label Text="{Binding TotalHoursPlayed}" FontSize="24" FontAttributes="Bold" />
+                </VerticalStackLayout></Frame>
+                <Frame Grid.Row="1" Grid.Column="1" Padding="14"><VerticalStackLayout>
+                    <Label Text="Пройдено, %" FontSize="13" /><Label Text="{Binding CompletedPercentage, StringFormat='{0:F1}'}" FontSize="24" FontAttributes="Bold" />
+                </VerticalStackLayout></Frame>
+            </Grid>
+
+            <Label Text="Загальний прогрес проходження" FontAttributes="Bold" />
+            <ProgressBar Progress="{Binding CompletedPercentage}" />
+
+            <Label Text="Ігри за платформами" FontAttributes="Bold" />
+            <CollectionView ItemsSource="{Binding PlatformStats}" HeightRequest="220">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="8" ColumnDefinitions="*,Auto">
+                            <Label Text="{Binding Key}" Grid.Column="0" />
+                            <Label Text="{Binding Value}" Grid.Column="1" FontAttributes="Bold" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

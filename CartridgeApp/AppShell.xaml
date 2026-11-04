@@ -4,11 +4,20 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:CartridgeApp"
+    xmlns:views="clr-namespace:CartridgeApp.Views"
     Title="CartridgeApp">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <TabBar>
+        <ShellContent
+            Title="Library"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="MainPage" />
+        <ShellContent
+            Title="Statistics"
+            Icon="dotnet_bot.png"
+            ContentTemplate="{DataTemplate views:StatsPage}"
+            Route="StatsPage" />
+    </TabBar>
 
 </Shell>

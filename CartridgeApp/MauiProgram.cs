@@ -35,9 +35,11 @@ public static class MauiProgram
         builder.Services.AddSingleton<IGameRepository, PostgresGameRepository>();
         builder.Services.AddTransient<MainViewModel>();
         builder.Services.AddTransient<GameFormViewModel>();
+        builder.Services.AddTransient<StatsViewModel>();
 
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<GameFormPage>();
+        builder.Services.AddTransient<StatsPage>();
 
         return builder.Build();
     }

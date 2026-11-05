@@ -15,6 +15,7 @@ public class MainViewModel : INotifyPropertyChanged
     private SortOption _selectedSortOption = SortOption.ByTitle;
     private GameStatus? _selectedStatusFilter;
     private bool _isBusy;
+    private bool _spinOnlyFavorites;
 
     public ObservableCollection<Game> Games { get; set; }
     public ObservableCollection<Game> FilteredGames { get; }
@@ -72,6 +73,21 @@ public class MainViewModel : INotifyPropertyChanged
             _selectedStatusFilter = value;
             OnPropertyChanged(nameof(SelectedStatusFilter));
             ApplyFilter();
+        }
+    }
+
+    public bool SpinOnlyFavorites
+    {
+        get => _spinOnlyFavorites;
+        set
+        {
+            if (_spinOnlyFavorites == value)
+            {
+                return;
+            }
+
+            _spinOnlyFavorites = value;
+            OnPropertyChanged(nameof(SpinOnlyFavorites));
         }
     }
 
@@ -158,7 +174,10 @@ public class MainViewModel : INotifyPropertyChanged
 
     private void SpinRevolver()
     {
-        var backlogGames = Games.Where(g => g.Status == GameStatus.Backlog).ToList();
+        var backlogGames = Games
+            .Where(game => game.Status == GameStatus.Backlog)
+            .Where(game => !SpinOnlyFavorites || game.IsFavorite)
+            .ToList();
 
         if (backlogGames.Count == 0)
         {

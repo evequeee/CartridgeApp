@@ -126,7 +126,7 @@ public class MainViewModel : INotifyPropertyChanged
         FilteredGames = new ObservableCollection<Game>();
         Games.CollectionChanged += (_, _) => OnPropertyChanged(nameof(BacklogCount));
 
-        SpinCommand = new Command(SpinRevolver);
+        SpinCommand = new Command(async () => await SpinRevolver());
         AddGameCommand = new Command(async () => await AddNewGame());
         RemoveGameCommand = new Command<Game>(RemoveGame);
         ToggleFavoriteCommand = new Command<Game>(ToggleFavorite);
@@ -172,7 +172,7 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    private void SpinRevolver()
+    private async Task SpinRevolver()
     {
         var backlogGames = Games
             .Where(game => game.Status == GameStatus.Backlog)
@@ -189,11 +189,25 @@ public class MainViewModel : INotifyPropertyChanged
         int winnerIndex = random.Next(backlogGames.Count);
         var winnerGame = backlogGames[winnerIndex];
 
-        Application.Current.MainPage.DisplayAlert(
+        Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page == null)
+        {
+            return;
+        }
+
+        string action = await page.DisplayActionSheet(
             "Roulette Result",
-            $"Твоя наступна гра:\n{winnerGame.Title}",
-            "Пішов грати!"
-        );
+            "Закрити",
+            "Start Playing",
+            $"{winnerGame.Title}");
+
+        if (action == "Start Playing")
+        {
+            winnerGame.Status = GameStatus.Playing;
+            await _gameRepository.UpdateGameAsync(winnerGame);
+            ApplyFilter();
+            OnPropertyChanged(nameof(BacklogCount));
+        }
     }
 
     private async Task AddNewGame()

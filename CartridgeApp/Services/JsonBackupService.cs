@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using CartridgeApp.Models;
 
 namespace CartridgeApp.Services;
@@ -14,7 +16,43 @@ public class JsonBackupService : IBackupService
         _gameRepository = gameRepository;
     }
 
-    public Task<string> ExportAsync() => throw new NotImplementedException();
+    public async Task<string> ExportAsync()
+    {
+        IReadOnlyList<Game> games = await _gameRepository.GetGamesAsync();
+        return JsonSerializer.Serialize(games, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+    }
 
-    public Task<int> ImportAsync(string json) => throw new NotImplementedException();
+    public async Task<int> ImportAsync(string json)
+    {
+        List<Game>? importedGames = JsonSerializer.Deserialize<List<Game>>(json);
+        if (importedGames == null)
+        {
+            return 0;
+        }
+
+        IReadOnlyList<Game> existingGames = await _gameRepository.GetGamesAsync();
+        int addedCount = 0;
+
+        foreach (Game importedGame in importedGames)
+        {
+            bool duplicate = existingGames.Any(existing =>
+                string.Equals(existing.Title, importedGame.Title, StringComparison.OrdinalIgnoreCase) &&
+                existing.Platform == importedGame.Platform &&
+                existing.Status == importedGame.Status);
+
+            if (duplicate)
+            {
+                continue;
+            }
+
+            importedGame.Id = 0;
+            await _gameRepository.AddGameAsync(importedGame);
+            addedCount++;
+        }
+
+        return addedCount;
+    }
 }

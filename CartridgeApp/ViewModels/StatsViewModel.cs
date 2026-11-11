@@ -14,17 +14,23 @@ namespace CartridgeApp.ViewModels;
 public class StatsViewModel : INotifyPropertyChanged
 {
     private readonly IGameRepository _gameRepository;
+    private readonly IBackupService _backupService;
     private BacklogStats _stats = new();
 
-    public StatsViewModel(IGameRepository gameRepository)
+    public StatsViewModel(IGameRepository gameRepository, IBackupService backupService)
     {
         _gameRepository = gameRepository;
+        _backupService = backupService;
         LoadStatsCommand = new Command(async () => await LoadStatsAsync());
+        ExportBackupCommand = new Command(async () => await ExportBackupAsync());
+        ImportBackupCommand = new Command(async () => await ImportBackupAsync());
         PlatformStats = new ObservableCollection<KeyValuePair<string, int>>();
         _ = LoadStatsAsync();
     }
 
     public ICommand LoadStatsCommand { get; }
+    public ICommand ExportBackupCommand { get; }
+    public ICommand ImportBackupCommand { get; }
     public ObservableCollection<KeyValuePair<string, int>> PlatformStats { get; }
 
     public int TotalGames => _stats.TotalGames;
@@ -47,6 +53,49 @@ public class StatsViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CompletedPercentage));
         OnPropertyChanged(nameof(TotalHoursPlayed));
         OnPropertyChanged(nameof(FavoriteGames));
+    }
+
+    private async Task ExportBackupAsync()
+    {
+        string json = await _backupService.ExportAsync();
+        string path = Path.Combine(FileSystem.CacheDirectory, "cartridge-backup.json");
+        await File.WriteAllTextAsync(path, json);
+
+        Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page != null)
+        {
+            await page.DisplayAlert("Бекап", $"Експортовано до:\n{path}", "OK");
+        }
+    }
+
+    private async Task ImportBackupAsync()
+    {
+        FileResult? file = await FilePicker.Default.PickAsync(new PickOptions
+        {
+            FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+            {
+                [DevicePlatform.Android] = ["application/json", "text/json"],
+                [DevicePlatform.iOS] = ["public.json"],
+                [DevicePlatform.MacCatalyst] = ["public.json"],
+                [DevicePlatform.WinUI] = [".json"]
+            })
+        });
+
+        if (file == null)
+        {
+            return;
+        }
+
+        await using Stream stream = await file.OpenReadAsync();
+        using var reader = new StreamReader(stream);
+        int added = await _backupService.ImportAsync(await reader.ReadToEndAsync());
+        await LoadStatsAsync();
+
+        Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page != null)
+        {
+            await page.DisplayAlert("Імпорт", $"Додано ігор: {added}", "OK");
+        }
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

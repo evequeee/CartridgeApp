@@ -33,6 +33,7 @@ public static class MauiProgram
         builder.Services.AddDbContext<CartridgeDbContext>(options =>
             options.UseNpgsql(connectionString));
         builder.Services.AddSingleton<IGameRepository, PostgresGameRepository>();
+        builder.Services.AddSingleton<IBackupService, JsonBackupService>();
         builder.Services.AddTransient<MainViewModel>();
         builder.Services.AddTransient<GameFormViewModel>();
         builder.Services.AddTransient<StatsViewModel>();

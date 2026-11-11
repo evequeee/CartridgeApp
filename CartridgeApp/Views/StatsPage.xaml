@@ -28,6 +28,12 @@
             <Label Text="Загальний прогрес проходження" FontAttributes="Bold" />
             <ProgressBar Progress="{Binding CompletedPercentage}" />
 
+            <Label Text="Data Backup &amp; Restore" FontAttributes="Bold" />
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Grid.Column="0" Text="Експорт JSON" Command="{Binding ExportBackupCommand}" />
+                <Button Grid.Column="1" Text="Імпорт JSON" Command="{Binding ImportBackupCommand}" />
+            </Grid>
+
             <Label Text="Ігри за платформами" FontAttributes="Bold" />
             <CollectionView ItemsSource="{Binding PlatformStats}" HeightRequest="220">
                 <CollectionView.ItemTemplate>

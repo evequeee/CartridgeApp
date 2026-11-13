@@ -5,6 +5,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <EnableDefaultMauiItems>false</EnableDefaultMauiItems>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <UseMaui>false</UseMaui>
+    <MauiResizetizerTargetsEnabled>false</MauiResizetizerTargetsEnabled>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +21,10 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+    <MauiIcon Remove="**/*" />
+    <MauiSplashScreen Remove="**/*" />
+    <MauiImage Remove="**/*" />
+    <MauiAsset Remove="**/*" />
   </ItemGroup>
 
   <ItemGroup>

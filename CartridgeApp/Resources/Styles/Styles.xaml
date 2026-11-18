@@ -431,4 +431,18 @@
         <Setter Property="SelectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
     </Style>
 
+    <Style TargetType="Frame" x:Key="GameCardFrame">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}" />
+        <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="HasShadow" Value="True" />
+    </Style>
+
+    <Style TargetType="Frame" x:Key="StatusBadgeFrame">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource BadgeLight}, Dark={StaticResource BadgeDark}}" />
+        <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="HasShadow" Value="False" />
+    </Style>
+
 </ResourceDictionary>

@@ -8,6 +8,7 @@
 
     <ContentPage.Resources>
         <converters:StatusColorConverter x:Key="StatusColorConverter" />
+        <converters:RatingToStarsConverter x:Key="RatingToStarsConverter" />
     </ContentPage.Resources>
 
     <VerticalStackLayout Padding="20" Spacing="15">
@@ -101,6 +102,7 @@
                                         <Label Text="{Binding Platform}" FontSize="14" FontAttributes="Italic" TextColor="Gray" />
                                     </HorizontalStackLayout>
                                     <Label Text="{Binding HoursPlayed, StringFormat='{}{0} год. зіграно'}" FontSize="13" TextColor="#555555" />
+                                    <Label Text="{Binding Rating, Converter={StaticResource RatingToStarsConverter}}" FontSize="13" TextColor="Goldenrod" />
                                 </VerticalStackLayout>
                                 
                                 <Frame Grid.Column="1" 

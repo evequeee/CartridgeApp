@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <EnableDefaultMauiItems>false</EnableDefaultMauiItems>
-    <EnableDefaultItems>false</EnableDefaultItems>
+    <EnableDefaultItems>true</EnableDefaultItems>
     <UseMaui>false</UseMaui>
     <MauiResizetizerTargetsEnabled>false</MauiResizetizerTargetsEnabled>
   </PropertyGroup>
@@ -28,7 +28,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CartridgeApp\CartridgeApp.csproj" />
+    <Reference Include="CartridgeApp">
+      <HintPath>..\CartridgeApp\bin\Debug\net10.0-windows10.0.19041.0\win-x64\CartridgeApp.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
   </ItemGroup>
 
 </Project>

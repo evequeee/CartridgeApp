@@ -42,7 +42,7 @@ public class RepositoryTests
         Microsoft.EntityFrameworkCore.Metadata.IEntityType entity = context.Model.FindEntityType(typeof(Game))!;
 
         Assert.NotNull(entity.FindPrimaryKey());
-        Assert.True(entity.FindPrimaryKey()!.Properties.Any(property => property.Name == "Id"));
+        Assert.Contains(entity.FindPrimaryKey()!.Properties, property => property.Name == "Id");
     }
 
     private static CartridgeDbContext CreateContext()

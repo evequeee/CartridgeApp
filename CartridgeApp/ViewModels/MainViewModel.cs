@@ -8,6 +8,9 @@ using CartridgeApp.Services;
 
 namespace CartridgeApp.ViewModels;
 
+/// <summary>
+/// Coordinates the main library, filtering, roulette, and game actions.
+/// </summary>
 public class MainViewModel : INotifyPropertyChanged
 {
     private readonly IGameRepository _gameRepository;

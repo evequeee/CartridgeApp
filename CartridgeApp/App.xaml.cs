@@ -1,63 +1,39 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-using System.Text;
-
-namespace CartridgeApp;
+﻿namespace CartridgeApp;
 
 public partial class App : Application
 {
 	public App()
 	{
 		InitializeComponent();
+		RegisterUnhandledExceptionHandlers();
 	}
 
-	protected override Window CreateWindow(IActivationState? activationState)
+	protected override Window CreateWindow(IActivationState? activationState) => new Window(new AppShell());
+
+	private static void RegisterUnhandledExceptionHandlers()
+	{
+#if WINDOWS
+		Microsoft.UI.Xaml.Application.Current.UnhandledException += (_, args) =>
+		{
+			WriteCrashLog("WinUI UnhandledException", args.Exception);
+			args.Handled = true;
+		};
+#endif
+
+		AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+		{
+			Exception exception = args.ExceptionObject as Exception ?? new Exception("Unknown AppDomain exception");
+			WriteCrashLog("AppDomain UnhandledException", exception);
+		};
+	}
+
+	private static void WriteCrashLog(string source, Exception exception)
 	{
 		try
 		{
-			return new Window(new AppShell());
-		}
-		catch (Exception exception)
-		{
-			WriteStartupError(exception);
-
-			var fallbackPage = new ContentPage
-			{
-				Title = "CartridgeApp",
-				BackgroundColor = Color.FromArgb("#050A18"),
-				Content = new VerticalStackLayout
-				{
-					Padding = 24,
-					VerticalOptions = LayoutOptions.Center,
-					Children =
-					{
-						new Label
-						{
-							Text = "CartridgeApp",
-							FontSize = 24,
-							TextColor = Colors.White,
-							HorizontalTextAlignment = TextAlignment.Center
-						},
-						new Label
-						{
-							Text = "Startup error. Details were written to app cache.",
-							TextColor = Color.FromArgb("#8FA6CC"),
-							HorizontalTextAlignment = TextAlignment.Center
-						}
-					}
-				}
-			};
-
-			return new Window(fallbackPage);
-		}
-	}
-
-	private static void WriteStartupError(Exception exception)
-	{
-		try
-		{
-			string path = Path.Combine(FileSystem.CacheDirectory, "cartridge-startup-error.txt");
-			File.WriteAllText(path, $"{DateTime.Now:O}{Environment.NewLine}{exception}");
+			string path = Path.Combine(AppContext.BaseDirectory, "crash.log");
+			string message = $"{DateTime.Now:O}{Environment.NewLine}{source}{Environment.NewLine}{exception}{Environment.NewLine}StackTrace:{Environment.NewLine}{exception.StackTrace}{Environment.NewLine}";
+			File.AppendAllText(path, message);
 		}
 		catch
 		{

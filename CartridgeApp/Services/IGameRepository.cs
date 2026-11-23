@@ -13,4 +13,5 @@ public interface IGameRepository
     Task UpdateGameAsync(Game game);
     Task DeleteGameAsync(Game game);
     Task<BacklogStats> GetStatisticsAsync();
+    Task EnsureDatabaseAsync();
 }

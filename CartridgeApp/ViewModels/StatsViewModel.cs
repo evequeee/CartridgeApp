@@ -16,6 +16,7 @@ public class StatsViewModel : INotifyPropertyChanged
     private readonly IGameRepository _gameRepository;
     private readonly IBackupService _backupService;
     private BacklogStats _stats = new();
+    private bool _isLoading;
 
     public StatsViewModel(IGameRepository gameRepository, IBackupService backupService)
     {
@@ -35,6 +36,7 @@ public class StatsViewModel : INotifyPropertyChanged
 
     public int TotalGames => _stats.TotalGames;
     public double CompletedPercentage => _stats.CompletedPercentage;
+    public double CompletedProgress => Math.Clamp(_stats.CompletedPercentage / 100d, 0d, 1d);
     public int TotalHoursPlayed => _stats.TotalHoursPlayed;
     public int FavoriteGames => _stats.FavoriteGames;
 
@@ -42,29 +44,59 @@ public class StatsViewModel : INotifyPropertyChanged
 
     public async Task LoadStatsAsync()
     {
-        _stats = await _gameRepository.GetStatisticsAsync();
-        PlatformStats.Clear();
-        foreach (KeyValuePair<string, int> platform in _stats.GamesByPlatform)
+        if (_isLoading)
         {
-            PlatformStats.Add(platform);
+            return;
         }
 
-        OnPropertyChanged(nameof(TotalGames));
-        OnPropertyChanged(nameof(CompletedPercentage));
-        OnPropertyChanged(nameof(TotalHoursPlayed));
-        OnPropertyChanged(nameof(FavoriteGames));
+        _isLoading = true;
+        try
+        {
+            await _gameRepository.EnsureDatabaseAsync();
+            _stats = await _gameRepository.GetStatisticsAsync();
+            PlatformStats.Clear();
+            foreach (KeyValuePair<string, int> platform in _stats.GamesByPlatform)
+            {
+                PlatformStats.Add(platform);
+            }
+
+            OnPropertyChanged(nameof(TotalGames));
+            OnPropertyChanged(nameof(CompletedPercentage));
+            OnPropertyChanged(nameof(TotalHoursPlayed));
+            OnPropertyChanged(nameof(FavoriteGames));
+            OnPropertyChanged(nameof(CompletedProgress));
+        }
+        catch (Exception exception)
+        {
+            Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
+            if (page != null)
+            {
+                await page.DisplayAlertAsync("Помилка PostgreSQL", $"Не вдалося завантажити статистику: {exception.Message}", "OK");
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
     }
 
     private async Task ExportBackupAsync()
     {
-        string json = await _backupService.ExportAsync();
-        string path = Path.Combine(FileSystem.CacheDirectory, "cartridge-backup.json");
-        await File.WriteAllTextAsync(path, json);
-
-        Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
-        if (page != null)
+        try
         {
-            await page.DisplayAlert("Бекап", $"Експортовано до:\n{path}", "OK");
+            string json = await _backupService.ExportAsync();
+            string path = Path.Combine(FileSystem.CacheDirectory, "cartridge-backup.json");
+            await File.WriteAllTextAsync(path, json);
+
+            Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
+            if (page != null)
+            {
+                await page.DisplayAlertAsync("Бекап", $"Експортовано до:\n{path}", "OK");
+            }
+        }
+        catch (Exception exception)
+        {
+            await ShowErrorAsync($"Не вдалося експортувати бекап: {exception.Message}");
         }
     }
 
@@ -94,7 +126,16 @@ public class StatsViewModel : INotifyPropertyChanged
         Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
         if (page != null)
         {
-            await page.DisplayAlert("Імпорт", $"Додано ігор: {added}", "OK");
+            await page.DisplayAlertAsync("Імпорт", $"Додано ігор: {added}", "OK");
+        }
+    }
+
+    private async Task ShowErrorAsync(string message)
+    {
+        Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page != null)
+        {
+            await page.DisplayAlertAsync("Помилка", message, "OK");
         }
     }
 

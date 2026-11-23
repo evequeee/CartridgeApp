@@ -5,17 +5,21 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:CartridgeApp"
     xmlns:views="clr-namespace:CartridgeApp.Views"
-    Title="CartridgeApp">
+    Title="CARTRIDGE // XMB"
+    Shell.BackgroundColor="#060D1F"
+    Shell.TitleColor="#F3F7FF"
+    Shell.ForegroundColor="#00A8FF"
+    Shell.TabBarBackgroundColor="#060D1F"
+    Shell.TabBarTitleColor="#00A8FF"
+    Shell.TabBarUnselectedColor="#6E85AD">
 
     <TabBar>
         <ShellContent
-            Title="Library"
-            Icon="dotnet_bot.png"
+            Title="LIBRARY"
             ContentTemplate="{DataTemplate local:MainPage}"
             Route="MainPage" />
         <ShellContent
-            Title="Statistics"
-            Icon="dotnet_bot.png"
+            Title="STATISTICS"
             ContentTemplate="{DataTemplate views:StatsPage}"
             Route="StatsPage" />
     </TabBar>

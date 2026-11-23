@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:CartridgeApp.ViewModels"
+             xmlns:models="clr-namespace:CartridgeApp.Models"
              xmlns:converters="clr-namespace:CartridgeApp.Converters"
              x:Class="CartridgeApp.MainPage"
              x:DataType="viewmodels:MainViewModel">
@@ -9,120 +10,124 @@
     <ContentPage.Resources>
         <converters:StatusColorConverter x:Key="StatusColorConverter" />
         <converters:RatingToStarsConverter x:Key="RatingToStarsConverter" />
+        <LinearGradientBrush x:Key="XmbPageBackground" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#050A18" Offset="0" />
+            <GradientStop Color="#0B1B3A" Offset="0.55" />
+            <GradientStop Color="#040812" Offset="1" />
+        </LinearGradientBrush>
     </ContentPage.Resources>
 
-    <VerticalStackLayout Padding="20" Spacing="15">
-        
-        <HorizontalStackLayout HorizontalOptions="Center" Spacing="12">
-            <Label Text="Cartridge Roulette" FontSize="28" FontAttributes="Bold" />
-            <Label Text="{Binding BacklogCount, StringFormat='Беклог: {0}'}" FontSize="16" VerticalOptions="Center" TextColor="DarkOrange" />
-        </HorizontalStackLayout>
-        <ActivityIndicator IsRunning="{Binding IsBusy}"
-                   IsVisible="{Binding IsBusy}"
-                   Color="DarkOrange"
-                   HorizontalOptions="Center" />
+    <Grid Background="{StaticResource XmbPageBackground}">
+        <ScrollView>
+            <VerticalStackLayout MaximumWidthRequest="1100" Padding="20,16" Spacing="14">
 
-        <Button Text="🎲 Spin the Backlog!" 
-                Command="{Binding SpinCommand}" 
-                HorizontalOptions="Center" 
-                Padding="20,10" 
-                BackgroundColor="DarkOrange"
-                TextColor="White"
-                FontAttributes="Bold" />
-        
-        <HorizontalStackLayout HorizontalOptions="Center" Spacing="15" Margin="0,0,0,10">
-            <Button Text="+ Add Game" Command="{Binding AddGameCommand}" />
-            <Button Text="Clear All" Command="{Binding ClearAllCommand}" BackgroundColor="IndianRed" />
-        </HorizontalStackLayout>
+                <Border Stroke="#264785" StrokeThickness="1" Padding="16" StrokeShape="RoundRectangle 12">
+                    <Border.Background>
+                        <SolidColorBrush Color="#D0101D38" />
+                    </Border.Background>
+                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="12">
+                        <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="2">
+                            <Label Text="CARTRIDGE // XMB" FontSize="26" FontAttributes="Bold" TextColor="#F3F7FF" />
+                            <Label Text="{Binding BacklogCount, StringFormat='BACKLOG COUNT // {0}'}" FontSize="12" FontFamily="OpenSansRegular" TextColor="#00A8FF" />
+                        </VerticalStackLayout>
 
-        <HorizontalStackLayout Spacing="10">
-            <HorizontalStackLayout Spacing="10">
-                <SearchBar Placeholder="Search games..."
-                       Text="{Binding SearchQuery}"
-                       HorizontalOptions="FillAndExpand" />
-                <Picker Title="Sort by"
-                    ItemsSource="{Binding SortOptions}"
-                    SelectedItem="{Binding SelectedSortOption}"
-                    WidthRequest="140" />
-                <Picker Title="Status"
-                    ItemsSource="{Binding StatusOptions}"
-                    SelectedItem="{Binding SelectedStatusFilter}"
-                    WidthRequest="140" />
-            </HorizontalStackLayout>
-        </HorizontalStackLayout>
+                        <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="8" VerticalOptions="Center">
+                            <Label Text="Favorites Only" TextColor="#8FA6CC" VerticalOptions="Center" />
+                            <Switch IsToggled="{Binding SpinOnlyFavorites}" ThumbColor="#F3F7FF" OnColor="#00A8FF" />
+                        </HorizontalStackLayout>
 
-        <CollectionView ItemsSource="{Binding FilteredGames}">
-            <CollectionView.EmptyView>
-                <VerticalStackLayout Padding="30" Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                    <Label Text="Ігор не знайдено" FontSize="22" FontAttributes="Bold" HorizontalTextAlignment="Center" />
-                    <Label Text="Спробуйте змінити пошук або фільтри." HorizontalTextAlignment="Center" TextColor="Gray" />
-                </VerticalStackLayout>
-            </CollectionView.EmptyView>
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <SwipeView>
-                        <SwipeView.LeftItems>
-                            <SwipeItems>
-                                <SwipeItem Text="Favorite" 
-                                           BackgroundColor="Gold"
-                                           Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=ToggleFavoriteCommand}"
-                                           CommandParameter="{Binding .}" />
-                                <SwipeItem Text="Edit"
-                                           BackgroundColor="DodgerBlue"
-                                           Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=EditGameCommand}"
-                                           CommandParameter="{Binding .}" />
-                            </SwipeItems>
-                        </SwipeView.LeftItems>
+                        <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="10">
+                            <Button Text="🎲 SPIN BACKLOG" Command="{Binding SpinCommand}" BackgroundColor="#0070D1" TextColor="White" FontAttributes="Bold" />
+                            <Button Text="+ ADD GAME" Command="{Binding AddGameCommand}" />
+                            <Button Text="CLEAR" Command="{Binding ClearAllCommand}" BackgroundColor="#FF5252" TextColor="White" />
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Border>
 
-                        <SwipeView.RightItems>
-                            <SwipeItems>
-                                <SwipeItem Text="Delete" 
-                                           BackgroundColor="Red"
-                                           Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=RemoveGameCommand}"
-                                           CommandParameter="{Binding .}" />
-                            </SwipeItems>
-                        </SwipeView.RightItems>
+                <Border Stroke="#264785" StrokeThickness="1" Padding="10" StrokeShape="RoundRectangle 12">
+                    <Border.Background>
+                        <SolidColorBrush Color="#B0101D38" />
+                    </Border.Background>
+                    <Grid ColumnDefinitions="*,180,180" ColumnSpacing="10">
+                        <SearchBar Grid.Column="0" Placeholder="SEARCH GAMES..." Text="{Binding SearchQuery}" BackgroundColor="#080F22" />
+                        <Picker Grid.Column="1" Title="SORT BY" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSortOption}" />
+                        <Picker Grid.Column="2" Title="STATUS" ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding SelectedStatusFilter}" />
+                    </Grid>
+                </Border>
 
-                        <Frame Margin="0,8" Padding="15" CornerRadius="10"
-                               BackgroundColor="{Binding Status, Converter={StaticResource StatusColorConverter}}">
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=QuickChangeStatusCommand}"
-                                                       CommandParameter="{Binding .}" />
-                            </Frame.GestureRecognizers>
-                            <Grid ColumnDefinitions="*, Auto">
-                                <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
-                                    <HorizontalStackLayout Spacing="5">
-                                        <Label Text="{Binding Title}" FontSize="18" FontAttributes="Bold" TextColor="Black" />
-                                        <Label Text="⭐" FontSize="16" IsVisible="{Binding IsFavorite}" VerticalOptions="Center" />
-                                    </HorizontalStackLayout>
-                                    
-                                    <HorizontalStackLayout Spacing="5">
-                                        <Label Text="{Binding Developer}" FontSize="14" TextColor="#333333" />
-                                        <Label Text="|" FontSize="14" TextColor="Gray" />
-                                        <Label Text="{Binding Platform}" FontSize="14" FontAttributes="Italic" TextColor="Gray" />
-                                    </HorizontalStackLayout>
-                                    <Label Text="{Binding HoursPlayed, StringFormat='{}{0} год. зіграно'}" FontSize="13" TextColor="#555555" />
-                                    <Label Text="{Binding Rating, Converter={StaticResource RatingToStarsConverter}}" FontSize="13" TextColor="Goldenrod" />
-                                </VerticalStackLayout>
-                                
-                                <Frame Grid.Column="1" 
-                                       BackgroundColor="{AppThemeBinding Light=White, Dark=#333333}" 
-                                       Padding="8,5" 
-                                       CornerRadius="5" 
-                                       HasShadow="False" 
-                                       VerticalOptions="Center">
-                                    <Label Text="{Binding Status}" 
-                                           FontSize="12" 
-                                           FontAttributes="Bold" 
-                                           TextColor="{AppThemeBinding Light=Black, Dark=White}" />
-                                </Frame>
-                            </Grid>
-                        </Frame>
-                        
-                    </SwipeView>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#00A8FF" HorizontalOptions="Center" />
 
-    </VerticalStackLayout>
+                <CollectionView ItemsSource="{Binding FilteredGames}">
+                    <CollectionView.EmptyView>
+                        <Border Stroke="#264785" StrokeThickness="1" Padding="40" Margin="0,8" StrokeShape="RoundRectangle 12">
+                            <Border.Background><SolidColorBrush Color="#101D38" /></Border.Background>
+                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                                <Label Text="ІГОР НЕ ЗНАЙДЕНО" FontSize="20" FontAttributes="Bold" TextColor="#F3F7FF" HorizontalTextAlignment="Center" />
+                                <Label Text="Зміни пошук або фільтри" TextColor="#8FA6CC" HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Game">
+                            <SwipeView>
+                                <SwipeView.LeftItems>
+                                    <SwipeItems>
+                                        <SwipeItem Text="★" BackgroundColor="#FFD54F" Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=ToggleFavoriteCommand}" CommandParameter="{Binding .}" />
+                                        <SwipeItem Text="EDIT" BackgroundColor="#0070D1" Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=EditGameCommand}" CommandParameter="{Binding .}" />
+                                    </SwipeItems>
+                                </SwipeView.LeftItems>
+                                <SwipeView.RightItems>
+                                    <SwipeItems>
+                                        <SwipeItem Text="✕" BackgroundColor="#FF5252" Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=RemoveGameCommand}" CommandParameter="{Binding .}" />
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
+
+                                <Border Margin="0,5" Padding="0" Stroke="#264785" StrokeThickness="1" StrokeShape="RoundRectangle 12">
+                                    <Border.Background><SolidColorBrush Color="#101D38" /></Border.Background>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=QuickChangeStatusCommand}" CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="5,* ,Auto" RowDefinitions="Auto" Padding="0">
+                                        <BoxView Grid.Column="0" WidthRequest="5" BackgroundColor="{Binding Status, Converter={StaticResource StatusColorConverter}}" CornerRadius="12,0,12,0" />
+
+                                        <VerticalStackLayout Grid.Column="1" Padding="15,12" Spacing="5" VerticalOptions="Center">
+                                            <HorizontalStackLayout Spacing="8">
+                                                <Label Text="{Binding Title}" FontSize="20" FontAttributes="Bold" TextColor="#F3F7FF" />
+                                                <Label Text="★" FontSize="18" TextColor="#FFD54F" IsVisible="{Binding IsFavorite}" />
+                                            </HorizontalStackLayout>
+                                            <HorizontalStackLayout Spacing="8">
+                                                <Border Padding="7,2" Stroke="#264785" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                                    <Border.Background><SolidColorBrush Color="#08142B" /></Border.Background>
+                                                    <Label Text="{Binding Platform}" FontSize="11" FontAttributes="Bold" TextColor="#00A8FF" />
+                                                </Border>
+                                                <Label Text="{Binding Developer}" FontSize="13" TextColor="#8FA6CC" VerticalOptions="Center" />
+                                            </HorizontalStackLayout>
+                                            <HorizontalStackLayout Spacing="14">
+                                                <Label Text="{Binding HoursPlayed, StringFormat='⏱ {0}h'}" FontSize="12" FontFamily="OpenSansRegular" TextColor="#C2CEE3" />
+                                                <Label Text="{Binding Rating, StringFormat='★ {0}/10'}" FontSize="12" TextColor="#FFD54F" />
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+
+                                        <VerticalStackLayout Grid.Column="2" Padding="10,10,12,10" Spacing="7" MinimumWidthRequest="170" VerticalOptions="Center">
+                                            <Border Padding="9,5" Stroke="{Binding Status, Converter={StaticResource StatusColorConverter}}" StrokeThickness="1" StrokeShape="RoundRectangle 6" HorizontalOptions="End">
+                                                <Border.Background><SolidColorBrush Color="#080F22" /></Border.Background>
+                                                <Label Text="{Binding Status}" FontSize="11" FontAttributes="Bold" TextColor="{Binding Status, Converter={StaticResource StatusColorConverter}}" />
+                                            </Border>
+                                            <HorizontalStackLayout Spacing="5" HorizontalOptions="End">
+                                                <Button Text="★" WidthRequest="38" HeightRequest="38" Padding="0" FontSize="14" TextColor="#FFD54F" Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=ToggleFavoriteCommand}" CommandParameter="{Binding .}" />
+                                                <Button Text="Edit" HeightRequest="38" Padding="8,0" FontSize="12" Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=EditGameCommand}" CommandParameter="{Binding .}" />
+                                                <Button Text="✕" WidthRequest="38" HeightRequest="38" Padding="0" BackgroundColor="#FF5252" TextColor="White" Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=RemoveGameCommand}" CommandParameter="{Binding .}" />
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </Border>
+                            </SwipeView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

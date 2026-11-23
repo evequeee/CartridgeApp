@@ -69,6 +69,31 @@ public class RuntimeTests
     }
 
     [Fact]
+    public async Task LivePostgresDatabaseCanEnsureSchemaAndSeed()
+    {
+        var options = new DbContextOptionsBuilder<CartridgeDbContext>()
+            .UseNpgsql("Host=localhost;Port=5432;Database=cartridge;Username=postgres;Password=cartridge")
+            .Options;
+
+        await using var context = new CartridgeDbContext(options);
+        var repository = new PostgresGameRepository(context);
+
+        await repository.EnsureDatabaseAsync();
+
+        Assert.True(await context.Database.CanConnectAsync());
+        Assert.True(await context.Games.AnyAsync());
+
+        await context.Database.OpenConnectionAsync();
+        await using var command = context.Database.GetDbConnection().CreateCommand();
+        command.CommandText = "SELECT current_database(), inet_server_addr(), inet_server_port(), to_regclass('public.\"Games\"')::text, (SELECT count(*) FROM \"Games\")";
+        await using var reader = await command.ExecuteReaderAsync();
+        Assert.True(await reader.ReadAsync());
+        Assert.Equal("cartridge", reader.GetString(0));
+        Console.WriteLine($"server={reader[1]} port={reader[2]} table={reader[3]} count={reader[4]}");
+        Assert.True(reader.GetInt64(4) >= 3);
+    }
+
+    [Fact]
     public void RouletteCandidatesRespectBacklogAndFavorites()
     {
         var games = new MockGameService().GetGames();

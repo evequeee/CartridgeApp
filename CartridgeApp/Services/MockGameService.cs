@@ -67,6 +67,11 @@ public class MockGameService : IGameRepository
         return Task.CompletedTask;
     }
 
+    public Task EnsureDatabaseAsync()
+    {
+        return Task.CompletedTask;
+    }
+
     public Task<BacklogStats> GetStatisticsAsync()
     {
         int total = _games.Count;

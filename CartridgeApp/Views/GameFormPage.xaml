@@ -6,35 +6,43 @@
              x:DataType="viewmodels:GameFormViewModel"
              Title="Game details">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="14">
-            <Entry Placeholder="Назва гри" Text="{Binding Title}" />
-            <Entry Placeholder="Розробник" Text="{Binding Developer}" />
+    <ContentPage.Resources>
+        <LinearGradientBrush x:Key="FormBackground" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#050A18" Offset="0" /><GradientStop Color="#0B1B3A" Offset="0.55" /><GradientStop Color="#040812" Offset="1" />
+        </LinearGradientBrush>
+    </ContentPage.Resources>
 
-            <Label Text="Платформа" />
-            <Picker ItemsSource="{Binding Platforms}" SelectedItem="{Binding Platform}" />
+    <Grid Background="{StaticResource FormBackground}">
+        <ScrollView>
+            <Border MaximumWidthRequest="760" Margin="20" Padding="22" Stroke="#264785" StrokeThickness="1" StrokeShape="RoundRectangle 12" VerticalOptions="Start">
+                <Border.Background><SolidColorBrush Color="#D0101D38" /></Border.Background>
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="GAME DATA // EDIT" FontSize="24" FontAttributes="Bold" TextColor="#F3F7FF" />
+                    <Entry Placeholder="Назва гри" Text="{Binding Title}" BackgroundColor="#080F22" TextColor="#F3F7FF" />
+                    <Entry Placeholder="Розробник" Text="{Binding Developer}" BackgroundColor="#080F22" TextColor="#F3F7FF" />
 
-            <Label Text="Статус" />
-            <Picker ItemsSource="{Binding Statuses}" SelectedItem="{Binding Status}" />
+                    <Label Text="ПЛАТФОРМА" TextColor="#8FA6CC" FontSize="11" FontAttributes="Bold" />
+                    <Picker ItemsSource="{Binding Platforms}" SelectedItem="{Binding Platform}" BackgroundColor="#080F22" />
 
-            <HorizontalStackLayout Spacing="12">
-                <Label Text="Рейтинг" VerticalOptions="Center" />
-                <Stepper Minimum="0" Maximum="10" Increment="1"
-                         Value="{Binding Rating}" />
-                <Label Text="{Binding Rating}" FontAttributes="Bold" VerticalOptions="Center" />
-            </HorizontalStackLayout>
+                    <Label Text="СТАТУС" TextColor="#8FA6CC" FontSize="11" FontAttributes="Bold" />
+                    <Picker ItemsSource="{Binding Statuses}" SelectedItem="{Binding Status}" BackgroundColor="#080F22" />
 
-            <HorizontalStackLayout Spacing="12">
-                <Label Text="Години" VerticalOptions="Center" />
-                <Stepper Minimum="0" Maximum="10000" Increment="1"
-                         Value="{Binding HoursPlayed}" />
-                <Label Text="{Binding HoursPlayed}" FontAttributes="Bold" VerticalOptions="Center" />
-            </HorizontalStackLayout>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Label Text="Рейтинг" TextColor="#C2CEE3" VerticalOptions="Center" />
+                        <Stepper Grid.Column="1" Minimum="0" Maximum="10" Increment="1" Value="{Binding Rating}" />
+                        <Label Grid.Column="2" Text="{Binding Rating}" TextColor="#FFD54F" FontAttributes="Bold" FontSize="18" VerticalOptions="Center" />
+                    </Grid>
 
-            <Editor Placeholder="Нотатки" Text="{Binding Notes}" AutoSize="TextChanges"
-                    HeightRequest="140" />
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Label Text="Години" TextColor="#C2CEE3" VerticalOptions="Center" />
+                        <Stepper Grid.Column="1" Minimum="0" Maximum="10000" Increment="1" Value="{Binding HoursPlayed}" />
+                        <Label Grid.Column="2" Text="{Binding HoursPlayed}" TextColor="#00A8FF" FontAttributes="Bold" FontSize="18" VerticalOptions="Center" />
+                    </Grid>
 
-            <Button Text="Зберегти" Command="{Binding SaveGameCommand}" />
-        </VerticalStackLayout>
-    </ScrollView>
+                    <Editor Placeholder="Нотатки" Text="{Binding Notes}" AutoSize="TextChanges" HeightRequest="140" BackgroundColor="#080F22" TextColor="#F3F7FF" />
+                    <Button Text="SAVE GAME" Command="{Binding SaveGameCommand}" BackgroundColor="#0070D1" TextColor="White" FontAttributes="Bold" />
+                </VerticalStackLayout>
+            </Border>
+        </ScrollView>
+    </Grid>
 </ContentPage>

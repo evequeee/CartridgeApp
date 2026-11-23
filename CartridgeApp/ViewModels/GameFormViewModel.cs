@@ -149,7 +149,7 @@ public class GameFormViewModel : INotifyPropertyChanged
         Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
         if (page != null)
         {
-            await page.DisplayAlert(title, message, "OK");
+            await page.DisplayAlertAsync(title, message, "OK");
         }
     }
 

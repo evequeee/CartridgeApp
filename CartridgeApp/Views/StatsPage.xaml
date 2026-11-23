@@ -6,27 +6,34 @@
              x:DataType="viewmodels:StatsViewModel"
              Title="Statistics">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="14">
-            <Label Text="Беклог аналітика" FontSize="28" FontAttributes="Bold" />
+    <ContentPage.Resources>
+        <LinearGradientBrush x:Key="StatsBackground" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#050A18" Offset="0" /><GradientStop Color="#0B1B3A" Offset="0.55" /><GradientStop Color="#040812" Offset="1" />
+        </LinearGradientBrush>
+    </ContentPage.Resources>
+
+    <Grid Background="{StaticResource StatsBackground}">
+        <ScrollView>
+            <VerticalStackLayout MaximumWidthRequest="1100" Padding="20" Spacing="14">
+            <Label Text="BACKLOG // ANALYTICS" FontSize="28" FontAttributes="Bold" TextColor="#F3F7FF" />
 
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
-                <Frame Grid.Row="0" Grid.Column="0" Padding="14"><VerticalStackLayout>
-                    <Label Text="Всього ігор" FontSize="13" /><Label Text="{Binding TotalGames}" FontSize="24" FontAttributes="Bold" />
-                </VerticalStackLayout></Frame>
-                <Frame Grid.Row="0" Grid.Column="1" Padding="14"><VerticalStackLayout>
-                    <Label Text="Улюблені" FontSize="13" /><Label Text="{Binding FavoriteGames}" FontSize="24" FontAttributes="Bold" />
-                </VerticalStackLayout></Frame>
-                <Frame Grid.Row="1" Grid.Column="0" Padding="14"><VerticalStackLayout>
-                    <Label Text="Зіграно годин" FontSize="13" /><Label Text="{Binding TotalHoursPlayed}" FontSize="24" FontAttributes="Bold" />
-                </VerticalStackLayout></Frame>
-                <Frame Grid.Row="1" Grid.Column="1" Padding="14"><VerticalStackLayout>
-                    <Label Text="Пройдено, %" FontSize="13" /><Label Text="{Binding CompletedPercentage, StringFormat='{0:F1}'}" FontSize="24" FontAttributes="Bold" />
-                </VerticalStackLayout></Frame>
+                <Border Grid.Row="0" Grid.Column="0" Padding="14" Stroke="#264785" StrokeThickness="1" StrokeShape="RoundRectangle 10"><Border.Background><SolidColorBrush Color="#101D38" /></Border.Background><VerticalStackLayout>
+                    <Label Text="TOTAL GAMES" FontSize="11" TextColor="#8FA6CC" /><Label Text="{Binding TotalGames}" FontSize="24" FontAttributes="Bold" TextColor="#F3F7FF" />
+                </VerticalStackLayout></Border>
+                <Border Grid.Row="0" Grid.Column="1" Padding="14" Stroke="#264785" StrokeThickness="1" StrokeShape="RoundRectangle 10"><Border.Background><SolidColorBrush Color="#101D38" /></Border.Background><VerticalStackLayout>
+                    <Label Text="FAVORITES" FontSize="11" TextColor="#8FA6CC" /><Label Text="{Binding FavoriteGames}" FontSize="24" FontAttributes="Bold" TextColor="#FFD54F" />
+                </VerticalStackLayout></Border>
+                <Border Grid.Row="1" Grid.Column="0" Padding="14" Stroke="#264785" StrokeThickness="1" StrokeShape="RoundRectangle 10"><Border.Background><SolidColorBrush Color="#101D38" /></Border.Background><VerticalStackLayout>
+                    <Label Text="HOURS PLAYED" FontSize="11" TextColor="#8FA6CC" /><Label Text="{Binding TotalHoursPlayed}" FontSize="24" FontAttributes="Bold" TextColor="#00A8FF" />
+                </VerticalStackLayout></Border>
+                <Border Grid.Row="1" Grid.Column="1" Padding="14" Stroke="#264785" StrokeThickness="1" StrokeShape="RoundRectangle 10"><Border.Background><SolidColorBrush Color="#101D38" /></Border.Background><VerticalStackLayout>
+                    <Label Text="COMPLETED" FontSize="11" TextColor="#8FA6CC" /><Label Text="{Binding CompletedPercentage, StringFormat='{0:F1}%'}" FontSize="24" FontAttributes="Bold" TextColor="#00E676" />
+                </VerticalStackLayout></Border>
             </Grid>
 
             <Label Text="Загальний прогрес проходження" FontAttributes="Bold" />
-            <ProgressBar Progress="{Binding CompletedPercentage}" />
+            <ProgressBar Progress="{Binding CompletedProgress}" ProgressColor="#00A8FF" HeightRequest="8" />
 
             <Label Text="Data Backup &amp; Restore" FontAttributes="Bold" />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
@@ -45,6 +52,7 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </VerticalStackLayout>
-    </ScrollView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

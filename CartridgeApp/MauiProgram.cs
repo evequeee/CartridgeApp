@@ -28,12 +28,12 @@ public static class MauiProgram
         string postgresHost = DeviceInfo.Platform == DevicePlatform.Android
             ? "10.0.2.2"
             : "localhost";
-        string connectionString = $"Host={postgresHost};Port=5432;Database=cartridge;Username=cartridge;Password=cartridge";
+        string connectionString = $"Host={postgresHost};Port=5432;Database=cartridge;Username=postgres;Password=cartridge";
 
         builder.Services.AddDbContext<CartridgeDbContext>(options =>
             options.UseNpgsql(connectionString));
-        builder.Services.AddSingleton<IGameRepository, PostgresGameRepository>();
-        builder.Services.AddSingleton<IBackupService, JsonBackupService>();
+        builder.Services.AddScoped<IGameRepository, PostgresGameRepository>();
+        builder.Services.AddScoped<IBackupService, JsonBackupService>();
         builder.Services.AddTransient<MainViewModel>();
         builder.Services.AddTransient<GameFormViewModel>();
         builder.Services.AddTransient<StatsViewModel>();

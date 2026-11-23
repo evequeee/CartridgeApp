@@ -16,7 +16,7 @@ public partial class GameFormPage : ContentPage, IQueryAttributable
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        if (query.TryGetValue("Game", out object value) && value is Game game)
+        if (query.TryGetValue("Game", out object? value) && value is Game game)
         {
             _viewModel.LoadGame(game);
         }

@@ -152,6 +152,7 @@ public class MainViewModel : INotifyPropertyChanged
         IsBusy = true;
         try
         {
+            await _gameRepository.EnsureDatabaseAsync();
             IReadOnlyList<Game> games = await _gameRepository.GetGamesAsync();
             Games.Clear();
             foreach (Game game in games)
@@ -166,7 +167,7 @@ public class MainViewModel : INotifyPropertyChanged
             Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
             if (page != null)
             {
-                await page.DisplayAlert("Помилка", $"Не вдалося завантажити ігри: {exception.Message}", "OK");
+                await page.DisplayAlertAsync("Помилка PostgreSQL", $"Не вдалося завантажити ігри: {exception.Message}", "OK");
             }
         }
         finally
@@ -184,7 +185,11 @@ public class MainViewModel : INotifyPropertyChanged
 
         if (backlogGames.Count == 0)
         {
-            Application.Current.MainPage.DisplayAlert("Oops", "Беклог пустий! Часом додати щось нове.", "OK");
+            Page? emptyPage = Application.Current?.Windows.FirstOrDefault()?.Page;
+            if (emptyPage != null)
+            {
+                await emptyPage.DisplayAlertAsync("Помилка рулетки", "Беклог порожній або немає іграм, що відповідають фільтру.", "OK");
+            }
             return;
         }
 
@@ -198,7 +203,7 @@ public class MainViewModel : INotifyPropertyChanged
             return;
         }
 
-        string action = await page.DisplayActionSheet(
+        string action = await page.DisplayActionSheetAsync(
             "Roulette Result",
             "Закрити",
             "Start Playing",
@@ -314,7 +319,7 @@ public class MainViewModel : INotifyPropertyChanged
         }
 
         string[] statusOptions = Enum.GetNames<GameStatus>();
-        string selectedStatus = await page.DisplayActionSheet(
+        string selectedStatus = await page.DisplayActionSheetAsync(
             "Змінити статус",
             "Скасувати",
             null,

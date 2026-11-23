@@ -1,14 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <EnableDefaultMauiItems>false</EnableDefaultMauiItems>
     <EnableDefaultItems>true</EnableDefaultItems>
-    <UseMaui>false</UseMaui>
-    <MauiResizetizerTargetsEnabled>false</MauiResizetizerTargetsEnabled>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,21 +14,23 @@
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
-    <MauiIcon Remove="**/*" />
-    <MauiSplashScreen Remove="**/*" />
-    <MauiImage Remove="**/*" />
-    <MauiAsset Remove="**/*" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="CartridgeApp">
-      <HintPath>..\CartridgeApp\bin\Debug\net10.0-windows10.0.19041.0\win-x64\CartridgeApp.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
+    <Compile Include="..\CartridgeApp\Models\Game.cs" Link="Models\Game.cs" />
+    <Compile Include="..\CartridgeApp\Models\SortOption.cs" Link="Models\SortOption.cs" />
+    <Compile Include="..\CartridgeApp\Models\BacklogStats.cs" Link="Models\BacklogStats.cs" />
+    <Compile Include="..\CartridgeApp\Data\CartridgeDbContext.cs" Link="Data\CartridgeDbContext.cs" />
+    <Compile Include="..\CartridgeApp\Services\IGameRepository.cs" Link="Services\IGameRepository.cs" />
+    <Compile Include="..\CartridgeApp\Services\MockGameService.cs" Link="Services\MockGameService.cs" />
+    <Compile Include="..\CartridgeApp\Services\PostgresGameRepository.cs" Link="Services\PostgresGameRepository.cs" />
+    <Compile Include="..\CartridgeApp\Services\IBackupService.cs" Link="Services\IBackupService.cs" />
+    <Compile Include="..\CartridgeApp\Services\JsonBackupService.cs" Link="Services\JsonBackupService.cs" />
   </ItemGroup>
 
 </Project>

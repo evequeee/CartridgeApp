@@ -79,8 +79,12 @@ public class PostgresGameRepository : IGameRepository
 
     public async Task DeleteGameAsync(Game game)
     {
-        _dbContext.Games.Remove(game);
-        await _dbContext.SaveChangesAsync();
+        Game? trackedGame = await _dbContext.Games.FindAsync(game.Id);
+        if (trackedGame != null)
+        {
+            _dbContext.Games.Remove(trackedGame);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 
     public async Task<BacklogStats> GetStatisticsAsync()

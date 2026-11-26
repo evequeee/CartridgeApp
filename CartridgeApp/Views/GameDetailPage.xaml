@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:CartridgeApp.ViewModels"
+             xmlns:models="clr-namespace:CartridgeApp.Models"
+             xmlns:converters="clr-namespace:CartridgeApp.Converters"
+             x:Class="CartridgeApp.Views.GameDetailPage"
+             x:DataType="viewmodels:GameDetailViewModel"
+             Title="Game"
+             BackgroundColor="{StaticResource XmbBackground}">
+
+    <ContentPage.Resources>
+        <converters:StatusColorConverter x:Key="StatusColorConverter" />
+        <converters:RatingToStarsConverter x:Key="RatingToStarsConverter" />
+        <converters:BoolSwitchConverter x:Key="BoolSwitchConverter" />
+    </ContentPage.Resources>
+
+    <ScrollView BackgroundColor="{StaticResource XmbBackground}">
+        <Grid MaximumWidthRequest="1050" HorizontalOptions="Center" Padding="24,20">
+            <VerticalStackLayout Spacing="16">
+
+                <!-- ===== HERO: backdrop banner + 2:3 poster + info ===== -->
+                <Border StrokeShape="RoundRectangle 12"
+                        Stroke="{StaticResource XmbBorderBrush}"
+                        StrokeThickness="1"
+                        Background="{StaticResource XmbSurfaceBrush}"
+                        Padding="0">
+                    <Grid>
+                        <!-- Backdrop: the cover stretched across the top, darkened by a scrim -->
+                        <Image WidthRequest="1002"
+                               HeightRequest="290"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Start"
+                               Aspect="AspectFill"
+                               Opacity="0.55"
+                               ZIndex="1"
+                               Source="{Binding CoverUrl}"
+                               IsVisible="{Binding HasCover}" />
+                        <BoxView HeightRequest="290"
+                                 VerticalOptions="Start"
+                                 BackgroundColor="{StaticResource XmbBackground}"
+                                 Opacity="0.45"
+                                 ZIndex="2" />
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="28" Padding="28,32,28,24" ZIndex="3">
+
+                            <!-- Poster 180x255 (2:3) with placeholder underneath -->
+                            <Border Grid.Column="0"
+                                    WidthRequest="180"
+                                    HeightRequest="255"
+                                    VerticalOptions="Start"
+                                    StrokeShape="RoundRectangle 12"
+                                    Stroke="{StaticResource XmbBorderBrush}"
+                                    StrokeThickness="1"
+                                    Background="{StaticResource XmbSurfaceDeepBrush}"
+                                    Padding="0">
+                                <Grid WidthRequest="180" HeightRequest="255">
+                                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8" Padding="14">
+                                        <Label Text="💿" FontSize="44" HorizontalTextAlignment="Center" />
+                                        <Label Text="{Binding Title}"
+                                               FontSize="15"
+                                               FontAttributes="Bold"
+                                               MaxLines="3"
+                                               LineBreakMode="TailTruncation"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="{StaticResource XmbText}" />
+                                        <Label Text="{Binding Platform}"
+                                               FontSize="11"
+                                               FontAttributes="Bold"
+                                               CharacterSpacing="2"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="{StaticResource XmbMuted}" />
+                                    </VerticalStackLayout>
+                                    <Image WidthRequest="180"
+                                           HeightRequest="255"
+                                           Aspect="AspectFill"
+                                           ZIndex="1"
+                                           Source="{Binding CoverUrl}"
+                                           IsVisible="{Binding HasCover}" />
+                                </Grid>
+                            </Border>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="12" VerticalOptions="End">
+                                <Label Text="{Binding Title}"
+                                       FontSize="30"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource XmbText}" />
+
+                                <Label Text="{Binding Developer}"
+                                       FontSize="15"
+                                       TextColor="{StaticResource XmbMuted}" />
+
+                                <HorizontalStackLayout Spacing="10">
+                                    <Border StrokeShape="RoundRectangle 6"
+                                            Stroke="{StaticResource XmbAccentBrush}"
+                                            StrokeThickness="1"
+                                            Background="{StaticResource XmbSurfaceDeepBrush}"
+                                            Padding="10,4"
+                                            VerticalOptions="Center">
+                                        <Label Text="{Binding Platform}"
+                                               FontSize="11"
+                                               FontAttributes="Bold"
+                                               CharacterSpacing="1"
+                                               TextColor="{StaticResource XmbAccent}" />
+                                    </Border>
+                                    <Border StrokeShape="RoundRectangle 6"
+                                            Stroke="{StaticResource XmbBorderBrush}"
+                                            StrokeThickness="1"
+                                            Background="{StaticResource XmbSurfaceDeepBrush}"
+                                            Padding="10,4"
+                                            VerticalOptions="Center">
+                                        <Label Text="{Binding Status}"
+                                               FontSize="11"
+                                               FontAttributes="Bold"
+                                               CharacterSpacing="1"
+                                               TextTransform="Uppercase"
+                                               TextColor="{Binding Status, Converter={StaticResource StatusColorConverter}}" />
+                                    </Border>
+                                    <Border StrokeShape="RoundRectangle 6"
+                                            Stroke="{StaticResource XmbVioletBrush}"
+                                            StrokeThickness="1"
+                                            Background="{StaticResource XmbSurfaceDeepBrush}"
+                                            Padding="10,4"
+                                            VerticalOptions="Center"
+                                            IsVisible="{Binding IsMastered}">
+                                        <Label Text="🏆 100% MASTERED"
+                                               FontSize="11"
+                                               FontAttributes="Bold"
+                                               CharacterSpacing="1"
+                                               TextColor="{StaticResource XmbViolet}" />
+                                    </Border>
+                                </HorizontalStackLayout>
+
+                                <Label Text="{Binding Rating, Converter={StaticResource RatingToStarsConverter}, ConverterParameter=badge}"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource XmbGold}" />
+
+                                <Label Text="{Binding HoursPlayed, StringFormat='{}{0} год. зіграно'}"
+                                       FontSize="14"
+                                       TextColor="{StaticResource XmbMuted}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- ===== ACTION PANEL ===== -->
+                <Border StrokeShape="RoundRectangle 12"
+                        Stroke="{StaticResource XmbBorderBrush}"
+                        StrokeThickness="1"
+                        Background="{StaticResource XmbSurfaceBrush}"
+                        Padding="24,20">
+                    <VerticalStackLayout Spacing="16">
+
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="YOUR RATING" Style="{StaticResource SectionLabel}" />
+                            <FlexLayout Wrap="Wrap" Direction="Row" AlignItems="Center">
+                                <Label Text="{Binding Rating, Converter={StaticResource RatingToStarsConverter}}"
+                                       FontSize="26"
+                                       VerticalOptions="Center"
+                                       MinimumWidthRequest="140"
+                                       Margin="0,0,16,0"
+                                       TextColor="{StaticResource XmbGold}" />
+                                <Button Text="−0.5"
+                                        Command="{Binding DecreaseRatingCommand}"
+                                        Style="{StaticResource GhostButton}"
+                                        Margin="0,0,10,0" />
+                                <Button Text="+0.5"
+                                        Command="{Binding IncreaseRatingCommand}"
+                                        Style="{StaticResource GhostButton}"
+                                        Margin="0,0,10,0" />
+                                <Button Text="Без оцінки"
+                                        Command="{Binding ClearRatingCommand}"
+                                        Style="{StaticResource DangerOutlineButton}" />
+                            </FlexLayout>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="ACTIONS" Style="{StaticResource SectionLabel}" />
+                            <FlexLayout Wrap="Wrap" Direction="Row" JustifyContent="Start" AlignItems="Start">
+                                <Button Text="+ Log Play"
+                                        Command="{Binding LogPlayCommand}"
+                                        Style="{StaticResource SpinButton}"
+                                        Margin="0,0,10,10" />
+                                <Button Text="{Binding IsLiked, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='♥ Liked|♡ Like'}"
+                                        TextColor="{Binding IsLiked, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbLike|XmbText'}"
+                                        Command="{Binding ToggleLikeCommand}"
+                                        Style="{StaticResource GhostButton}"
+                                        Margin="0,0,10,10" />
+                                <Button Text="{Binding IsFavorite, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='★ Favorite|☆ Favorite'}"
+                                        TextColor="{Binding IsFavorite, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbGold|XmbText'}"
+                                        Command="{Binding ToggleFavoriteCommand}"
+                                        Style="{StaticResource GhostButton}"
+                                        Margin="0,0,10,10" />
+                                <Button Text="{Binding IsMastered, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='🏆 100% ✓|🏆 100%'}"
+                                        TextColor="{Binding IsMastered, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbViolet|XmbText'}"
+                                        Command="{Binding ToggleMasteredCommand}"
+                                        Style="{StaticResource GhostButton}"
+                                        Margin="0,0,10,10" />
+                                <Button Text="✎ Edit"
+                                        Command="{Binding EditGameCommand}"
+                                        Style="{StaticResource GhostButton}"
+                                        Margin="0,0,10,10" />
+                                <Button Text="ⓘ Quick Info"
+                                        Command="{Binding QuickInfoCommand}"
+                                        Style="{StaticResource GhostButton}"
+                                        Margin="0,0,10,10" />
+                            </FlexLayout>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ===== NOTES ===== -->
+                <Border StrokeShape="RoundRectangle 12"
+                        Stroke="{StaticResource XmbBorderBrush}"
+                        StrokeThickness="1"
+                        Background="{StaticResource XmbSurfaceBrush}"
+                        Padding="24,20"
+                        IsVisible="{Binding HasNotes}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="НОТАТКИ" Style="{StaticResource SectionLabel}" />
+                        <Label Text="{Binding Notes}" TextColor="{StaticResource XmbText}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ===== PLAY DIARY ===== -->
+                <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+                    <Label Grid.Column="0"
+                           Text="PLAY DIARY"
+                           Style="{StaticResource SectionTitle}" />
+                    <Label Grid.Column="1"
+                           Text="{Binding LogSummary}"
+                           VerticalOptions="Center"
+                           TextColor="{StaticResource XmbMuted}" />
+                </Grid>
+
+                <Border StrokeShape="RoundRectangle 12"
+                        Stroke="{StaticResource XmbBorderBrush}"
+                        StrokeThickness="1"
+                        Background="{StaticResource XmbSurfaceBrush}"
+                        Padding="24,20"
+                        IsVisible="{Binding HasNoLogs}">
+                    <Label Text="Записів ще немає. Натисніть «+ Log Play», щоб додати першу сесію."
+                           HorizontalTextAlignment="Center"
+                           TextColor="{StaticResource XmbMuted}" />
+                </Border>
+
+                <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Logs}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:PlayLog">
+                            <Border StrokeShape="RoundRectangle 12"
+                                    Stroke="{StaticResource XmbBorderBrush}"
+                                    StrokeThickness="1"
+                                    Background="{StaticResource XmbSurfaceBrush}"
+                                    Padding="0">
+                                <Grid ColumnDefinitions="4,*,Auto">
+                                    <BoxView Grid.Column="0"
+                                             WidthRequest="4"
+                                             BackgroundColor="{Binding StatusAfterSession, Converter={StaticResource StatusColorConverter}}" />
+
+                                    <VerticalStackLayout Grid.Column="1" Padding="18,14" Spacing="6" VerticalOptions="Center">
+                                        <HorizontalStackLayout Spacing="12">
+                                            <Label Text="{Binding LoggedDate, StringFormat='{0:dd.MM.yyyy}'}"
+                                                   FontAttributes="Bold"
+                                                   VerticalOptions="Center"
+                                                   TextColor="{StaticResource XmbText}" />
+                                            <Label Text="{Binding HoursSession, StringFormat='{}{0:0.#} год.'}"
+                                                   VerticalOptions="Center"
+                                                   TextColor="{StaticResource XmbMuted}" />
+                                            <Label Text="{Binding StatusAfterSession}"
+                                                   FontSize="12"
+                                                   FontAttributes="Bold"
+                                                   CharacterSpacing="1"
+                                                   TextTransform="Uppercase"
+                                                   VerticalOptions="Center"
+                                                   TextColor="{Binding StatusAfterSession, Converter={StaticResource StatusColorConverter}}" />
+                                            <Border StrokeShape="RoundRectangle 6"
+                                                    Stroke="{StaticResource XmbAccentBrush}"
+                                                    StrokeThickness="1"
+                                                    Background="{StaticResource XmbSurfaceDeepBrush}"
+                                                    Padding="8,2"
+                                                    VerticalOptions="Center"
+                                                    IsVisible="{Binding IsReplay}">
+                                                <Label Text="REPLAY"
+                                                       FontSize="11"
+                                                       FontAttributes="Bold"
+                                                       CharacterSpacing="1"
+                                                       TextColor="{StaticResource XmbAccent}" />
+                                            </Border>
+                                        </HorizontalStackLayout>
+
+                                        <Label Text="{Binding ReviewText}"
+                                               IsVisible="{Binding HasReview}"
+                                               TextColor="{StaticResource XmbText}" />
+                                    </VerticalStackLayout>
+
+                                    <Button Grid.Column="2"
+                                            Text="✕"
+                                            Margin="0,0,16,0"
+                                            VerticalOptions="Center"
+                                            Style="{StaticResource QuickActionButton}"
+                                            TextColor="{StaticResource XmbDangerSoft}"
+                                            BorderColor="{StaticResource XmbDanger}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:GameDetailViewModel}}, Path=DeleteLogCommand}"
+                                            CommandParameter="{Binding .}"
+                                            ToolTipProperties.Text="Видалити запис" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </Grid>
+    </ScrollView>
+</ContentPage>

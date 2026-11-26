@@ -6,12 +6,15 @@
     xmlns:local="clr-namespace:CartridgeApp"
     xmlns:views="clr-namespace:CartridgeApp.Views"
     Title="CARTRIDGE // XMB"
-    Shell.BackgroundColor="#060D1F"
-    Shell.TitleColor="#F3F7FF"
-    Shell.ForegroundColor="#00A8FF"
-    Shell.TabBarBackgroundColor="#060D1F"
-    Shell.TabBarTitleColor="#00A8FF"
-    Shell.TabBarUnselectedColor="#6E85AD">
+    Shell.BackgroundColor="{StaticResource XmbBackground}"
+    Shell.TitleColor="{StaticResource XmbText}"
+    Shell.ForegroundColor="{StaticResource XmbAccent}"
+    Shell.UnselectedColor="{StaticResource XmbMuted}"
+    Shell.NavBarHasShadow="False"
+    Shell.TabBarBackgroundColor="{StaticResource XmbBackground}"
+    Shell.TabBarForegroundColor="{StaticResource XmbAccent}"
+    Shell.TabBarTitleColor="{StaticResource XmbAccent}"
+    Shell.TabBarUnselectedColor="{StaticResource XmbMuted}">
 
     <TabBar>
         <ShellContent
@@ -19,7 +22,15 @@
             ContentTemplate="{DataTemplate local:MainPage}"
             Route="MainPage" />
         <ShellContent
-            Title="STATISTICS"
+            Title="JOURNAL"
+            ContentTemplate="{DataTemplate views:JournalPage}"
+            Route="JournalPage" />
+        <ShellContent
+            Title="PROFILE"
+            ContentTemplate="{DataTemplate views:ProfilePage}"
+            Route="ProfilePage" />
+        <ShellContent
+            Title="ANALYTICS"
             ContentTemplate="{DataTemplate views:StatsPage}"
             Route="StatsPage" />
     </TabBar>

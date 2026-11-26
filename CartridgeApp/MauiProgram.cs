@@ -34,13 +34,22 @@ public static class MauiProgram
             options.UseNpgsql(connectionString));
         builder.Services.AddScoped<IGameRepository, PostgresGameRepository>();
         builder.Services.AddScoped<IBackupService, JsonBackupService>();
+
         builder.Services.AddTransient<MainViewModel>();
         builder.Services.AddTransient<GameFormViewModel>();
         builder.Services.AddTransient<StatsViewModel>();
+        builder.Services.AddTransient<GameDetailViewModel>();
+        builder.Services.AddTransient<LogEntryViewModel>();
+        builder.Services.AddTransient<JournalViewModel>();
+        builder.Services.AddTransient<ProfileViewModel>();
 
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<GameFormPage>();
         builder.Services.AddTransient<StatsPage>();
+        builder.Services.AddTransient<GameDetailPage>();
+        builder.Services.AddTransient<LogEntryPage>();
+        builder.Services.AddTransient<JournalPage>();
+        builder.Services.AddTransient<ProfilePage>();
 
         return builder.Build();
     }

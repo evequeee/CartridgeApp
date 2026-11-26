@@ -4,47 +4,122 @@
              xmlns:viewmodels="clr-namespace:CartridgeApp.ViewModels"
              x:Class="CartridgeApp.Views.StatsPage"
              x:DataType="viewmodels:StatsViewModel"
-             Title="Statistics">
+             Title="Statistics"
+             BackgroundColor="{StaticResource XmbBackground}">
 
-    <ScrollView BackgroundColor="#060D1F">
-        <VerticalStackLayout Padding="20" Spacing="14">
-            <Label Text="Беклог аналітика" FontSize="28" FontAttributes="Bold" />
+    <ScrollView BackgroundColor="{StaticResource XmbBackground}">
+        <Grid MaximumWidthRequest="1050" HorizontalOptions="Center" Padding="20,16">
+            <VerticalStackLayout Spacing="14">
 
-            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
-                <Frame Grid.Row="0" Grid.Column="0" Padding="14"><VerticalStackLayout>
-                    <Label Text="Всього ігор" FontSize="13" /><Label Text="{Binding TotalGames}" FontSize="24" FontAttributes="Bold" />
-                </VerticalStackLayout></Frame>
-                <Frame Grid.Row="0" Grid.Column="1" Padding="14"><VerticalStackLayout>
-                    <Label Text="Улюблені" FontSize="13" /><Label Text="{Binding FavoriteGames}" FontSize="24" FontAttributes="Bold" />
-                </VerticalStackLayout></Frame>
-                <Frame Grid.Row="1" Grid.Column="0" Padding="14"><VerticalStackLayout>
-                    <Label Text="Зіграно годин" FontSize="13" /><Label Text="{Binding TotalHoursPlayed}" FontSize="24" FontAttributes="Bold" />
-                </VerticalStackLayout></Frame>
-                <Frame Grid.Row="1" Grid.Column="1" Padding="14"><VerticalStackLayout>
-                    <Label Text="Пройдено, %" FontSize="13" /><Label Text="{Binding CompletedPercentage, StringFormat='{0:F1}'}" FontSize="24" FontAttributes="Bold" />
-                </VerticalStackLayout></Frame>
-            </Grid>
+                <Label Text="Беклог аналітика"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource XmbText}" />
 
-            <Label Text="Загальний прогрес проходження" FontAttributes="Bold" />
-            <ProgressBar Progress="{Binding CompletedPercentage}" />
+                <!-- Summary tiles -->
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+                    <Border Grid.Row="0" Grid.Column="0"
+                            StrokeShape="RoundRectangle 10"
+                            Stroke="{StaticResource XmbBorderBrush}"
+                            StrokeThickness="1"
+                            Background="{StaticResource XmbSurfaceBrush}"
+                            Padding="16,14">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Всього ігор" Style="{StaticResource SectionLabel}" />
+                            <Label Text="{Binding TotalGames}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource XmbText}" />
+                        </VerticalStackLayout>
+                    </Border>
 
-            <Label Text="Data Backup &amp; Restore" FontAttributes="Bold" />
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                <Button Grid.Column="0" Text="Експорт JSON" Command="{Binding ExportBackupCommand}" />
-                <Button Grid.Column="1" Text="Імпорт JSON" Command="{Binding ImportBackupCommand}" />
-            </Grid>
+                    <Border Grid.Row="0" Grid.Column="1"
+                            StrokeShape="RoundRectangle 10"
+                            Stroke="{StaticResource XmbBorderBrush}"
+                            StrokeThickness="1"
+                            Background="{StaticResource XmbSurfaceBrush}"
+                            Padding="16,14">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Улюблені" Style="{StaticResource SectionLabel}" />
+                            <Label Text="{Binding FavoriteGames}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource XmbGold}" />
+                        </VerticalStackLayout>
+                    </Border>
 
-            <Label Text="Ігри за платформами" FontAttributes="Bold" />
-            <CollectionView ItemsSource="{Binding PlatformStats}" HeightRequest="220">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Padding="8" ColumnDefinitions="*,Auto">
-                            <Label Text="{Binding Key}" Grid.Column="0" />
-                            <Label Text="{Binding Value}" Grid.Column="1" FontAttributes="Bold" />
+                    <Border Grid.Row="1" Grid.Column="0"
+                            StrokeShape="RoundRectangle 10"
+                            Stroke="{StaticResource XmbBorderBrush}"
+                            StrokeThickness="1"
+                            Background="{StaticResource XmbSurfaceBrush}"
+                            Padding="16,14">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Зіграно годин" Style="{StaticResource SectionLabel}" />
+                            <Label Text="{Binding TotalHoursPlayed}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource XmbAccent}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Row="1" Grid.Column="1"
+                            StrokeShape="RoundRectangle 10"
+                            Stroke="{StaticResource XmbBorderBrush}"
+                            StrokeThickness="1"
+                            Background="{StaticResource XmbSurfaceBrush}"
+                            Padding="16,14">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Пройдено, %" Style="{StaticResource SectionLabel}" />
+                            <Label Text="{Binding CompletedPercentage, StringFormat='{0:F1}'}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource StatusCompleted}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- Progress -->
+                <Border StrokeShape="RoundRectangle 10"
+                        Stroke="{StaticResource XmbBorderBrush}"
+                        StrokeThickness="1"
+                        Background="{StaticResource XmbSurfaceBrush}"
+                        Padding="16,14">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Загальний прогрес проходження" Style="{StaticResource SectionLabel}" />
+                        <ProgressBar Progress="{Binding CompletedProgress}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Backup -->
+                <Border StrokeShape="RoundRectangle 10"
+                        Stroke="{StaticResource XmbBorderBrush}"
+                        StrokeThickness="1"
+                        Background="{StaticResource XmbSurfaceBrush}"
+                        Padding="16,14">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Data Backup &amp; Restore" Style="{StaticResource SectionLabel}" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <Button Grid.Column="0" Text="Експорт JSON"
+                                    Command="{Binding ExportBackupCommand}"
+                                    Style="{StaticResource GhostButton}" />
+                            <Button Grid.Column="1" Text="Імпорт JSON"
+                                    Command="{Binding ImportBackupCommand}"
+                                    Style="{StaticResource GhostButton}" />
                         </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Platforms -->
+                <Border StrokeShape="RoundRectangle 10"
+                        Stroke="{StaticResource XmbBorderBrush}"
+                        StrokeThickness="1"
+                        Background="{StaticResource XmbSurfaceBrush}"
+                        Padding="16,14">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Ігри за платформами" Style="{StaticResource SectionLabel}" />
+                        <CollectionView ItemsSource="{Binding PlatformStats}" HeightRequest="220">
+                            <CollectionView.ItemTemplate>
+                                <!-- Items are KeyValuePair<string,int>: bindings are resolved at runtime (compiled bindings off). -->
+                                <DataTemplate x:DataType="{x:Null}">
+                                    <Grid Padding="8,6" ColumnDefinitions="*,Auto">
+                                        <Label Text="{Binding Key}" Grid.Column="0" TextColor="{StaticResource XmbText}" />
+                                        <Label Text="{Binding Value}" Grid.Column="1" FontAttributes="Bold" TextColor="{StaticResource XmbAccent}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </Grid>
     </ScrollView>
 </ContentPage>

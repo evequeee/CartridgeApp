@@ -23,6 +23,8 @@
 
   <ItemGroup>
     <Compile Include="..\CartridgeApp\Models\Game.cs" Link="Models\Game.cs" />
+    <Compile Include="..\CartridgeApp\Models\PlayLog.cs" Link="Models\PlayLog.cs" />
+    <Compile Include="..\CartridgeApp\Models\UserProfile.cs" Link="Models\UserProfile.cs" />
     <Compile Include="..\CartridgeApp\Models\SortOption.cs" Link="Models\SortOption.cs" />
     <Compile Include="..\CartridgeApp\Models\BacklogStats.cs" Link="Models\BacklogStats.cs" />
     <Compile Include="..\CartridgeApp\Data\CartridgeDbContext.cs" Link="Data\CartridgeDbContext.cs" />

@@ -5,126 +5,625 @@
              xmlns:models="clr-namespace:CartridgeApp.Models"
              xmlns:converters="clr-namespace:CartridgeApp.Converters"
              x:Class="CartridgeApp.MainPage"
-             x:DataType="viewmodels:MainViewModel">
+             x:DataType="viewmodels:MainViewModel"
+             BackgroundColor="{StaticResource XmbBackground}">
 
     <ContentPage.Resources>
         <converters:StatusColorConverter x:Key="StatusColorConverter" />
         <converters:RatingToStarsConverter x:Key="RatingToStarsConverter" />
+        <converters:BoolSwitchConverter x:Key="BoolSwitchConverter" />
     </ContentPage.Resources>
 
-    <VerticalStackLayout Padding="20" Spacing="15" MaximumWidthRequest="1100" BackgroundColor="#060D1F">
-        
-        <HorizontalStackLayout HorizontalOptions="Center" Spacing="12">
-            <Label Text="Cartridge Roulette" FontSize="28" FontAttributes="Bold" />
-            <Label Text="{Binding BacklogCount, StringFormat='Беклог: {0}'}" FontSize="16" VerticalOptions="Center" TextColor="DarkOrange" />
-        </HorizontalStackLayout>
-        <ActivityIndicator IsRunning="{Binding IsBusy}"
-                   IsVisible="{Binding IsBusy}"
-                   Color="DarkOrange"
-                   HorizontalOptions="Center" />
+    <!-- Root: library content + roulette overlay stacked in one cell -->
+    <Grid>
 
-        <Button Text="🎲 Spin the Backlog!" 
-                Command="{Binding SpinCommand}" 
-                HorizontalOptions="Center" 
-                Padding="20,10" 
-                BackgroundColor="DarkOrange"
-                TextColor="White"
-                FontAttributes="Bold" />
-        
-        <HorizontalStackLayout HorizontalOptions="Center" Spacing="15" Margin="0,0,0,10">
-            <Button Text="+ Add Game" Command="{Binding AddGameCommand}" />
-            <Button Text="Clear All" Command="{Binding ClearAllCommand}" BackgroundColor="IndianRed" />
-        </HorizontalStackLayout>
+        <!-- ================= LIBRARY ================= -->
+        <Grid MaximumWidthRequest="1050"
+              HorizontalOptions="Center"
+              Padding="24,20"
+              RowDefinitions="Auto,Auto,Auto,*"
+              RowSpacing="16">
 
-        <HorizontalStackLayout Spacing="10">
-            <HorizontalStackLayout Spacing="10">
-                <SearchBar Placeholder="Search games..."
-                       Text="{Binding SearchQuery}"
-                       HorizontalOptions="Fill" />
-                <Picker Title="Sort by"
-                    ItemsSource="{Binding SortOptions}"
-                    SelectedItem="{Binding SelectedSortOption}"
-                    WidthRequest="140" />
-                <Picker Title="Status"
-                    ItemsSource="{Binding StatusOptions}"
-                    SelectedItem="{Binding SelectedStatusFilter}"
-                    WidthRequest="140" />
-            </HorizontalStackLayout>
-        </HorizontalStackLayout>
+            <!-- ===== HUD HEADER ===== -->
+            <Border Grid.Row="0"
+                    StrokeShape="RoundRectangle 12"
+                    Stroke="{StaticResource XmbBorderBrush}"
+                    StrokeThickness="1"
+                    Background="{StaticResource XmbSurfaceBrush}"
+                    Padding="20,16">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
 
-        <CollectionView ItemsSource="{Binding FilteredGames}">
-            <CollectionView.EmptyView>
-                <VerticalStackLayout Padding="30" Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                    <Label Text="Ігор не знайдено" FontSize="22" FontAttributes="Bold" HorizontalTextAlignment="Center" />
-                    <Label Text="Спробуйте змінити пошук або фільтри." HorizontalTextAlignment="Center" TextColor="Gray" />
-                </VerticalStackLayout>
-            </CollectionView.EmptyView>
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:Game">
-                    <SwipeView>
-                        <SwipeView.LeftItems>
-                            <SwipeItems>
-                                <SwipeItem Text="Favorite" 
-                                           BackgroundColor="Gold"
-                                           Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=ToggleFavoriteCommand}"
-                                           CommandParameter="{Binding .}" />
-                                <SwipeItem Text="Edit"
-                                           BackgroundColor="DodgerBlue"
-                                           Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=EditGameCommand}"
-                                           CommandParameter="{Binding .}" />
-                            </SwipeItems>
-                        </SwipeView.LeftItems>
+                    <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="2">
+                        <Label Text="CARTRIDGE ROULETTE"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               CharacterSpacing="2"
+                               LineBreakMode="TailTruncation"
+                               TextColor="{StaticResource XmbText}" />
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="{Binding BacklogCount, StringFormat='Беклог: {0}'}"
+                                   FontSize="14"
+                                   VerticalOptions="Center"
+                                   TextColor="{StaticResource XmbAccent}" />
+                            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                               IsVisible="{Binding IsBusy}"
+                                               WidthRequest="16"
+                                               HeightRequest="16"
+                                               VerticalOptions="Center"
+                                               Color="{StaticResource XmbAccent}" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
 
-                        <SwipeView.RightItems>
-                            <SwipeItems>
-                                <SwipeItem Text="Delete" 
-                                           BackgroundColor="Red"
-                                           Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=RemoveGameCommand}"
-                                           CommandParameter="{Binding .}" />
-                            </SwipeItems>
-                        </SwipeView.RightItems>
+                    <HorizontalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="10">
 
-                        <Border Margin="0,8" Padding="15" Stroke="#264785" StrokeThickness="1" StrokeShape="RoundRectangle 12"
-                                Background="#101D38">
+                        <Button Text="🎲 SPIN BACKLOG"
+                                Command="{Binding SpinCommand}"
+                                Style="{StaticResource SpinButton}" />
+
+                        <Border StrokeShape="RoundRectangle 10"
+                                Stroke="{StaticResource XmbBorderBrush}"
+                                StrokeThickness="1"
+                                Background="{StaticResource XmbSurfaceDeepBrush}"
+                                Padding="12,0"
+                                HeightRequest="44"
+                                ToolTipProperties.Text="Крутити рулетку лише серед улюблених">
+                            <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                <Label Text="★ Favs"
+                                       FontAttributes="Bold"
+                                       VerticalOptions="Center"
+                                       TextColor="{StaticResource XmbGold}" />
+                                <Switch IsToggled="{Binding SpinOnlyFavorites}"
+                                        VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </Border>
+
+                        <Button Text="+ Add Game"
+                                Command="{Binding AddGameCommand}"
+                                Style="{StaticResource GhostButton}" />
+
+                        <Button Text="Clear"
+                                Command="{Binding ClearAllCommand}"
+                                Style="{StaticResource DangerOutlineButton}" />
+                    </HorizontalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- ===== CONTROL BAR, ROW 1: search + sort (fixed 190) + view toggle ===== -->
+            <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto" ColumnSpacing="12">
+
+                <Border Grid.Column="0"
+                        StrokeShape="RoundRectangle 12"
+                        Stroke="{StaticResource XmbBorderBrush}"
+                        StrokeThickness="1"
+                        Background="{StaticResource XmbSurfaceBrush}"
+                        Padding="8,0"
+                        HeightRequest="48">
+                    <SearchBar Placeholder="Search games..."
+                               Text="{Binding SearchQuery}"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Fill"
+                               TextColor="{StaticResource XmbText}"
+                               PlaceholderColor="{StaticResource XmbMuted}"
+                               BackgroundColor="Transparent" />
+                </Border>
+
+                <Border Grid.Column="1"
+                        WidthRequest="190"
+                        StrokeShape="RoundRectangle 12"
+                        Stroke="{StaticResource XmbBorderBrush}"
+                        StrokeThickness="1"
+                        Background="{StaticResource XmbSurfaceBrush}"
+                        Padding="14,0"
+                        HeightRequest="48">
+                    <Picker Title="Sort by"
+                            ItemsSource="{Binding SortOptions}"
+                            SelectedItem="{Binding SelectedSortOption}"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Fill"
+                            TextColor="{StaticResource XmbText}"
+                            TitleColor="{StaticResource XmbMuted}"
+                            BackgroundColor="Transparent" />
+                </Border>
+
+                <Border Grid.Column="2"
+                        StrokeShape="RoundRectangle 12"
+                        Stroke="{StaticResource XmbBorderBrush}"
+                        StrokeThickness="1"
+                        Background="{StaticResource XmbSurfaceBrush}"
+                        Padding="6,0"
+                        HeightRequest="48">
+                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                        <Button Text="▦ Grid Posters"
+                                Style="{StaticResource ChipButton}"
+                                BackgroundColor="{Binding IsGridView, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                                BorderColor="{Binding IsGridView, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                                TextColor="{Binding IsGridView, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                                Command="{Binding SetViewModeCommand}"
+                                CommandParameter="Grid" />
+                        <Button Text="☰ Compact List"
+                                Style="{StaticResource ChipButton}"
+                                BackgroundColor="{Binding IsListView, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                                BorderColor="{Binding IsListView, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                                TextColor="{Binding IsListView, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                                Command="{Binding SetViewModeCommand}"
+                                CommandParameter="List" />
+                    </HorizontalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- ===== CONTROL BAR, ROW 2: filter chips ===== -->
+            <ScrollView Grid.Row="2" Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                <HorizontalStackLayout Spacing="8">
+                    <Button Text="All"
+                            Style="{StaticResource ChipButton}"
+                            BackgroundColor="{Binding IsFilterAll, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                            BorderColor="{Binding IsFilterAll, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                            TextColor="{Binding IsFilterAll, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                            Command="{Binding SetQuickFilterCommand}"
+                            CommandParameter="All" />
+                    <Button Text="Backlog"
+                            Style="{StaticResource ChipButton}"
+                            BackgroundColor="{Binding IsFilterBacklog, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                            BorderColor="{Binding IsFilterBacklog, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                            TextColor="{Binding IsFilterBacklog, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                            Command="{Binding SetQuickFilterCommand}"
+                            CommandParameter="Backlog" />
+                    <Button Text="Playing"
+                            Style="{StaticResource ChipButton}"
+                            BackgroundColor="{Binding IsFilterPlaying, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                            BorderColor="{Binding IsFilterPlaying, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                            TextColor="{Binding IsFilterPlaying, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                            Command="{Binding SetQuickFilterCommand}"
+                            CommandParameter="Playing" />
+                    <Button Text="Completed"
+                            Style="{StaticResource ChipButton}"
+                            BackgroundColor="{Binding IsFilterCompleted, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                            BorderColor="{Binding IsFilterCompleted, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                            TextColor="{Binding IsFilterCompleted, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                            Command="{Binding SetQuickFilterCommand}"
+                            CommandParameter="Completed" />
+                    <Button Text="♥ Liked"
+                            Style="{StaticResource ChipButton}"
+                            BackgroundColor="{Binding IsFilterLiked, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                            BorderColor="{Binding IsFilterLiked, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                            TextColor="{Binding IsFilterLiked, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                            Command="{Binding SetQuickFilterCommand}"
+                            CommandParameter="Liked" />
+                    <Button Text="🏆 100%"
+                            Style="{StaticResource ChipButton}"
+                            BackgroundColor="{Binding IsFilterMastered, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                            BorderColor="{Binding IsFilterMastered, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                            TextColor="{Binding IsFilterMastered, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                            Command="{Binding SetQuickFilterCommand}"
+                            CommandParameter="Mastered" />
+                </HorizontalStackLayout>
+            </ScrollView>
+
+            <!-- ===== POSTER GRID (2:3 posters) ===== -->
+            <CollectionView x:Name="PostersView"
+                            Grid.Row="3"
+                            ItemsSource="{Binding FilteredGames}"
+                            IsVisible="{Binding IsGridView}">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout x:Name="PosterLayout"
+                                     Orientation="Vertical"
+                                     Span="4"
+                                     HorizontalItemSpacing="16"
+                                     VerticalItemSpacing="16" />
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="30" Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="Ігор не знайдено"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{StaticResource XmbText}" />
+                        <Label Text="Спробуйте змінити пошук або фільтри."
+                               HorizontalTextAlignment="Center"
+                               TextColor="{StaticResource XmbMuted}" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Game">
+                        <!-- Poster tile 216x324 (2:3) -->
+                        <Border WidthRequest="216"
+                                HeightRequest="324"
+                                HorizontalOptions="Center"
+                                Padding="0"
+                                StrokeShape="RoundRectangle 12"
+                                Stroke="{StaticResource XmbBorderBrush}"
+                                StrokeThickness="1"
+                                Background="{StaticResource XmbSurfaceDeepBrush}">
                             <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=QuickChangeStatusCommand}"
-                                                       CommandParameter="{Binding .}" />
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=OpenGameDetailCommand}"
+                                                      CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
-                            <Grid ColumnDefinitions="*, Auto">
-                                <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
-                                    <HorizontalStackLayout Spacing="5">
-                                        <Label Text="{Binding Title}" FontSize="18" FontAttributes="Bold" TextColor="Black" />
-                                        <Label Text="⭐" FontSize="16" IsVisible="{Binding IsFavorite}" VerticalOptions="Center" />
-                                    </HorizontalStackLayout>
-                                    
-                                    <HorizontalStackLayout Spacing="5">
-                                        <Label Text="{Binding Developer}" FontSize="14" TextColor="#333333" />
-                                        <Label Text="|" FontSize="14" TextColor="Gray" />
-                                        <Label Text="{Binding Platform}" FontSize="14" FontAttributes="Italic" TextColor="Gray" />
-                                    </HorizontalStackLayout>
-                                    <Label Text="{Binding HoursPlayed, StringFormat='{}{0} год. зіграно'}" FontSize="13" TextColor="#555555" />
-                                    <Label Text="{Binding Rating, Converter={StaticResource RatingToStarsConverter}}" FontSize="13" TextColor="Goldenrod" />
+
+                            <Grid WidthRequest="216" HeightRequest="324">
+
+                                <!-- Placeholder poster (always underneath): icon + title + platform -->
+                                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8" Padding="18">
+                                    <Label Text="💿" FontSize="48" HorizontalTextAlignment="Center" />
+                                    <Label Text="{Binding Title}"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           MaxLines="3"
+                                           LineBreakMode="TailTruncation"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="{StaticResource XmbText}" />
+                                    <Label Text="{Binding Platform}"
+                                           FontSize="11"
+                                           FontAttributes="Bold"
+                                           CharacterSpacing="2"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="{StaticResource XmbMuted}" />
                                 </VerticalStackLayout>
-                                
-                                <Border Grid.Column="1"
-                                        Background="#080F22"
-                                        Padding="8,5"
-                                        Stroke="#264785"
-                                        StrokeThickness="1"
-                                        StrokeShape="RoundRectangle 6"
-                                        VerticalOptions="Center">
-                                    <Label Text="{Binding Status}" 
-                                           FontSize="12" 
-                                           FontAttributes="Bold" 
-                                           TextColor="#F3F7FF" />
+
+                                <!-- Cover art on top of the placeholder -->
+                                <Image WidthRequest="216"
+                                       HeightRequest="324"
+                                       Aspect="AspectFill"
+                                       ZIndex="1"
+                                       Source="{Binding CoverUrl}"
+                                       IsVisible="{Binding HasCover}" />
+
+                                <!-- Status bar -->
+                                <BoxView HeightRequest="4"
+                                         VerticalOptions="Start"
+                                         ZIndex="2"
+                                         BackgroundColor="{Binding Status, Converter={StaticResource StatusColorConverter}}" />
+
+                                <!-- Like + 100% indicators -->
+                                <HorizontalStackLayout HorizontalOptions="End"
+                                                       VerticalOptions="Start"
+                                                       Margin="0,14,10,0"
+                                                       Spacing="6"
+                                                       ZIndex="2">
+                                    <Label Text="♥"
+                                           FontSize="20"
+                                           VerticalOptions="Center"
+                                           IsVisible="{Binding IsLiked}"
+                                           TextColor="{StaticResource XmbLike}" />
+                                    <Border StrokeShape="RoundRectangle 8"
+                                            Stroke="{StaticResource XmbVioletBrush}"
+                                            StrokeThickness="1"
+                                            Background="{StaticResource XmbOverlayBrush}"
+                                            Padding="8,3"
+                                            IsVisible="{Binding IsMastered}">
+                                        <Label Text="🏆 100%"
+                                               FontSize="11"
+                                               FontAttributes="Bold"
+                                               TextColor="{StaticResource XmbViolet}" />
+                                    </Border>
+                                </HorizontalStackLayout>
+
+                                <!-- Info strip -->
+                                <Border VerticalOptions="End"
+                                        ZIndex="2"
+                                        StrokeThickness="0"
+                                        Padding="12,10"
+                                        Background="{StaticResource XmbOverlayBrush}">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="{Binding Title}"
+                                               FontSize="14"
+                                               FontAttributes="Bold"
+                                               LineBreakMode="TailTruncation"
+                                               TextColor="{StaticResource XmbText}" />
+                                        <HorizontalStackLayout Spacing="8">
+                                            <Label Text="{Binding Rating, Converter={StaticResource RatingToStarsConverter}}"
+                                                   FontSize="12"
+                                                   TextColor="{StaticResource XmbGold}" />
+                                            <Label Text="{Binding Platform}"
+                                                   FontSize="11"
+                                                   VerticalOptions="Center"
+                                                   TextColor="{StaticResource XmbMuted}" />
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
                                 </Border>
                             </Grid>
                         </Border>
-                        
-                    </SwipeView>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
-    </VerticalStackLayout>
+            <!-- ===== COMPACT DETAILED LIST ===== -->
+            <CollectionView Grid.Row="3"
+                            ItemsSource="{Binding FilteredGames}"
+                            IsVisible="{Binding IsListView}">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="30" Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="Ігор не знайдено"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{StaticResource XmbText}" />
+                        <Label Text="Спробуйте змінити пошук або фільтри."
+                               HorizontalTextAlignment="Center"
+                               TextColor="{StaticResource XmbMuted}" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Game">
+                        <Border Margin="0,0,0,10"
+                                Padding="0"
+                                StrokeShape="RoundRectangle 12"
+                                Stroke="{StaticResource XmbBorderBrush}"
+                                StrokeThickness="1"
+                                Background="{StaticResource XmbSurfaceBrush}">
+
+                            <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="0">
+
+                                <BoxView Grid.Column="0"
+                                         WidthRequest="4"
+                                         BackgroundColor="{Binding Status, Converter={StaticResource StatusColorConverter}}" />
+
+                                <!-- Box art 58x82 -->
+                                <Border Grid.Column="1"
+                                        Margin="14,12,0,12"
+                                        WidthRequest="58"
+                                        HeightRequest="82"
+                                        VerticalOptions="Center"
+                                        StrokeShape="RoundRectangle 8"
+                                        Stroke="{StaticResource XmbBorderBrush}"
+                                        StrokeThickness="1"
+                                        Background="{StaticResource XmbSurfaceDeepBrush}"
+                                        Padding="0">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=OpenGameDetailCommand}"
+                                                              CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <Grid WidthRequest="58" HeightRequest="82">
+                                        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="1" Padding="3">
+                                            <Label Text="💿" FontSize="18" HorizontalTextAlignment="Center" />
+                                            <Label Text="{Binding Title}"
+                                                   FontSize="7"
+                                                   FontAttributes="Bold"
+                                                   MaxLines="2"
+                                                   LineBreakMode="TailTruncation"
+                                                   HorizontalTextAlignment="Center"
+                                                   TextColor="{StaticResource XmbText}" />
+                                            <Label Text="{Binding Platform}"
+                                                   FontSize="7"
+                                                   LineBreakMode="TailTruncation"
+                                                   HorizontalTextAlignment="Center"
+                                                   TextColor="{StaticResource XmbMuted}" />
+                                        </VerticalStackLayout>
+                                        <Image WidthRequest="58"
+                                               HeightRequest="82"
+                                               Aspect="AspectFill"
+                                               ZIndex="1"
+                                               Source="{Binding CoverUrl}"
+                                               IsVisible="{Binding HasCover}" />
+                                    </Grid>
+                                </Border>
+
+                                <!-- Info (tap = open game page) -->
+                                <VerticalStackLayout Grid.Column="2"
+                                                     Padding="16,12"
+                                                     Spacing="5"
+                                                     VerticalOptions="Center">
+                                    <VerticalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=OpenGameDetailCommand}"
+                                                              CommandParameter="{Binding .}" />
+                                    </VerticalStackLayout.GestureRecognizers>
+
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Label Text="{Binding Title}"
+                                               FontSize="18"
+                                               FontAttributes="Bold"
+                                               LineBreakMode="TailTruncation"
+                                               VerticalOptions="Center"
+                                               TextColor="{StaticResource XmbText}" />
+                                        <Label Text="★"
+                                               FontSize="18"
+                                               IsVisible="{Binding IsFavorite}"
+                                               VerticalOptions="Center"
+                                               TextColor="{StaticResource XmbGold}" />
+                                    </HorizontalStackLayout>
+
+                                    <HorizontalStackLayout Spacing="10">
+                                        <Border StrokeShape="RoundRectangle 6"
+                                                Stroke="{StaticResource XmbAccentBrush}"
+                                                StrokeThickness="1"
+                                                Background="{StaticResource XmbSurfaceDeepBrush}"
+                                                Padding="8,2"
+                                                VerticalOptions="Center">
+                                            <Label Text="{Binding Platform}"
+                                                   FontSize="11"
+                                                   FontAttributes="Bold"
+                                                   CharacterSpacing="1"
+                                                   TextColor="{StaticResource XmbAccent}" />
+                                        </Border>
+                                        <Label Text="{Binding Developer}"
+                                               FontSize="14"
+                                               VerticalOptions="Center"
+                                               LineBreakMode="TailTruncation"
+                                               TextColor="{StaticResource XmbMuted}" />
+                                    </HorizontalStackLayout>
+
+                                    <HorizontalStackLayout Spacing="14">
+                                        <Label Text="{Binding HoursPlayed, StringFormat='{}{0} год. зіграно'}"
+                                               FontSize="13"
+                                               TextColor="{StaticResource XmbMuted}" />
+                                        <Label Text="{Binding Rating, Converter={StaticResource RatingToStarsConverter}}"
+                                               FontSize="13"
+                                               TextColor="{StaticResource XmbGold}" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+
+                                <!-- Badges + quick actions -->
+                                <VerticalStackLayout Grid.Column="3"
+                                                     Spacing="8"
+                                                     Padding="8,12,16,12"
+                                                     HorizontalOptions="End"
+                                                     VerticalOptions="Center">
+
+                                    <HorizontalStackLayout Spacing="8" HorizontalOptions="End">
+                                        <Border StrokeShape="RoundRectangle 8"
+                                                Stroke="{StaticResource XmbVioletBrush}"
+                                                StrokeThickness="1"
+                                                Background="{StaticResource XmbSurfaceDeepBrush}"
+                                                Padding="10,5"
+                                                VerticalOptions="Center"
+                                                IsVisible="{Binding IsMastered}">
+                                            <Label Text="🏆 100%"
+                                                   FontSize="12"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource XmbViolet}" />
+                                        </Border>
+
+                                        <Border StrokeShape="RoundRectangle 8"
+                                                Stroke="{StaticResource XmbBorderBrush}"
+                                                StrokeThickness="1"
+                                                Background="{StaticResource XmbSurfaceDeepBrush}"
+                                                Padding="10,5"
+                                                VerticalOptions="Center">
+                                            <Label Text="{Binding Status}"
+                                                   FontSize="12"
+                                                   FontAttributes="Bold"
+                                                   CharacterSpacing="1"
+                                                   TextTransform="Uppercase"
+                                                   TextColor="{Binding Status, Converter={StaticResource StatusColorConverter}}" />
+                                        </Border>
+                                    </HorizontalStackLayout>
+
+                                    <HorizontalStackLayout Spacing="6" HorizontalOptions="End">
+                                        <Button Text="{Binding IsLiked, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='♥|♡'}"
+                                                TextColor="{Binding IsLiked, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbLike|XmbMuted'}"
+                                                Style="{StaticResource QuickActionButton}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=ToggleLikeCommand}"
+                                                CommandParameter="{Binding .}"
+                                                ToolTipProperties.Text="Лайк" />
+                                        <Button Text="★"
+                                                Style="{StaticResource QuickActionButton}"
+                                                TextColor="{StaticResource XmbGold}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=ToggleFavoriteCommand}"
+                                                CommandParameter="{Binding .}"
+                                                ToolTipProperties.Text="Улюблене" />
+                                        <Button Text="Edit"
+                                                Style="{StaticResource QuickActionButton}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=EditGameCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        <Button Text="✕"
+                                                Style="{StaticResource QuickActionButton}"
+                                                TextColor="{StaticResource XmbDangerSoft}"
+                                                BorderColor="{StaticResource XmbDanger}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=RemoveGameCommand}"
+                                                CommandParameter="{Binding .}"
+                                                ToolTipProperties.Text="Видалити" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+
+        <!-- ================= ROULETTE OVERLAY ================= -->
+        <Grid IsVisible="{Binding IsRouletteOpen}"
+              BackgroundColor="{StaticResource XmbScrim}"
+              ZIndex="10">
+
+            <Border MaximumWidthRequest="720"
+                    Margin="24"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    StrokeShape="RoundRectangle 12"
+                    Stroke="{StaticResource XmbAccentBrush}"
+                    StrokeThickness="1"
+                    Background="{StaticResource XmbSurfaceBrush}"
+                    Padding="24,20">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="24">
+
+                    <!-- Big poster 180x270 with placeholder underneath -->
+                    <Border Grid.Column="0"
+                            WidthRequest="180"
+                            HeightRequest="270"
+                            VerticalOptions="Start"
+                            StrokeShape="RoundRectangle 12"
+                            Stroke="{StaticResource XmbBorderBrush}"
+                            StrokeThickness="1"
+                            Background="{StaticResource XmbSurfaceDeepBrush}"
+                            Padding="0">
+                        <Grid WidthRequest="180" HeightRequest="270">
+                            <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8" Padding="14">
+                                <Label Text="💿" FontSize="44" HorizontalTextAlignment="Center" />
+                                <Label Text="{Binding RouletteTitle}"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       MaxLines="3"
+                                       LineBreakMode="TailTruncation"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{StaticResource XmbText}" />
+                                <Label Text="{Binding RoulettePlatform}"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       CharacterSpacing="2"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{StaticResource XmbMuted}" />
+                            </VerticalStackLayout>
+                            <Image WidthRequest="180"
+                                   HeightRequest="270"
+                                   Aspect="AspectFill"
+                                   ZIndex="1"
+                                   Source="{Binding RouletteCoverUrl}"
+                                   IsVisible="{Binding RouletteHasCover}" />
+                        </Grid>
+                    </Border>
+
+                    <VerticalStackLayout Grid.Column="1" Spacing="10" VerticalOptions="Center">
+                        <Label Text="ROULETTE RESULT" Style="{StaticResource SectionLabel}" TextColor="{StaticResource XmbAccent}" />
+                        <Label Text="{Binding RouletteTitle}"
+                               FontSize="26"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource XmbText}" />
+                        <HorizontalStackLayout Spacing="10">
+                            <Border StrokeShape="RoundRectangle 6"
+                                    Stroke="{StaticResource XmbAccentBrush}"
+                                    StrokeThickness="1"
+                                    Background="{StaticResource XmbSurfaceDeepBrush}"
+                                    Padding="8,2"
+                                    VerticalOptions="Center">
+                                <Label Text="{Binding RoulettePlatform}"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       CharacterSpacing="1"
+                                       TextColor="{StaticResource XmbAccent}" />
+                            </Border>
+                            <Label Text="{Binding RouletteDeveloper}"
+                                   VerticalOptions="Center"
+                                   TextColor="{StaticResource XmbMuted}" />
+                        </HorizontalStackLayout>
+                        <Label Text="{Binding RouletteHoursText}" TextColor="{StaticResource XmbMuted}" />
+                        <Label Text="{Binding RouletteCandidatesText}"
+                               FontSize="12"
+                               TextColor="{StaticResource XmbDim}" />
+
+                        <FlexLayout Wrap="Wrap" Direction="Row" JustifyContent="Start" AlignItems="Start" Margin="0,8,0,0">
+                            <Button Text="▶ Start Playing"
+                                    Command="{Binding StartPlayingCommand}"
+                                    Style="{StaticResource SpinButton}"
+                                    Margin="0,0,10,10" />
+                            <Button Text="🎲 Reroll"
+                                    Command="{Binding RerollCommand}"
+                                    Style="{StaticResource GhostButton}"
+                                    Margin="0,0,10,10" />
+                            <Button Text="Open Page"
+                                    Command="{Binding OpenRouletteGameCommand}"
+                                    Style="{StaticResource GhostButton}"
+                                    Margin="0,0,10,10" />
+                            <Button Text="Close"
+                                    Command="{Binding CloseRouletteCommand}"
+                                    Style="{StaticResource DangerOutlineButton}"
+                                    Margin="0,0,10,10" />
+                        </FlexLayout>
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
 </ContentPage>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:CartridgeApp.ViewModels"
+             x:Class="CartridgeApp.Views.LogEntryPage"
+             x:DataType="viewmodels:LogEntryViewModel"
+             Title="Log Play"
+             BackgroundColor="{StaticResource XmbBackground}">
+
+    <ScrollView BackgroundColor="{StaticResource XmbBackground}">
+        <Grid MaximumWidthRequest="720" HorizontalOptions="Center" Padding="20,16">
+            <VerticalStackLayout Spacing="14">
+
+                <!-- Game header -->
+                <Border StrokeShape="RoundRectangle 10"
+                        Stroke="{StaticResource XmbBorderBrush}"
+                        StrokeThickness="1"
+                        Background="{StaticResource XmbSurfaceBrush}"
+                        Padding="16,12">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                        <Border Grid.Column="0"
+                                WidthRequest="58"
+                                HeightRequest="82"
+                                StrokeShape="RoundRectangle 6"
+                                Stroke="{StaticResource XmbBorderBrush}"
+                                StrokeThickness="1"
+                                Background="{StaticResource XmbSurfaceDeepBrush}"
+                                Padding="0">
+                            <Grid WidthRequest="58" HeightRequest="82">
+                                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="1" Padding="3">
+                                    <Label Text="💿" FontSize="18" HorizontalTextAlignment="Center" />
+                                    <Label Text="{Binding GameTitle}"
+                                           FontSize="7"
+                                           FontAttributes="Bold"
+                                           MaxLines="2"
+                                           LineBreakMode="TailTruncation"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="{StaticResource XmbText}" />
+                                    <Label Text="{Binding Platform}"
+                                           FontSize="7"
+                                           LineBreakMode="TailTruncation"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="{StaticResource XmbMuted}" />
+                                </VerticalStackLayout>
+                                <Image WidthRequest="58"
+                                       HeightRequest="82"
+                                       Aspect="AspectFill"
+                                       ZIndex="1"
+                                       Source="{Binding CoverUrl}"
+                                       IsVisible="{Binding HasCover}" />
+                            </Grid>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="NEW LOG ENTRY" Style="{StaticResource SectionLabel}" />
+                            <Label Text="{Binding GameTitle}"
+                                   FontSize="20"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource XmbText}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Date + status -->
+                <Border StrokeShape="RoundRectangle 10"
+                        Stroke="{StaticResource XmbBorderBrush}"
+                        StrokeThickness="1"
+                        Background="{StaticResource XmbSurfaceBrush}"
+                        Padding="16,12">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="ДАТА" Style="{StaticResource SectionLabel}" />
+                        <Border StrokeShape="RoundRectangle 8"
+                                Stroke="{StaticResource XmbBorderBrush}"
+                                StrokeThickness="1"
+                                Background="{StaticResource XmbSurfaceDeepBrush}"
+                                Padding="12,0">
+                            <DatePicker Date="{Binding LoggedDate}" Format="dd.MM.yyyy" />
+                        </Border>
+
+                        <Label Text="СТАТУС ПІСЛЯ СЕСІЇ" Style="{StaticResource SectionLabel}" Margin="0,6,0,0" />
+                        <Border StrokeShape="RoundRectangle 8"
+                                Stroke="{StaticResource XmbBorderBrush}"
+                                StrokeThickness="1"
+                                Background="{StaticResource XmbSurfaceDeepBrush}"
+                                Padding="12,0">
+                            <Picker ItemsSource="{Binding Statuses}" SelectedItem="{Binding Status}" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Hours + replay -->
+                <Border StrokeShape="RoundRectangle 10"
+                        Stroke="{StaticResource XmbBorderBrush}"
+                        StrokeThickness="1"
+                        Background="{StaticResource XmbSurfaceBrush}"
+                        Padding="16,12">
+                    <Grid ColumnDefinitions="*,Auto,64"
+                          RowDefinitions="Auto,Auto"
+                          ColumnSpacing="12"
+                          RowSpacing="12">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Години за сесію" VerticalOptions="Center" />
+                        <Stepper Grid.Row="0" Grid.Column="1"
+                                 Minimum="0" Maximum="24" Increment="0.5"
+                                 Value="{Binding HoursSession}" />
+                        <Label Grid.Row="0" Grid.Column="2"
+                               Text="{Binding HoursSession, StringFormat='{}{0:0.0} h'}"
+                               FontAttributes="Bold"
+                               HorizontalTextAlignment="End"
+                               VerticalOptions="Center"
+                               TextColor="{StaticResource XmbAccent}" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Replay (повторне проходження)" VerticalOptions="Center" />
+                        <Switch Grid.Row="1" Grid.Column="2"
+                                IsToggled="{Binding IsReplay}"
+                                HorizontalOptions="End"
+                                VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Review -->
+                <Border StrokeShape="RoundRectangle 10"
+                        Stroke="{StaticResource XmbBorderBrush}"
+                        StrokeThickness="1"
+                        Background="{StaticResource XmbSurfaceBrush}"
+                        Padding="16,12">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="ВІДГУК / НОТАТКА" Style="{StaticResource SectionLabel}" />
+                        <Border StrokeShape="RoundRectangle 8"
+                                Stroke="{StaticResource XmbBorderBrush}"
+                                StrokeThickness="1"
+                                Background="{StaticResource XmbSurfaceDeepBrush}"
+                                Padding="12,4">
+                            <Editor Placeholder="Що відбулося за сесію? Короткий відгук…"
+                                    Text="{Binding ReviewText}"
+                                    AutoSize="TextChanges"
+                                    HeightRequest="140" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Button Grid.Column="0"
+                            Text="Скасувати"
+                            Command="{Binding CancelCommand}"
+                            Style="{StaticResource GhostButton}" />
+                    <Button Grid.Column="1"
+                            Text="Зберегти запис"
+                            Command="{Binding SaveCommand}"
+                            Style="{StaticResource SpinButton}" />
+                </Grid>
+            </VerticalStackLayout>
+        </Grid>
+    </ScrollView>
+</ContentPage>

@@ -13,15 +13,22 @@ namespace CartridgeApp.ViewModels;
 /// </summary>
 public class GameFormViewModel : INotifyPropertyChanged
 {
+    private const double RatingStep = 0.5;
+    private const double MaxRating = 5.0;
+
     private readonly IGameRepository _gameRepository;
     private int _id;
     private string _title = string.Empty;
     private string _developer = string.Empty;
     private string _platform = "PC";
     private GameStatus _status = GameStatus.Backlog;
-    private int? _rating;
+    private double _rating;
     private int _hoursPlayed;
     private string _notes = string.Empty;
+    private string? _coverUrl;
+    private bool _isFavorite;
+    private bool _isLiked;
+    private bool _isMastered;
 
     public int Id
     {
@@ -53,10 +60,11 @@ public class GameFormViewModel : INotifyPropertyChanged
         set => SetProperty(ref _status, value);
     }
 
-    public int? Rating
+    /// <summary>0.0 = not rated, otherwise 0.5 .. 5.0 in steps of 0.5.</summary>
+    public double Rating
     {
         get => _rating;
-        set => SetProperty(ref _rating, value);
+        set => SetProperty(ref _rating, NormalizeRating(value));
     }
 
     public int HoursPlayed
@@ -71,6 +79,42 @@ public class GameFormViewModel : INotifyPropertyChanged
         set => SetProperty(ref _notes, value);
     }
 
+    public string? CoverUrl
+    {
+        get => _coverUrl;
+        set
+        {
+            if (SetProperty(ref _coverUrl, value))
+            {
+                OnPropertyChanged(nameof(CoverPreviewUrl));
+                OnPropertyChanged(nameof(HasCoverPreview));
+            }
+        }
+    }
+
+    /// <summary>The cover URL only when it is a valid http(s) address, so partial typing never triggers image loads.</summary>
+    public string? CoverPreviewUrl => TryNormalizeCoverUrl(CoverUrl, out string? url) ? url : null;
+
+    public bool HasCoverPreview => CoverPreviewUrl != null;
+
+    public bool IsFavorite
+    {
+        get => _isFavorite;
+        set => SetProperty(ref _isFavorite, value);
+    }
+
+    public bool IsLiked
+    {
+        get => _isLiked;
+        set => SetProperty(ref _isLiked, value);
+    }
+
+    public bool IsMastered
+    {
+        get => _isMastered;
+        set => SetProperty(ref _isMastered, value);
+    }
+
     public IReadOnlyList<string> Platforms { get; } =
     [
         "PC", "Steam Deck", "PlayStation", "Xbox", "Nintendo Switch", "Mobile"
@@ -79,6 +123,11 @@ public class GameFormViewModel : INotifyPropertyChanged
     public IReadOnlyList<GameStatus> Statuses { get; } = Enum.GetValues<GameStatus>();
 
     public ICommand SaveGameCommand { get; }
+    public ICommand DecreaseRatingCommand { get; }
+    public ICommand IncreaseRatingCommand { get; }
+    public ICommand ClearRatingCommand { get; }
+    public ICommand PasteCoverCommand { get; }
+    public ICommand ClearCoverCommand { get; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -86,6 +135,11 @@ public class GameFormViewModel : INotifyPropertyChanged
     {
         _gameRepository = gameRepository;
         SaveGameCommand = new Command(async () => await SaveGameAsync());
+        DecreaseRatingCommand = new Command(() => Rating -= RatingStep);
+        IncreaseRatingCommand = new Command(() => Rating += RatingStep);
+        ClearRatingCommand = new Command(() => Rating = 0);
+        PasteCoverCommand = new Command(async () => await PasteCoverAsync());
+        ClearCoverCommand = new Command(() => CoverUrl = null);
     }
 
     public void LoadGame(Game game)
@@ -98,6 +152,29 @@ public class GameFormViewModel : INotifyPropertyChanged
         Rating = game.Rating;
         HoursPlayed = game.HoursPlayed;
         Notes = game.Notes;
+        CoverUrl = game.CoverUrl;
+        IsFavorite = game.IsFavorite;
+        IsLiked = game.IsLiked;
+        IsMastered = game.IsMastered;
+    }
+
+    private async Task PasteCoverAsync()
+    {
+        try
+        {
+            string? text = await Clipboard.Default.GetTextAsync();
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                await ShowAlertAsync("Буфер обміну", "У буфері обміну немає тексту з посиланням.");
+                return;
+            }
+
+            CoverUrl = text.Trim();
+        }
+        catch (Exception exception)
+        {
+            await ShowAlertAsync("Буфер обміну", $"Не вдалося прочитати буфер обміну: {exception.Message}");
+        }
     }
 
     private async Task SaveGameAsync()
@@ -108,9 +185,9 @@ public class GameFormViewModel : INotifyPropertyChanged
             return;
         }
 
-        if (Rating.HasValue && (Rating.Value < 1 || Rating.Value > 10))
+        if (Rating < 0 || Rating > MaxRating)
         {
-            await ShowAlertAsync("Помилка", "Рейтинг має бути в діапазоні від 1 до 10.");
+            await ShowAlertAsync("Помилка", "Рейтинг має бути в діапазоні від 0.5 до 5.0 (0 = без оцінки).");
             return;
         }
 
@@ -118,6 +195,16 @@ public class GameFormViewModel : INotifyPropertyChanged
         {
             await ShowAlertAsync("Помилка", "Кількість годин не може бути від'ємною.");
             return;
+        }
+
+        string? coverUrl = null;
+        if (!string.IsNullOrWhiteSpace(CoverUrl))
+        {
+            if (!TryNormalizeCoverUrl(CoverUrl, out coverUrl))
+            {
+                await ShowAlertAsync("Помилка", "Cover Image URL має бути повним посиланням http(s)://…");
+                return;
+            }
         }
 
         var game = new Game
@@ -129,7 +216,11 @@ public class GameFormViewModel : INotifyPropertyChanged
             Status = Status,
             Rating = Rating,
             HoursPlayed = HoursPlayed,
-            Notes = Notes.Trim()
+            Notes = Notes.Trim(),
+            CoverUrl = coverUrl,
+            IsFavorite = IsFavorite,
+            IsLiked = IsLiked,
+            IsMastered = IsMastered
         };
 
         if (game.Id == 0)
@@ -144,6 +235,32 @@ public class GameFormViewModel : INotifyPropertyChanged
         await Shell.Current.GoToAsync("..");
     }
 
+    private static double NormalizeRating(double value)
+    {
+        double clamped = Math.Clamp(value, 0d, MaxRating);
+        return Math.Round(clamped / RatingStep, MidpointRounding.AwayFromZero) * RatingStep;
+    }
+
+    private static bool TryNormalizeCoverUrl(string? raw, out string? url)
+    {
+        url = null;
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+        if (Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri) &&
+            (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) &&
+            uri.Host.Contains('.'))
+        {
+            url = trimmed;
+            return true;
+        }
+
+        return false;
+    }
+
     private static async Task ShowAlertAsync(string title, string message)
     {
         Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
@@ -151,6 +268,11 @@ public class GameFormViewModel : INotifyPropertyChanged
         {
             await page.DisplayAlertAsync(title, message, "OK");
         }
+    }
+
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     private bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)

@@ -11,11 +11,17 @@
     Shell.ForegroundColor="{StaticResource XmbAccent}"
     Shell.UnselectedColor="{StaticResource XmbMuted}"
     Shell.NavBarHasShadow="False"
+    Shell.TabBarIsVisible="False"
     Shell.TabBarBackgroundColor="{StaticResource XmbBackground}"
     Shell.TabBarForegroundColor="{StaticResource XmbAccent}"
     Shell.TabBarTitleColor="{StaticResource XmbAccent}"
     Shell.TabBarUnselectedColor="{StaticResource XmbMuted}">
 
+    <!--
+        The four tab pages draw their own top bar (Views/AppHeader.xaml: tabs with an underline on the
+        left, profile widget on the right), so the native tab bar is hidden. The routes below are what
+        the header navigates to with GoToAsync("//MainPage") and so on.
+    -->
     <TabBar>
         <ShellContent
             Title="LIBRARY"

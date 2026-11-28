@@ -16,6 +16,6 @@ public partial class JournalPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.RefreshAsync();
+        await _viewModel.LoadAsync();
     }
 }

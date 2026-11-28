@@ -14,7 +14,9 @@ public enum QuickFilter
     All,
     Backlog,
     Playing,
+    Played,
     Completed,
+    Abandoned,
     Liked,
     Mastered
 }
@@ -112,7 +114,9 @@ public class MainViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(IsFilterAll));
             OnPropertyChanged(nameof(IsFilterBacklog));
             OnPropertyChanged(nameof(IsFilterPlaying));
+            OnPropertyChanged(nameof(IsFilterPlayed));
             OnPropertyChanged(nameof(IsFilterCompleted));
+            OnPropertyChanged(nameof(IsFilterAbandoned));
             OnPropertyChanged(nameof(IsFilterLiked));
             OnPropertyChanged(nameof(IsFilterMastered));
             ApplyFilter();
@@ -122,7 +126,9 @@ public class MainViewModel : INotifyPropertyChanged
     public bool IsFilterAll => ActiveQuickFilter == QuickFilter.All;
     public bool IsFilterBacklog => ActiveQuickFilter == QuickFilter.Backlog;
     public bool IsFilterPlaying => ActiveQuickFilter == QuickFilter.Playing;
+    public bool IsFilterPlayed => ActiveQuickFilter == QuickFilter.Played;
     public bool IsFilterCompleted => ActiveQuickFilter == QuickFilter.Completed;
+    public bool IsFilterAbandoned => ActiveQuickFilter == QuickFilter.Abandoned;
     public bool IsFilterLiked => ActiveQuickFilter == QuickFilter.Liked;
     public bool IsFilterMastered => ActiveQuickFilter == QuickFilter.Mastered;
 
@@ -183,7 +189,7 @@ public class MainViewModel : INotifyPropertyChanged
         get => _gridSpan;
         set
         {
-            int span = Math.Clamp(value, 2, 6);
+            int span = Math.Clamp(value, 2, 5);
             if (_gridSpan == span)
             {
                 return;
@@ -267,7 +273,7 @@ public class MainViewModel : INotifyPropertyChanged
         OpenRouletteGameCommand = new Command(async () => await OpenRouletteGame());
         CloseRouletteCommand = new Command(() => IsRouletteOpen = false);
         AddGameCommand = new Command(async () => await AddNewGame());
-        RemoveGameCommand = new Command<Game>(RemoveGame);
+        RemoveGameCommand = new Command<Game>(async game => await RemoveGameAsync(game));
         ToggleFavoriteCommand = new Command<Game>(async game => await ToggleFavoriteAsync(game));
         ToggleLikeCommand = new Command<Game>(async game => await ToggleLikeAsync(game));
         ClearAllCommand = new Command(ClearAll);
@@ -453,12 +459,39 @@ public class MainViewModel : INotifyPropertyChanged
 
     // ------------------------------------------------------------------ list actions
 
-    private void RemoveGame(Game gameToRemove)
+    private async Task RemoveGameAsync(Game gameToRemove)
     {
-        if (gameToRemove != null && Games.Contains(gameToRemove))
+        if (gameToRemove == null || !Games.Contains(gameToRemove))
         {
+            return;
+        }
+
+        Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page == null)
+        {
+            return;
+        }
+
+        bool confirmed = await page.DisplayAlertAsync(
+            "Видалити гру?",
+            $"«{gameToRemove.Title}» та її записи щоденника буде видалено.",
+            "Видалити",
+            "Скасувати");
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        try
+        {
+            await _gameRepository.DeleteGameAsync(gameToRemove);
             Games.Remove(gameToRemove);
             ApplyFilter();
+        }
+        catch (Exception exception)
+        {
+            await page.DisplayAlertAsync("Помилка PostgreSQL", $"Не вдалося видалити гру: {exception.Message}", "OK");
         }
     }
 
@@ -549,7 +582,9 @@ public class MainViewModel : INotifyPropertyChanged
         {
             QuickFilter.Backlog => filteredGames.Where(game => game.Status == GameStatus.Backlog),
             QuickFilter.Playing => filteredGames.Where(game => game.Status == GameStatus.Playing),
+            QuickFilter.Played => filteredGames.Where(game => game.Status == GameStatus.Played),
             QuickFilter.Completed => filteredGames.Where(game => game.Status == GameStatus.Completed),
+            QuickFilter.Abandoned => filteredGames.Where(game => game.Status == GameStatus.Abandoned),
             QuickFilter.Liked => filteredGames.Where(game => game.IsLiked),
             QuickFilter.Mastered => filteredGames.Where(game => game.IsMastered),
             _ => filteredGames

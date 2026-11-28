@@ -22,4 +22,6 @@ public class UserProfile
     /// Four pinned game ids for the showcase, comma separated, 0 = empty slot (for example "12,0,7,3").
     /// </summary>
     public string ShowcaseGameIdsCsv { get; set; } = "0,0,0,0";
+
+    public int? CrownedGameId { get; set; }
 }

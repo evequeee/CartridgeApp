@@ -16,14 +16,22 @@ public class BoolSwitchConverter : IValueConverter
         string[] parts = (parameter as string ?? "|").Split('|', 2);
         string picked = flag ? parts[0] : (parts.Length > 1 ? parts[1] : string.Empty);
 
-        if (targetType == typeof(Color))
+        if (targetType == typeof(Color) || typeof(Brush).IsAssignableFrom(targetType))
         {
-            if (Application.Current?.Resources.TryGetValue(picked, out object? resource) == true && resource is Color color)
+            if (Application.Current?.Resources.TryGetValue(picked, out object? resource) == true)
             {
-                return color;
+                if (resource is Color color)
+                {
+                    return targetType == typeof(Color) ? color : new SolidColorBrush(color);
+                }
+
+                if (resource is Brush brush)
+                {
+                    return brush;
+                }
             }
 
-            return Colors.White;
+            return targetType == typeof(Color) ? Colors.White : new SolidColorBrush(Colors.White);
         }
 
         return picked;

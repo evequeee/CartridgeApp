@@ -21,8 +21,8 @@
     </Style>
 
     <Style TargetType="Border">
-        <Setter Property="Stroke" Value="{StaticResource XmbBorderBrush}" />
-        <Setter Property="StrokeThickness" Value="1"/>
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="StrokeThickness" Value="0"/>
     </Style>
 
     <Style TargetType="BoxView">
@@ -36,7 +36,7 @@
         <Setter Property="FontFamily" Value="OpenSansSemibold"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="BorderWidth" Value="0"/>
-        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="CornerRadius" Value="10"/>
         <Setter Property="Padding" Value="14,10"/>
         <Setter Property="MinimumHeightRequest" Value="44"/>
         <Setter Property="MinimumWidthRequest" Value="44"/>
@@ -64,33 +64,57 @@
         <Setter Property="FontAttributes" Value="Bold"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="BorderWidth" Value="0"/>
-        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="Padding" Value="20,10"/>
         <Setter Property="MinimumHeightRequest" Value="44"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource XmbAccent}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
 
     <!-- + Add Game -->
     <Style TargetType="Button" x:Key="GhostButton">
         <Setter Property="TextColor" Value="{StaticResource XmbText}" />
         <Setter Property="BackgroundColor" Value="{StaticResource XmbSurfaceDeep}" />
-        <Setter Property="BorderColor" Value="{StaticResource XmbAccent}" />
-        <Setter Property="BorderWidth" Value="1"/>
+        <Setter Property="BorderColor" Value="Transparent" />
+        <Setter Property="BorderWidth" Value="0"/>
         <Setter Property="FontFamily" Value="OpenSansSemibold"/>
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="Padding" Value="16,10"/>
         <Setter Property="MinimumHeightRequest" Value="44"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource XmbSurfaceHover}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
 
     <!-- Clear -->
     <Style TargetType="Button" x:Key="DangerOutlineButton">
         <Setter Property="TextColor" Value="{StaticResource XmbDangerSoft}" />
         <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="BorderColor" Value="{StaticResource XmbDanger}" />
-        <Setter Property="BorderWidth" Value="1"/>
+        <Setter Property="BorderColor" Value="Transparent" />
+        <Setter Property="BorderWidth" Value="0"/>
         <Setter Property="FontFamily" Value="OpenSansSemibold"/>
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="Padding" Value="14,10"/>
         <Setter Property="MinimumHeightRequest" Value="44"/>
     </Style>
@@ -99,23 +123,63 @@
     <Style TargetType="Button" x:Key="QuickActionButton">
         <Setter Property="TextColor" Value="{StaticResource XmbText}" />
         <Setter Property="BackgroundColor" Value="{StaticResource XmbSurfaceDeep}" />
-        <Setter Property="BorderColor" Value="{StaticResource XmbBorder}" />
-        <Setter Property="BorderWidth" Value="1"/>
+        <Setter Property="BorderColor" Value="Transparent" />
+        <Setter Property="BorderWidth" Value="0"/>
         <Setter Property="FontFamily" Value="OpenSansSemibold"/>
         <Setter Property="FontSize" Value="12"/>
-        <Setter Property="CornerRadius" Value="8"/>
-        <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="0"/>
         <Setter Property="HeightRequest" Value="34"/>
         <Setter Property="MinimumHeightRequest" Value="34"/>
-        <Setter Property="MinimumWidthRequest" Value="40"/>
+        <Setter Property="MinimumWidthRequest" Value="34"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource XmbSurfaceHover}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <!-- Top navigation tabs (LIBRARY / JOURNAL / ...). The active colour is applied locally via bindings. -->
+    <Style TargetType="Button" x:Key="NavTabButton">
+        <Setter Property="TextColor" Value="{StaticResource XmbMuted}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="BorderWidth" Value="0"/>
+        <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="CharacterSpacing" Value="1"/>
+        <Setter Property="CornerRadius" Value="0"/>
+        <Setter Property="Padding" Value="16,8"/>
+        <Setter Property="MinimumHeightRequest" Value="40"/>
+        <Setter Property="MinimumWidthRequest" Value="44"/>
+    </Style>
+
+    <!-- "← Back" button on pushed pages (the system arrow in the WinUI title bar is easy to miss). -->
+    <Style TargetType="Button" x:Key="BackButton">
+        <Setter Property="TextColor" Value="{StaticResource XmbText}" />
+        <Setter Property="BackgroundColor" Value="{StaticResource XmbSurfaceDeep}" />
+        <Setter Property="BorderColor" Value="Transparent" />
+        <Setter Property="BorderWidth" Value="0"/>
+        <Setter Property="FontFamily" Value="OpenSansSemibold"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="Padding" Value="18,8"/>
+        <Setter Property="HorizontalOptions" Value="Start"/>
+        <Setter Property="MinimumHeightRequest" Value="40"/>
     </Style>
 
     <!-- Filter chips and the grid/list toggle. Active state is applied locally via bindings (BoolSwitchConverter). -->
     <Style TargetType="Button" x:Key="ChipButton">
         <Setter Property="TextColor" Value="{StaticResource XmbMuted}" />
         <Setter Property="BackgroundColor" Value="{StaticResource XmbSurfaceDeep}" />
-        <Setter Property="BorderColor" Value="{StaticResource XmbBorder}" />
-        <Setter Property="BorderWidth" Value="1"/>
+        <Setter Property="BorderColor" Value="Transparent" />
+        <Setter Property="BorderWidth" Value="0"/>
         <Setter Property="FontFamily" Value="OpenSansSemibold"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="CornerRadius" Value="18"/>
@@ -123,6 +187,18 @@
         <Setter Property="HeightRequest" Value="36"/>
         <Setter Property="MinimumHeightRequest" Value="36"/>
         <Setter Property="MinimumWidthRequest" Value="44"/>
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource XmbSurfaceHover}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
 
     <Style TargetType="CheckBox">

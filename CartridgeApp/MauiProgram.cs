@@ -5,6 +5,9 @@ using CartridgeApp.Data;
 using CartridgeApp.Services;
 using CartridgeApp.ViewModels;
 using CartridgeApp.Views;
+#if WINDOWS
+using Microsoft.Maui.Handlers;
+#endif
 
 namespace CartridgeApp;
 
@@ -20,6 +23,17 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
+
+#if WINDOWS
+        EntryHandler.Mapper.AppendToMapping("CartridgeApp.RemoveWinUIEntryBorder", (handler, _) =>
+            handler.PlatformView.BorderThickness = new Microsoft.UI.Xaml.Thickness(0));
+        EditorHandler.Mapper.AppendToMapping("CartridgeApp.RemoveWinUIEditorBorder", (handler, _) =>
+            handler.PlatformView.BorderThickness = new Microsoft.UI.Xaml.Thickness(0));
+        DatePickerHandler.Mapper.AppendToMapping("CartridgeApp.RemoveWinUIDatePickerBorder", (handler, _) =>
+            handler.PlatformView.BorderThickness = new Microsoft.UI.Xaml.Thickness(0));
+        PickerHandler.Mapper.AppendToMapping("CartridgeApp.RemoveWinUIPickerBorder", (handler, _) =>
+            handler.PlatformView.BorderThickness = new Microsoft.UI.Xaml.Thickness(0));
+#endif
 
 #if DEBUG
         builder.Logging.AddDebug();
@@ -42,6 +56,7 @@ public static class MauiProgram
         builder.Services.AddTransient<LogEntryViewModel>();
         builder.Services.AddTransient<JournalViewModel>();
         builder.Services.AddTransient<ProfileViewModel>();
+        builder.Services.AddTransient<AppHeaderViewModel>();
 
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<GameFormPage>();

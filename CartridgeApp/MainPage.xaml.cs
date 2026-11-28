@@ -4,11 +4,6 @@ namespace CartridgeApp;
 
 public partial class MainPage : ContentPage
 {
-    // Poster tile (216 wide) + its horizontal margin; used to pick the number of grid columns.
-    private const double PosterCellWidth = 232;
-    private const double MaxContentWidth = 1050;
-    private const double HorizontalPadding = 48;
-
     private readonly MainViewModel _viewModel;
 
     public MainPage(MainViewModel viewModel)
@@ -34,9 +29,11 @@ public partial class MainPage : ContentPage
             return;
         }
 
-        // 3-4 poster columns on a normal window, fewer on a narrow one.
-        double contentWidth = Math.Min(width, MaxContentWidth) - HorizontalPadding;
-        int span = Math.Clamp((int)Math.Floor(contentWidth / PosterCellWidth), 2, 6);
+        // The content area is capped at 1480px, so wide windows use a five-column poster grid.
+        int span = width >= 1000 ? 5
+            : width >= 800 ? 4
+            : width >= 600 ? 3
+            : 2;
 
         PosterLayout.Span = span;
         _viewModel.GridSpan = span;

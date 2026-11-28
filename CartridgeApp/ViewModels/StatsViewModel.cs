@@ -8,6 +8,25 @@ using CartridgeApp.Services;
 
 namespace CartridgeApp.ViewModels;
 
+/// <summary>One horizontal bar of the "games by platform" breakdown.</summary>
+public class PlatformBar
+{
+    public PlatformBar(string name, int count, int total)
+    {
+        Name = name;
+        Count = count;
+        Fraction = total <= 0 ? 0 : Math.Clamp((double)count / total, 0d, 1d);
+    }
+
+    public string Name { get; }
+    public int Count { get; }
+
+    /// <summary>Share of the whole library (0..1) for the progress bar.</summary>
+    public double Fraction { get; }
+
+    public string CountText => $"{Count} · {Fraction * 100:0}%";
+}
+
 /// <summary>
 /// Presents aggregated backlog statistics for the statistics page.
 /// </summary>
@@ -26,6 +45,8 @@ public class StatsViewModel : INotifyPropertyChanged
         ExportBackupCommand = new Command(async () => await ExportBackupAsync());
         ImportBackupCommand = new Command(async () => await ImportBackupAsync());
         PlatformStats = new ObservableCollection<KeyValuePair<string, int>>();
+        PlatformBars = new ObservableCollection<PlatformBar>();
+        StatusBars = new ObservableCollection<PlatformBar>();
         _ = LoadStatsAsync();
     }
 
@@ -33,12 +54,15 @@ public class StatsViewModel : INotifyPropertyChanged
     public ICommand ExportBackupCommand { get; }
     public ICommand ImportBackupCommand { get; }
     public ObservableCollection<KeyValuePair<string, int>> PlatformStats { get; }
+    public ObservableCollection<PlatformBar> PlatformBars { get; }
+    public ObservableCollection<PlatformBar> StatusBars { get; }
 
     public int TotalGames => _stats.TotalGames;
     public double CompletedPercentage => _stats.CompletedPercentage;
     public double CompletedProgress => Math.Clamp(_stats.CompletedPercentage / 100d, 0d, 1d);
     public int TotalHoursPlayed => _stats.TotalHoursPlayed;
     public int FavoriteGames => _stats.FavoriteGames;
+    public int CompletedGamesCount => (int)Math.Round(_stats.CompletedPercentage * _stats.TotalGames / 100d);
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -60,6 +84,26 @@ public class StatsViewModel : INotifyPropertyChanged
                 PlatformStats.Add(platform);
             }
 
+            int platformTotal = _stats.GamesByPlatform.Values.Sum();
+            PlatformBars.Clear();
+            foreach (KeyValuePair<string, int> platform in _stats.GamesByPlatform
+                         .OrderByDescending(item => item.Value)
+                         .ThenBy(item => item.Key))
+            {
+                PlatformBars.Add(new PlatformBar(platform.Key, platform.Value, platformTotal));
+            }
+
+            IReadOnlyList<Game> games = await _gameRepository.GetGamesAsync();
+            StatusBars.Clear();
+            foreach (IGrouping<GameStatus, Game> status in games
+                         .GroupBy(game => game.Status)
+                         .OrderByDescending(group => group.Count())
+                         .ThenBy(group => group.Key))
+            {
+                StatusBars.Add(new PlatformBar(status.Key.ToString(), status.Count(), games.Count));
+            }
+
+            OnPropertyChanged(nameof(CompletedGamesCount));
             OnPropertyChanged(nameof(TotalGames));
             OnPropertyChanged(nameof(CompletedPercentage));
             OnPropertyChanged(nameof(TotalHoursPlayed));

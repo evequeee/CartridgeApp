@@ -232,9 +232,13 @@ public class PostgresGameRepository : IGameRepository
                 "AvatarUrl" character varying(1000) NULL,
                 "FavoritePlatform" character varying(100) NOT NULL,
                 "ShowcaseGameIdsCsv" character varying(200) NOT NULL,
+                "CrownedGameId" integer NULL,
                 CONSTRAINT "PK_UserProfiles" PRIMARY KEY ("Id")
             )
             """);
+
+        await _dbContext.Database.ExecuteSqlRawAsync(
+            """ALTER TABLE "UserProfiles" ADD COLUMN IF NOT EXISTS "CrownedGameId" integer NULL""");
 
         // The first demo build used the legacy Steam CDN host; move those covers to the new poster host.
         await _dbContext.Database.ExecuteSqlRawAsync("""

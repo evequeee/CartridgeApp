@@ -10,98 +10,67 @@
 
     <ContentPage.Resources>
         <converters:RatingToStarsConverter x:Key="RatingToStarsConverter" />
+        <converters:BoolSwitchConverter x:Key="BoolSwitchConverter" />
     </ContentPage.Resources>
 
     <ScrollView BackgroundColor="{StaticResource XmbBackground}">
-        <Grid MaximumWidthRequest="720" HorizontalOptions="Center" Padding="20,16">
-            <VerticalStackLayout Spacing="14">
+        <Grid MaximumWidthRequest="1480" HorizontalOptions="Fill" Padding="32,20">
+            <VerticalStackLayout Spacing="16">
 
-                <Label Text="GAME DETAILS"
-                       FontSize="20"
-                       FontAttributes="Bold"
-                       CharacterSpacing="1"
-                       TextColor="{StaticResource XmbText}" />
+                <Button Text="← Back"
+                        Style="{StaticResource BackButton}"
+                        Clicked="OnBackClicked" />
 
-                <!-- Title + Developer -->
-                <Border StrokeShape="RoundRectangle 10"
-                        Stroke="{StaticResource XmbBorderBrush}"
-                        StrokeThickness="1"
-                        Background="{StaticResource XmbSurfaceBrush}"
-                        Padding="16,12">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="ГРА" Style="{StaticResource SectionLabel}" />
-                        <Border StrokeShape="RoundRectangle 8"
+                <Label Text="GAME DETAILS" Style="{StaticResource SectionTitle}" />
+
+                <Grid ColumnDefinitions="360,*" ColumnSpacing="24">
+
+                    <!-- ================= LEFT: inputs ================= -->
+                    <VerticalStackLayout Grid.Column="1" Spacing="16">
+
+                        <Border StrokeShape="RoundRectangle 12"
                                 Stroke="{StaticResource XmbBorderBrush}"
                                 StrokeThickness="1"
-                                Background="{StaticResource XmbSurfaceDeepBrush}"
-                                Padding="12,0">
-                            <Entry Placeholder="Назва гри" Text="{Binding Title}" />
-                        </Border>
-                        <Border StrokeShape="RoundRectangle 8"
-                                Stroke="{StaticResource XmbBorderBrush}"
-                                StrokeThickness="1"
-                                Background="{StaticResource XmbSurfaceDeepBrush}"
-                                Padding="12,0">
-                            <Entry Placeholder="Розробник" Text="{Binding Developer}" />
-                        </Border>
-                    </VerticalStackLayout>
-                </Border>
+                                Background="{StaticResource XmbSurfaceBrush}"
+                                Padding="24,20">
+                            <VerticalStackLayout Spacing="12">
+                                <Label Text="ГРА" Style="{StaticResource SectionLabel}" />
 
-                <!-- Cover art with live preview -->
-                <Border StrokeShape="RoundRectangle 10"
-                        Stroke="{StaticResource XmbBorderBrush}"
-                        StrokeThickness="1"
-                        Background="{StaticResource XmbSurfaceBrush}"
-                        Padding="16,12">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="ОБКЛАДИНКА" Style="{StaticResource SectionLabel}" />
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
-
-                            <Border Grid.Column="0"
-                                    WidthRequest="96"
-                                    HeightRequest="136"
-                                    VerticalOptions="Start"
-                                    StrokeShape="RoundRectangle 8"
-                                    Stroke="{StaticResource XmbBorderBrush}"
-                                    StrokeThickness="1"
-                                    Background="{StaticResource XmbSurfaceDeepBrush}"
-                                    Padding="0">
-                                <Grid WidthRequest="96" HeightRequest="136">
-                                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="3" Padding="6">
-                                        <Label Text="💿" FontSize="30" HorizontalTextAlignment="Center" />
-                                        <Label Text="{Binding Title}"
-                                               FontSize="10"
-                                               FontAttributes="Bold"
-                                               MaxLines="3"
-                                               LineBreakMode="TailTruncation"
-                                               HorizontalTextAlignment="Center"
-                                               TextColor="{StaticResource XmbText}" />
-                                        <Label Text="{Binding Platform}"
-                                               FontSize="9"
-                                               FontAttributes="Bold"
-                                               MaximumWidthRequest="88"
-                                               LineBreakMode="TailTruncation"
-                                               HorizontalTextAlignment="Center"
-                                               TextColor="{StaticResource XmbMuted}" />
-                                    </VerticalStackLayout>
-                                    <Image WidthRequest="96"
-                                           HeightRequest="136"
-                                           Aspect="AspectFill"
-                                           ZIndex="1"
-                                           Source="{Binding CoverPreviewUrl}"
-                                           IsVisible="{Binding HasCoverPreview}" />
-                                </Grid>
-                            </Border>
-
-                            <VerticalStackLayout Grid.Column="1" Spacing="10" VerticalOptions="Center">
-                                <Border StrokeShape="RoundRectangle 8"
-                                        Stroke="{StaticResource XmbBorderBrush}"
+                                <Border StrokeShape="RoundRectangle 10"
+                                        Stroke="{StaticResource XmbInputBorderBrush}"
                                         StrokeThickness="1"
-                                        Background="{StaticResource XmbSurfaceDeepBrush}"
-                                        Padding="12,0">
+                                        BackgroundColor="{StaticResource XmbInputSurface}"
+                                        Padding="14,8">
+                                    <Entry Placeholder="Назва гри" Text="{Binding Title}" BackgroundColor="Transparent" />
+                                </Border>
+
+                                <Border StrokeShape="RoundRectangle 10"
+                                        Stroke="{StaticResource XmbInputBorderBrush}"
+                                        StrokeThickness="1"
+                                        BackgroundColor="{StaticResource XmbInputSurface}"
+                                        Padding="14,8">
+                                    <Entry Placeholder="Розробник" Text="{Binding Developer}" BackgroundColor="Transparent" />
+                                </Border>
+
+                                <Label Text="ПЛАТФОРМА" Style="{StaticResource SectionLabel}" Margin="0,6,0,0" />
+                                <Border StrokeShape="RoundRectangle 10"
+                                        Stroke="{StaticResource XmbInputBorderBrush}"
+                                        StrokeThickness="1"
+                                        BackgroundColor="{StaticResource XmbInputSurface}"
+                                        Padding="14,8">
+                                    <Picker ItemsSource="{Binding Platforms}" SelectedItem="{Binding Platform}" BackgroundColor="Transparent" />
+                                </Border>
+
+                                <Label Text="ОБКЛАДИНКА" Style="{StaticResource SectionLabel}" Margin="0,6,0,0" />
+                                <Border StrokeShape="RoundRectangle 10"
+                                        Stroke="{StaticResource XmbInputBorderBrush}"
+                                        StrokeThickness="1"
+                                        BackgroundColor="{StaticResource XmbInputSurface}"
+                                        Padding="14,8">
                                     <Entry Placeholder="Cover Image URL (https://…)"
                                            Text="{Binding CoverUrl}"
-                                           Keyboard="Url" />
+                                           Keyboard="Url"
+                                           BackgroundColor="Transparent" />
                                 </Border>
                                 <HorizontalStackLayout Spacing="10">
                                     <Button Text="📋 Paste"
@@ -112,122 +81,206 @@
                                             Style="{StaticResource DangerOutlineButton}" />
                                 </HorizontalStackLayout>
                             </VerticalStackLayout>
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
-
-                <!-- Platform + Status -->
-                <Border StrokeShape="RoundRectangle 10"
-                        Stroke="{StaticResource XmbBorderBrush}"
-                        StrokeThickness="1"
-                        Background="{StaticResource XmbSurfaceBrush}"
-                        Padding="16,12">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="Платформа" Style="{StaticResource SectionLabel}" />
-                        <Border StrokeShape="RoundRectangle 8"
-                                Stroke="{StaticResource XmbBorderBrush}"
-                                StrokeThickness="1"
-                                Background="{StaticResource XmbSurfaceDeepBrush}"
-                                Padding="12,0">
-                            <Picker ItemsSource="{Binding Platforms}" SelectedItem="{Binding Platform}" />
                         </Border>
 
-                        <Label Text="Статус" Style="{StaticResource SectionLabel}" Margin="0,6,0,0" />
-                        <Border StrokeShape="RoundRectangle 8"
+                        <Border StrokeShape="RoundRectangle 12"
+                                Stroke="{StaticResource XmbSurfaceDeepBrush}"
+                                StrokeThickness="0"
+                                Background="{StaticResource XmbSurfaceBrush}"
+                                Padding="24,20">
+                            <Grid ColumnDefinitions="*,Auto,64"
+                                  RowDefinitions="Auto,Auto,Auto,Auto"
+                                  ColumnSpacing="12"
+                                  RowSpacing="12">
+
+                                <Label Grid.Row="0" Grid.Column="0" Text="Години" VerticalOptions="Center" />
+                                <Stepper Grid.Row="0" Grid.Column="1"
+                                         Minimum="0" Maximum="10000" Increment="1"
+                                         Value="{Binding HoursPlayed}" />
+                                <Label Grid.Row="0" Grid.Column="2"
+                                       Text="{Binding HoursPlayed}"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="End"
+                                       VerticalOptions="Center"
+                                       TextColor="{StaticResource XmbAccent}" />
+
+                                <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="♥ Liked" VerticalOptions="Center" />
+                                <Switch Grid.Row="1" Grid.Column="2" IsToggled="{Binding IsLiked}" HorizontalOptions="End" VerticalOptions="Center" />
+
+                                <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="🏆 100% Mastered" VerticalOptions="Center" />
+                                <Switch Grid.Row="2" Grid.Column="2" IsToggled="{Binding IsMastered}" HorizontalOptions="End" VerticalOptions="Center" />
+
+                                <Label Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Text="★ Favorite (pin)" VerticalOptions="Center" />
+                                <Switch Grid.Row="3" Grid.Column="2" IsToggled="{Binding IsFavorite}" HorizontalOptions="End" VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+
+                        <Border StrokeShape="RoundRectangle 12"
                                 Stroke="{StaticResource XmbBorderBrush}"
                                 StrokeThickness="1"
-                                Background="{StaticResource XmbSurfaceDeepBrush}"
-                                Padding="12,0">
-                            <Picker ItemsSource="{Binding Statuses}" SelectedItem="{Binding Status}" />
+                                Background="{StaticResource XmbSurfaceBrush}"
+                                Padding="24,20">
+                            <VerticalStackLayout Spacing="12">
+                                <Label Text="НОТАТКИ" Style="{StaticResource SectionLabel}" />
+                                <Border StrokeShape="RoundRectangle 10"
+                                        Stroke="{StaticResource XmbInputBorderBrush}"
+                                        StrokeThickness="1"
+                                        BackgroundColor="{StaticResource XmbInputSurface}"
+                                        Padding="14,8">
+                                    <Editor Placeholder="Нотатки"
+                                            Text="{Binding Notes}"
+                                            AutoSize="TextChanges"
+                                            HeightRequest="140"
+                                            BackgroundColor="Transparent" />
+                                </Border>
+                            </VerticalStackLayout>
                         </Border>
                     </VerticalStackLayout>
-                </Border>
 
-                <!-- Rating (half stars) -->
-                <Border StrokeShape="RoundRectangle 10"
-                        Stroke="{StaticResource XmbBorderBrush}"
-                        StrokeThickness="1"
-                        Background="{StaticResource XmbSurfaceBrush}"
-                        Padding="16,12">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="РЕЙТИНГ (0.5 – 5.0)" Style="{StaticResource SectionLabel}" />
-                        <Label Text="{Binding Rating, Converter={StaticResource RatingToStarsConverter}, ConverterParameter=badge}"
-                               FontSize="24"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource XmbGold}" />
-                        <Label Text="{Binding Rating, Converter={StaticResource RatingToStarsConverter}}"
-                               FontSize="20"
-                               TextColor="{StaticResource XmbGold}" />
-                        <HorizontalStackLayout Spacing="10">
-                            <Button Text="−0.5"
-                                    Command="{Binding DecreaseRatingCommand}"
-                                    Style="{StaticResource GhostButton}" />
-                            <Button Text="+0.5"
-                                    Command="{Binding IncreaseRatingCommand}"
-                                    Style="{StaticResource GhostButton}" />
-                            <Button Text="Без оцінки"
-                                    Command="{Binding ClearRatingCommand}"
-                                    Style="{StaticResource DangerOutlineButton}" />
-                        </HorizontalStackLayout>
-                    </VerticalStackLayout>
-                </Border>
+                    <!-- ================= RIGHT: live poster + quick status / rating ================= -->
+                    <VerticalStackLayout Grid.Column="0" Spacing="16">
 
-                <!-- Hours + flags -->
-                <Border StrokeShape="RoundRectangle 10"
-                        Stroke="{StaticResource XmbBorderBrush}"
-                        StrokeThickness="1"
-                        Background="{StaticResource XmbSurfaceBrush}"
-                        Padding="16,12">
-                    <Grid ColumnDefinitions="*,Auto,64"
-                          RowDefinitions="Auto,Auto,Auto,Auto"
-                          ColumnSpacing="12"
-                          RowSpacing="12">
-
-                        <Label Grid.Row="0" Grid.Column="0" Text="Години" VerticalOptions="Center" />
-                        <Stepper Grid.Row="0" Grid.Column="1"
-                                 Minimum="0" Maximum="10000" Increment="1"
-                                 Value="{Binding HoursPlayed}" />
-                        <Label Grid.Row="0" Grid.Column="2"
-                               Text="{Binding HoursPlayed}"
-                               FontAttributes="Bold"
-                               HorizontalTextAlignment="End"
-                               VerticalOptions="Center"
-                               TextColor="{StaticResource XmbAccent}" />
-
-                        <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="♥ Liked" VerticalOptions="Center" />
-                        <Switch Grid.Row="1" Grid.Column="2" IsToggled="{Binding IsLiked}" HorizontalOptions="End" VerticalOptions="Center" />
-
-                        <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="100% Mastered" VerticalOptions="Center" />
-                        <Switch Grid.Row="2" Grid.Column="2" IsToggled="{Binding IsMastered}" HorizontalOptions="End" VerticalOptions="Center" />
-
-                        <Label Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Text="★ Favorite (pin)" VerticalOptions="Center" />
-                        <Switch Grid.Row="3" Grid.Column="2" IsToggled="{Binding IsFavorite}" HorizontalOptions="End" VerticalOptions="Center" />
-                    </Grid>
-                </Border>
-
-                <!-- Notes -->
-                <Border StrokeShape="RoundRectangle 10"
-                        Stroke="{StaticResource XmbBorderBrush}"
-                        StrokeThickness="1"
-                        Background="{StaticResource XmbSurfaceBrush}"
-                        Padding="16,12">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="Нотатки" Style="{StaticResource SectionLabel}" />
-                        <Border StrokeShape="RoundRectangle 8"
+                        <Border StrokeShape="RoundRectangle 12"
                                 Stroke="{StaticResource XmbBorderBrush}"
                                 StrokeThickness="1"
-                                Background="{StaticResource XmbSurfaceDeepBrush}"
-                                Padding="12,4">
-                            <Editor Placeholder="Нотатки" Text="{Binding Notes}" AutoSize="TextChanges"
-                                    HeightRequest="140" />
-                        </Border>
-                    </VerticalStackLayout>
-                </Border>
+                                Background="{StaticResource XmbSurfaceBrush}"
+                                Padding="24,20">
+                            <VerticalStackLayout Spacing="12">
+                                <Label Text="PREVIEW" Style="{StaticResource SectionLabel}" />
 
-                <Button Text="Зберегти"
-                        Command="{Binding SaveGameCommand}"
-                        Style="{StaticResource SpinButton}"
-                        HorizontalOptions="Fill" />
+                                <!-- Live poster 180x270 (2:3): placeholder underneath, cover on top -->
+                                <Border WidthRequest="240"
+                                        HeightRequest="350"
+                                        HorizontalOptions="Center"
+                                        StrokeShape="RoundRectangle 12"
+                                        Stroke="{StaticResource XmbBorderBrush}"
+                                        StrokeThickness="1"
+                                        Background="{StaticResource XmbSurfaceDeepBrush}"
+                                        Padding="0">
+                                    <Grid WidthRequest="240" HeightRequest="350">
+                                        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8" Padding="14">
+                                            <Label Text="💿" FontSize="44" HorizontalTextAlignment="Center" />
+                                            <Label Text="{Binding Title}"
+                                                   FontSize="15"
+                                                   FontAttributes="Bold"
+                                                   MaxLines="3"
+                                                   LineBreakMode="TailTruncation"
+                                                   HorizontalTextAlignment="Center"
+                                                   TextColor="{StaticResource XmbText}" />
+                                            <Label Text="{Binding Platform}"
+                                                   FontSize="11"
+                                                   FontAttributes="Bold"
+                                                   CharacterSpacing="2"
+                                                   HorizontalTextAlignment="Center"
+                                                   TextColor="{StaticResource XmbMuted}" />
+                                        </VerticalStackLayout>
+                                        <Image WidthRequest="240"
+                                               HeightRequest="350"
+                                               Aspect="AspectFill"
+                                               ZIndex="1"
+                                               Source="{Binding CoverPreviewUrl}"
+                                               IsVisible="{Binding HasCoverPreview}" />
+                                    </Grid>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border StrokeShape="RoundRectangle 12"
+                                Stroke="{StaticResource XmbBorderBrush}"
+                                StrokeThickness="1"
+                                Background="{StaticResource XmbSurfaceBrush}"
+                                Padding="24,20">
+                            <VerticalStackLayout Spacing="14">
+                                <Label Text="СТАТУС" Style="{StaticResource SectionLabel}" />
+                                <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="8">
+                                    <Button Grid.Column="0"
+                                            Text="BACKLOG"
+                                            Style="{StaticResource ChipButton}"
+                                            HorizontalOptions="Fill"
+                                            Padding="2,0"
+                                            FontSize="9"
+                                            BackgroundColor="{Binding IsStatusBacklog, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                                            BorderColor="{Binding IsStatusBacklog, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                                            TextColor="{Binding IsStatusBacklog, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                                            Command="{Binding SetStatusCommand}"
+                                            CommandParameter="Backlog" />
+                                    <Button Grid.Column="1"
+                                            Text="PLAYING"
+                                            Style="{StaticResource ChipButton}"
+                                            HorizontalOptions="Fill"
+                                            Padding="2,0"
+                                            FontSize="9"
+                                            BackgroundColor="{Binding IsStatusPlaying, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                                            BorderColor="{Binding IsStatusPlaying, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                                            TextColor="{Binding IsStatusPlaying, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                                            Command="{Binding SetStatusCommand}"
+                                            CommandParameter="Playing" />
+                                    <Button Grid.Column="2"
+                                            Text="PLAYED"
+                                            Style="{StaticResource ChipButton}"
+                                            HorizontalOptions="Fill"
+                                            Padding="2,0"
+                                            FontSize="9"
+                                            BackgroundColor="{Binding IsStatusPlayed, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                                            BorderColor="{Binding IsStatusPlayed, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                                            TextColor="{Binding IsStatusPlayed, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                                            Command="{Binding SetStatusCommand}"
+                                            CommandParameter="Played" />
+                                    <Button Grid.Column="3"
+                                            Text="COMPLETED"
+                                            Style="{StaticResource ChipButton}"
+                                            HorizontalOptions="Fill"
+                                            Padding="2,0"
+                                            FontSize="8"
+                                            BackgroundColor="{Binding IsStatusCompleted, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                                            BorderColor="{Binding IsStatusCompleted, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                                            TextColor="{Binding IsStatusCompleted, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                                            Command="{Binding SetStatusCommand}"
+                                            CommandParameter="Completed" />
+                                    <Button Grid.Column="4"
+                                            Text="ABANDONED"
+                                            Style="{StaticResource ChipButton}"
+                                            HorizontalOptions="Fill"
+                                            Padding="1,0"
+                                            FontSize="8"
+                                            BackgroundColor="{Binding IsStatusAbandoned, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                                            BorderColor="{Binding IsStatusAbandoned, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                                            TextColor="{Binding IsStatusAbandoned, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                                            Command="{Binding SetStatusCommand}"
+                                            CommandParameter="Abandoned" />
+                                </Grid>
+
+                                <Label Text="ОЦІНКА (0.5 – 5.0)" Style="{StaticResource SectionLabel}" Margin="0,6,0,0" />
+                                <Label Text="{Binding Rating, Converter={StaticResource RatingToStarsConverter}, ConverterParameter=badge}"
+                                       FontSize="22"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource XmbGold}" />
+                                <Label Text="{Binding Rating, Converter={StaticResource RatingToStarsConverter}}"
+                                       FontSize="18"
+                                       TextColor="{StaticResource XmbGold}" />
+                                <FlexLayout Wrap="Wrap" Direction="Row">
+                                    <Button Text="−0.5"
+                                            Command="{Binding DecreaseRatingCommand}"
+                                            Style="{StaticResource GhostButton}"
+                                            Margin="0,0,8,8" />
+                                    <Button Text="+0.5"
+                                            Command="{Binding IncreaseRatingCommand}"
+                                            Style="{StaticResource GhostButton}"
+                                            Margin="0,0,8,8" />
+                                    <Button Text="Без оцінки"
+                                            Command="{Binding ClearRatingCommand}"
+                                            Style="{StaticResource DangerOutlineButton}"
+                                            Margin="0,0,8,8" />
+                                </FlexLayout>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Button Text="Зберегти"
+                                Command="{Binding SaveGameCommand}"
+                                Style="{StaticResource SpinButton}"
+                                HorizontalOptions="Fill" />
+                    </VerticalStackLayout>
+                </Grid>
             </VerticalStackLayout>
         </Grid>
     </ScrollView>

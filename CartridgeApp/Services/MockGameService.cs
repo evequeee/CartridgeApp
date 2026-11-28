@@ -93,7 +93,8 @@ public class MockGameService : IGameRepository
         Handle = "@cartridge_hunter",
         Bio = "Збираю беклог, полюю на платини й намагаюсь пройти бодай половину того, що купив торік.",
         FavoritePlatform = "PC / PS5",
-        ShowcaseGameIdsCsv = "1,5,4,2"
+        ShowcaseGameIdsCsv = "1,5,4,2",
+        CrownedGameId = 1
     };
 
     public MockGameService()
@@ -270,7 +271,8 @@ public class MockGameService : IGameRepository
             Bio = _profile.Bio,
             AvatarUrl = _profile.AvatarUrl,
             FavoritePlatform = _profile.FavoritePlatform,
-            ShowcaseGameIdsCsv = _profile.ShowcaseGameIdsCsv
+            ShowcaseGameIdsCsv = _profile.ShowcaseGameIdsCsv,
+            CrownedGameId = _profile.CrownedGameId
         });
     }
 

@@ -4,66 +4,163 @@
              xmlns:viewmodels="clr-namespace:CartridgeApp.ViewModels"
              xmlns:models="clr-namespace:CartridgeApp.Models"
              xmlns:converters="clr-namespace:CartridgeApp.Converters"
+             xmlns:views="clr-namespace:CartridgeApp.Views"
              x:Class="CartridgeApp.Views.JournalPage"
              x:DataType="viewmodels:JournalViewModel"
              Title="Journal"
+             Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource XmbBackground}">
 
     <ContentPage.Resources>
         <converters:StatusColorConverter x:Key="StatusColorConverter" />
+        <converters:BoolSwitchConverter x:Key="BoolSwitchConverter" />
     </ContentPage.Resources>
 
-    <Grid MaximumWidthRequest="1050"
-          HorizontalOptions="Center"
-          Padding="20,16"
-          RowDefinitions="Auto,*"
-          RowSpacing="14">
+    <Grid RowDefinitions="Auto,*">
+        <VerticalStackLayout Grid.Row="0" Spacing="8">
+            <views:AppHeader ActiveTab="Journal" />
 
-        <!-- ===== HEADER ===== -->
-        <Border Grid.Row="0"
-                StrokeShape="RoundRectangle 10"
-                Stroke="{StaticResource XmbBorderBrush}"
-                StrokeThickness="1"
-                Background="{StaticResource XmbSurfaceBrush}"
-                Padding="16,12">
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
-                <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="2">
-                    <Label Text="PLAY JOURNAL"
-                           FontSize="20"
-                           FontAttributes="Bold"
-                           CharacterSpacing="1"
-                           TextColor="{StaticResource XmbText}" />
+            <Grid MaximumWidthRequest="1480"
+                  HorizontalOptions="Fill"
+                  Padding="32,8,32,0"
+                  RowDefinitions="Auto,Auto"
+                  RowSpacing="14">
+                <Border Grid.Row="0"
+                        StrokeShape="RoundRectangle 16"
+                        StrokeThickness="0"
+                        Background="{StaticResource XmbSurfaceBrush}"
+                        Padding="24,18">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
+                        <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="6">
+                            <Label Text="PLAY JOURNAL"
+                                   FontSize="30"
+                                   FontAttributes="Bold"
+                                   CharacterSpacing="1"
+                                   TextColor="{StaticResource XmbText}" />
+                            <HorizontalStackLayout Spacing="10">
+                                <Label Text="{Binding ShowingText}"
+                                       VerticalOptions="Center"
+                                       TextColor="{StaticResource XmbMuted}" />
+                                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                                   IsVisible="{Binding IsBusy}"
+                                                   WidthRequest="18"
+                                                   HeightRequest="18"
+                                                   VerticalOptions="Center"
+                                                   Color="{StaticResource XmbAccent}" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+
+                        <Grid Grid.Column="1"
+                              ColumnDefinitions="Auto,Auto,Auto,Auto"
+                              ColumnSpacing="10"
+                              VerticalOptions="Center">
+                            <Border Grid.Column="0"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 12"
+                                    Background="{StaticResource XmbSurfaceDeepBrush}"
+                                    Padding="16,10">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="{Binding SessionsText}" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource XmbText}" />
+                                    <Label Text="SESSIONS" Style="{StaticResource SectionLabel}" FontSize="10" CharacterSpacing="1" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="1"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 12"
+                                    Background="{StaticResource XmbSurfaceDeepBrush}"
+                                    Padding="16,10">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="{Binding HoursText}" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource XmbAccent}" />
+                                    <Label Text="HOURS" Style="{StaticResource SectionLabel}" FontSize="10" CharacterSpacing="1" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="2"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 12"
+                                    Background="{StaticResource XmbSurfaceDeepBrush}"
+                                    Padding="16,10">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="{Binding ReplaysText}" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource XmbViolet}" />
+                                    <Label Text="REPLAYS" Style="{StaticResource SectionLabel}" FontSize="10" CharacterSpacing="1" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Button Grid.Column="3"
+                                    Text="⟳"
+                                    Command="{Binding RefreshCommand}"
+                                    Style="{StaticResource QuickActionButton}"
+                                    WidthRequest="42"
+                                    HeightRequest="42"
+                                    TextColor="{StaticResource XmbAccent}"
+                                    ToolTipProperties.Text="Refresh journal" />
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <ScrollView Grid.Row="1"
+                            Orientation="Horizontal"
+                            HorizontalScrollBarVisibility="Never">
                     <HorizontalStackLayout Spacing="8">
-                        <Label Text="{Binding Summary}"
-                               VerticalOptions="Center"
-                               TextColor="{StaticResource XmbAccent}" />
-                        <ActivityIndicator IsRunning="{Binding IsBusy}"
-                                           IsVisible="{Binding IsBusy}"
-                                           WidthRequest="16"
-                                           HeightRequest="16"
-                                           VerticalOptions="Center"
-                                           Color="{StaticResource XmbAccent}" />
+                        <Button Text="All"
+                                Style="{StaticResource ChipButton}"
+                                BackgroundColor="{Binding IsFilterAll, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbSurfaceHover|XmbSurfaceDeep'}"
+                                TextColor="{Binding IsFilterAll, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbText|XmbMuted'}"
+                                Command="{Binding SetFilterCommand}"
+                                CommandParameter="All" />
+                        <Button Text="Replays"
+                                Style="{StaticResource ChipButton}"
+                                BackgroundColor="{Binding IsFilterReplays, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbSurfaceHover|XmbSurfaceDeep'}"
+                                TextColor="{Binding IsFilterReplays, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbText|XmbMuted'}"
+                                Command="{Binding SetFilterCommand}"
+                                CommandParameter="Replays" />
+                        <Button Text="Playing"
+                                Style="{StaticResource ChipButton}"
+                                BackgroundColor="{Binding IsFilterPlaying, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbSurfaceHover|XmbSurfaceDeep'}"
+                                TextColor="{Binding IsFilterPlaying, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbText|XmbMuted'}"
+                                Command="{Binding SetFilterCommand}"
+                                CommandParameter="Playing" />
+                        <Button Text="Played"
+                                Style="{StaticResource ChipButton}"
+                                BackgroundColor="{Binding IsFilterPlayed, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbSurfaceHover|XmbSurfaceDeep'}"
+                                TextColor="{Binding IsFilterPlayed, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbText|XmbMuted'}"
+                                Command="{Binding SetFilterCommand}"
+                                CommandParameter="Played" />
+                        <Button Text="Completed"
+                                Style="{StaticResource ChipButton}"
+                                BackgroundColor="{Binding IsFilterCompleted, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbSurfaceHover|XmbSurfaceDeep'}"
+                                TextColor="{Binding IsFilterCompleted, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbText|XmbMuted'}"
+                                Command="{Binding SetFilterCommand}"
+                                CommandParameter="Completed" />
+                        <Button Text="Backlog"
+                                Style="{StaticResource ChipButton}"
+                                BackgroundColor="{Binding IsFilterBacklog, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbSurfaceHover|XmbSurfaceDeep'}"
+                                TextColor="{Binding IsFilterBacklog, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbText|XmbMuted'}"
+                                Command="{Binding SetFilterCommand}"
+                                CommandParameter="Backlog" />
+                        <Button Text="Abandoned"
+                                Style="{StaticResource ChipButton}"
+                                BackgroundColor="{Binding IsFilterAbandoned, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbSurfaceHover|XmbSurfaceDeep'}"
+                                TextColor="{Binding IsFilterAbandoned, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbText|XmbMuted'}"
+                                Command="{Binding SetFilterCommand}"
+                                CommandParameter="Abandoned" />
                     </HorizontalStackLayout>
-                </VerticalStackLayout>
-
-                <Button Grid.Column="1"
-                        Text="⟳ Refresh"
-                        Command="{Binding RefreshCommand}"
-                        VerticalOptions="Center"
-                        Style="{StaticResource GhostButton}" />
+                </ScrollView>
             </Grid>
-        </Border>
+        </VerticalStackLayout>
 
-        <!-- ===== FEED ===== -->
-        <CollectionView Grid.Row="1" ItemsSource="{Binding Logs}">
+        <CollectionView Grid.Row="1"
+                        MaximumWidthRequest="1480"
+                        HorizontalOptions="Fill"
+                        VerticalOptions="Fill"
+                        Margin="32,12"
+                        ItemsSource="{Binding Logs}">
             <CollectionView.EmptyView>
                 <VerticalStackLayout Padding="30" Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                    <Label Text="Журнал порожній"
+                    <Label Text="Записів немає"
                            FontSize="22"
                            FontAttributes="Bold"
                            HorizontalTextAlignment="Center"
                            TextColor="{StaticResource XmbText}" />
-                    <Label Text="Відкрийте гру та натисніть «+ Log Play», щоб додати першу сесію."
+                    <Label Text="Змініть фільтр або відкрийте гру й натисніть «+ Log Play»."
                            HorizontalTextAlignment="Center"
                            TextColor="{StaticResource XmbMuted}" />
                 </VerticalStackLayout>
@@ -71,11 +168,11 @@
 
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:PlayLog">
-                    <Border Margin="0,0,0,10"
+                    <Border Margin="0,0,0,12"
+                            HorizontalOptions="Fill"
                             Padding="0"
-                            StrokeShape="RoundRectangle 10"
-                            Stroke="{StaticResource XmbBorderBrush}"
-                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="0"
                             Background="{StaticResource XmbSurfaceBrush}">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:JournalViewModel}}, Path=OpenGameCommand}"
@@ -83,25 +180,21 @@
                         </Border.GestureRecognizers>
 
                         <Grid ColumnDefinitions="4,Auto,*,Auto">
-
-                            <!-- Status-after-session stripe -->
                             <BoxView Grid.Column="0"
                                      WidthRequest="4"
                                      BackgroundColor="{Binding StatusAfterSession, Converter={StaticResource StatusColorConverter}}" />
 
-                            <!-- Cover with XMB placeholder underneath -->
                             <Border Grid.Column="1"
-                                    Margin="12,12,0,12"
-                                    WidthRequest="58"
-                                    HeightRequest="82"
+                                    Margin="16,12,0,12"
+                                    WidthRequest="64"
+                                    HeightRequest="92"
                                     VerticalOptions="Center"
-                                    StrokeShape="RoundRectangle 6"
-                                    Stroke="{StaticResource XmbBorderBrush}"
-                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 10"
+                                    StrokeThickness="0"
                                     Background="{StaticResource XmbSurfaceDeepBrush}"
                                     Padding="0">
-                                <Grid WidthRequest="58" HeightRequest="82">
-                                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="1" Padding="3">
+                                <Grid WidthRequest="64" HeightRequest="92">
+                                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="2" Padding="4">
                                         <Label Text="💿" FontSize="18" HorizontalTextAlignment="Center" />
                                         <Label Text="{Binding Game.Title}"
                                                FontSize="7"
@@ -110,14 +203,9 @@
                                                LineBreakMode="TailTruncation"
                                                HorizontalTextAlignment="Center"
                                                TextColor="{StaticResource XmbText}" />
-                                        <Label Text="{Binding Game.Platform}"
-                                               FontSize="7"
-                                               LineBreakMode="TailTruncation"
-                                               HorizontalTextAlignment="Center"
-                                               TextColor="{StaticResource XmbMuted}" />
                                     </VerticalStackLayout>
-                                    <Image WidthRequest="58"
-                                           HeightRequest="82"
+                                    <Image WidthRequest="64"
+                                           HeightRequest="92"
                                            Aspect="AspectFill"
                                            ZIndex="1"
                                            Source="{Binding Game.CoverUrl}"
@@ -125,31 +213,25 @@
                                 </Grid>
                             </Border>
 
-                            <!-- Entry -->
-                            <VerticalStackLayout Grid.Column="2" Padding="14,12" Spacing="6" VerticalOptions="Center">
-                                <HorizontalStackLayout Spacing="10">
-                                    <Label Text="{Binding Game.Title}"
+                            <Grid Grid.Column="2"
+                                  Padding="18,14"
+                                  RowDefinitions="Auto,Auto,Auto"
+                                  RowSpacing="6"
+                                  VerticalOptions="Center">
+                                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding Game.Title}"
                                            FontSize="18"
                                            FontAttributes="Bold"
                                            LineBreakMode="TailTruncation"
                                            VerticalOptions="Center"
                                            TextColor="{StaticResource XmbText}" />
-                                    <Border StrokeShape="RoundRectangle 5"
-                                            Stroke="{StaticResource XmbAccentBrush}"
-                                            StrokeThickness="1"
-                                            Background="{StaticResource XmbSurfaceDeepBrush}"
-                                            Padding="8,2"
-                                            VerticalOptions="Center"
-                                            IsVisible="{Binding IsReplay}">
-                                        <Label Text="REPLAY"
-                                               FontSize="11"
-                                               FontAttributes="Bold"
-                                               CharacterSpacing="1"
-                                               TextColor="{StaticResource XmbAccent}" />
-                                    </Border>
-                                </HorizontalStackLayout>
-
-                                <HorizontalStackLayout Spacing="12">
+                                    <Label Grid.Column="1"
+                                           Text="{Binding LoggedDate, StringFormat='{0:dd MMM yyyy}'}"
+                                           VerticalOptions="Center"
+                                           TextColor="{StaticResource XmbMuted}" />
+                                </Grid>
+                                <HorizontalStackLayout Grid.Row="1" Spacing="12">
                                     <Label Text="{Binding StatusAfterSession}"
                                            FontSize="12"
                                            FontAttributes="Bold"
@@ -157,24 +239,30 @@
                                            TextTransform="Uppercase"
                                            VerticalOptions="Center"
                                            TextColor="{Binding StatusAfterSession, Converter={StaticResource StatusColorConverter}}" />
-                                    <Label Text="{Binding HoursSession, StringFormat='{}{0:0.#} год.'}"
+                                    <Label Text="{Binding HoursSession, StringFormat='{}{0:0.#} h'}"
                                            FontSize="13"
                                            VerticalOptions="Center"
                                            TextColor="{StaticResource XmbMuted}" />
+                                    <Border StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 8"
+                                            Background="{StaticResource XmbSurfaceDeepBrush}"
+                                            Padding="8,3"
+                                            IsVisible="{Binding IsReplay}">
+                                        <Label Text="REPLAY"
+                                               FontSize="10"
+                                               FontAttributes="Bold"
+                                               CharacterSpacing="1"
+                                               TextColor="{StaticResource XmbAccent}" />
+                                    </Border>
                                 </HorizontalStackLayout>
-
-                                <Label Text="{Binding ReviewText}"
+                                <Label Grid.Row="2"
+                                       Text="{Binding ReviewText}"
                                        IsVisible="{Binding HasReview}"
                                        FontSize="14"
-                                       TextColor="{StaticResource XmbText}" />
-                            </VerticalStackLayout>
-
-                            <!-- Date -->
-                            <Label Grid.Column="3"
-                                   Margin="8,0,16,0"
-                                   Text="{Binding LoggedDate, StringFormat='{0:dd.MM.yyyy}'}"
-                                   VerticalOptions="Center"
-                                   TextColor="{StaticResource XmbMuted}" />
+                                       MaxLines="2"
+                                       LineBreakMode="TailTruncation"
+                                       TextColor="{StaticResource XmbMuted}" />
+                            </Grid>
                         </Grid>
                     </Border>
                 </DataTemplate>

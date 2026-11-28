@@ -28,22 +28,24 @@
     <Color x:Key="Gray900">#212121</Color>
     <Color x:Key="Gray950">#141414</Color>
     <Color x:Key="CardLight">#F7F8FA</Color>
-    <Color x:Key="CardDark">#0D1526</Color>
+    <Color x:Key="CardDark">#0C1528</Color>
     <Color x:Key="BadgeLight">#FFFFFF</Color>
-    <Color x:Key="BadgeDark">#131E36</Color>
+    <Color x:Key="BadgeDark">#121E36</Color>
 
     <!-- ===== Midnight Glass palette (Letterboxd x Backloggd x Persona 3 x PS5) ===== -->
     <!-- Backgrounds / surfaces -->
-    <Color x:Key="XmbBackground">#060A14</Color>      <!-- obsidian -->
-    <Color x:Key="XmbSurface">#0D1526</Color>         <!-- level 1: cards -->
-    <Color x:Key="XmbSurfaceDeep">#131E36</Color>     <!-- level 2: nested blocks, bars -->
-    <Color x:Key="XmbSurfaceHover">#192744</Color>    <!-- active / hover blocks -->
-    <Color x:Key="XmbBorder">#22345A</Color>          <!-- thin glass outline -->
+    <Color x:Key="XmbBackground">#070A12</Color>
+    <Color x:Key="XmbSurface">#0F1626</Color>
+    <Color x:Key="XmbSurfaceDeep">#162036</Color>
+    <Color x:Key="XmbSurfaceHover">#1E2C4A</Color>
+    <Color x:Key="XmbBorder">#0F1626</Color>
+    <Color x:Key="XmbInputSurface">#141D30</Color>
+    <Color x:Key="XmbInputBorder">#223152</Color>
 
     <!-- Accents -->
     <Color x:Key="XmbAccent">#00B4FF</Color>          <!-- PlayStation cyan -->
     <Color x:Key="XmbViolet">#7C4DFF</Color>          <!-- electric violet: 100% / platinum -->
-    <Color x:Key="XmbPrimaryButton">#0072CE</Color>   <!-- primary button fill (white text stays readable) -->
+    <Color x:Key="XmbPrimaryButton">#0095FF</Color>   <!-- SPIN BACKLOG / primary button fill -->
 
     <!-- Text -->
     <Color x:Key="XmbText">#F4F7FC</Color>
@@ -56,13 +58,19 @@
     <Color x:Key="XmbDanger">#E53935</Color>
     <Color x:Key="XmbDangerSoft">#FF8A80</Color>
 
+    <Color x:Key="XmbTransparent">Transparent</Color>
+
     <!-- Overlays (solid colours with alpha, no gradients) -->
-    <Color x:Key="XmbScrim">#CC060A14</Color>
-    <Color x:Key="XmbOverlay">#D9060A14</Color>
+    <Color x:Key="XmbScrim">#CC070A12</Color>
+    <Color x:Key="XmbOverlay">#D9080C16</Color>
+    <Color x:Key="XmbQuickDelete">#CC0B101D</Color>
+    <Color x:Key="XmbDeleteText">#FF6B81</Color>
+    <Color x:Key="XmbAvatarFill">#131D33</Color>
 
     <!-- Status colors (same values as StatusColorConverter) -->
     <Color x:Key="StatusCompleted">#00E676</Color>
     <Color x:Key="StatusPlaying">#FF4081</Color>
+    <Color x:Key="StatusPlayed">#38BDF8</Color>
     <Color x:Key="StatusBacklog">#00B4FF</Color>
     <Color x:Key="StatusAbandoned">#FF5252</Color>
 
@@ -87,6 +95,7 @@
     <SolidColorBrush x:Key="XmbSurfaceDeepBrush" Color="{StaticResource XmbSurfaceDeep}"/>
     <SolidColorBrush x:Key="XmbSurfaceHoverBrush" Color="{StaticResource XmbSurfaceHover}"/>
     <SolidColorBrush x:Key="XmbBorderBrush" Color="{StaticResource XmbBorder}"/>
+    <SolidColorBrush x:Key="XmbInputBorderBrush" Color="{StaticResource XmbInputBorder}"/>
     <SolidColorBrush x:Key="XmbAccentBrush" Color="{StaticResource XmbAccent}"/>
     <SolidColorBrush x:Key="XmbVioletBrush" Color="{StaticResource XmbViolet}"/>
     <SolidColorBrush x:Key="XmbGoldBrush" Color="{StaticResource XmbGold}"/>

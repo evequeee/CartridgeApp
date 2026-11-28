@@ -3,41 +3,61 @@ using System.Windows.Input;
 
 using CartridgeApp.Models;
 using CartridgeApp.Services;
+using Microsoft.Maui.Media;
 
 namespace CartridgeApp.ViewModels;
 
 /// <summary>One of the four showcase slots ("Favorite Games").</summary>
 public class ShowcaseSlot
 {
-    public ShowcaseSlot(int index, Game? game)
+    public ShowcaseSlot(int index, Game? game, bool isCrowned)
     {
         Index = index;
         Game = game;
+        IsCrowned = isCrowned;
     }
 
     public int Index { get; }
     public Game? Game { get; }
+    public bool IsCrowned { get; }
 
     public bool HasGame => Game != null;
     public bool IsEmpty => Game == null;
+    public bool HasGameWithoutCover => HasGame && !HasCover;
     public string Title => Game?.Title ?? "Empty slot";
     public string Platform => Game?.Platform ?? string.Empty;
     public string? CoverUrl => Game?.CoverUrl;
     public bool HasCover => Game?.HasCover ?? false;
     public double Rating => Game?.Rating ?? 0;
-    public string ActionText => Game == null ? "+ Pin Game" : "⇄ Change";
+}
+
+public sealed class RecentPlay
+{
+    public RecentPlay(int gridColumn, PlayLog log)
+    {
+        GridColumn = gridColumn;
+        Log = log;
+    }
+
+    public int GridColumn { get; }
+    public PlayLog Log { get; }
+    public Game Game => Log.Game;
+    public DateTime LoggedDate => Log.LoggedDate;
+    public double Rating => Log.Game.Rating;
 }
 
 /// <summary>One bar of the rating histogram.</summary>
 public class RatingBucket
 {
-    public RatingBucket(string label, int count, double barHeight)
+    public RatingBucket(int gridColumn, string label, int count, double barHeight)
     {
+        GridColumn = gridColumn;
         Label = label;
         Count = count;
         BarHeight = barHeight;
     }
 
+    public int GridColumn { get; }
     public string Label { get; }
     public int Count { get; }
     public string CountText => Count == 0 ? string.Empty : Count.ToString();
@@ -50,17 +70,19 @@ public class RatingBucket
 public class ProfileViewModel : ViewModelBase
 {
     private const int SlotCount = 4;
-    private const double MaxBarHeight = 110;
+    private const double MaxBarHeight = 64;
     private const double MinBarHeight = 4;
 
     private const string CancelText = "Скасувати";
-    private const string RemoveText = "Прибрати з вітрини";
+    private const string RemoveText = "Очистити слот";
 
     private readonly IGameRepository _gameRepository;
     private UserProfile _profile = new();
     private List<Game> _games = new();
     private bool _isBusy;
     private bool _isEditing;
+    private int[] _draftShowcaseIds = new int[SlotCount];
+    private int? _draftCrownedGameId;
 
     private string _editDisplayName = string.Empty;
     private string _editHandle = string.Empty;
@@ -71,7 +93,9 @@ public class ProfileViewModel : ViewModelBase
     private string _rankTitle = "ROOKIE";
     private string _rankDetails = string.Empty;
     private string _totalLibraryText = "0";
+    private string _playedText = "0";
     private string _completedText = "0";
+    private string _abandonedText = "0";
     private string _masteredText = "0";
     private string _hoursLoggedText = "0";
     private string _backlogClearText = "0%";
@@ -83,11 +107,25 @@ public class ProfileViewModel : ViewModelBase
         _gameRepository = gameRepository;
 
         EditProfileCommand = new Command(StartEditing);
+        ToggleEditProfileCommand = new Command(() =>
+        {
+            if (IsEditing)
+            {
+                CancelEditing();
+            }
+            else
+            {
+                StartEditing();
+            }
+        });
         SaveProfileCommand = new Command(async () => await SaveProfileAsync());
-        CancelEditCommand = new Command(() => IsEditing = false);
+        CancelEditCommand = new Command(CancelEditing);
         SelectShowcaseGameCommand = new Command<int>(async index => await SelectShowcaseGameAsync(index));
+        CrownShowcaseGameCommand = new Command<ShowcaseSlot>(CrownShowcaseGame);
+        ChooseAvatarCommand = new Command(async () => await ChooseAvatarAsync());
         ShowKpiInfoCommand = new Command(async () => await ShowKpiInfoAsync());
         OpenGameCommand = new Command<Game>(async game => await OpenGameAsync(game));
+        OpenShowcaseGameCommand = new Command<ShowcaseSlot>(async slot => await OpenShowcaseSlotAsync(slot));
         OpenJournalCommand = new Command(async () => await Shell.Current.GoToAsync("//JournalPage"));
     }
 
@@ -96,8 +134,10 @@ public class ProfileViewModel : ViewModelBase
     public string Handle => _profile.Handle;
     public string Bio => _profile.Bio;
     public bool HasBio => !string.IsNullOrWhiteSpace(_profile.Bio);
+    public bool HasNoBio => !HasBio;
     public string? AvatarUrl => string.IsNullOrWhiteSpace(_profile.AvatarUrl) ? null : _profile.AvatarUrl;
-    public bool HasAvatar => AvatarUrl != null;
+    public ImageSource? AvatarSource => CreateAvatarSource(AvatarUrl);
+    public bool HasAvatar => AvatarSource != null;
     public string Initials => BuildInitials(_profile.DisplayName);
     public string FavoritePlatform => _profile.FavoritePlatform;
 
@@ -115,7 +155,9 @@ public class ProfileViewModel : ViewModelBase
 
     // ----- KPI strip
     public string TotalLibraryText { get => _totalLibraryText; private set => SetProperty(ref _totalLibraryText, value); }
+    public string PlayedText { get => _playedText; private set => SetProperty(ref _playedText, value); }
     public string CompletedText { get => _completedText; private set => SetProperty(ref _completedText, value); }
+    public string AbandonedText { get => _abandonedText; private set => SetProperty(ref _abandonedText, value); }
     public string MasteredText { get => _masteredText; private set => SetProperty(ref _masteredText, value); }
     public string HoursLoggedText { get => _hoursLoggedText; private set => SetProperty(ref _hoursLoggedText, value); }
     public string BacklogClearText { get => _backlogClearText; private set => SetProperty(ref _backlogClearText, value); }
@@ -125,22 +167,56 @@ public class ProfileViewModel : ViewModelBase
     public string RatedGamesText { get => _ratedGamesText; private set => SetProperty(ref _ratedGamesText, value); }
 
     public ObservableCollection<ShowcaseSlot> Showcase { get; } = new();
+    public ObservableCollection<AchievementBadge> Badges { get; } = new();
     public ObservableCollection<RatingBucket> RatingBuckets { get; } = new();
-    public ObservableCollection<PlayLog> RecentLogs { get; } = new();
+    public ObservableCollection<RecentPlay> RecentLogs { get; } = new();
+    public ObservableCollection<PlayLog> RecentReviews { get; } = new();
     public bool HasRecentLogs => RecentLogs.Count > 0;
     public bool HasNoRecentLogs => RecentLogs.Count == 0;
+    public bool HasNoRecentReviews => RecentReviews.Count == 0;
 
     // ----- inline edit panel
     public bool IsEditing
     {
         get => _isEditing;
-        private set => SetProperty(ref _isEditing, value);
+        private set
+        {
+            if (SetProperty(ref _isEditing, value))
+            {
+                OnPropertyChanged(nameof(IsProfileView));
+            }
+        }
     }
+    public bool IsProfileView => !IsEditing;
 
-    public string EditDisplayName { get => _editDisplayName; set => SetProperty(ref _editDisplayName, value); }
+    public string EditDisplayName
+    {
+        get => _editDisplayName;
+        set
+        {
+            if (SetProperty(ref _editDisplayName, value))
+            {
+                OnPropertyChanged(nameof(EditInitials));
+            }
+        }
+    }
     public string EditHandle { get => _editHandle; set => SetProperty(ref _editHandle, value); }
     public string EditBio { get => _editBio; set => SetProperty(ref _editBio, value); }
-    public string EditAvatarUrl { get => _editAvatarUrl; set => SetProperty(ref _editAvatarUrl, value); }
+    public string EditAvatarUrl
+    {
+        get => _editAvatarUrl;
+        set
+        {
+            if (SetProperty(ref _editAvatarUrl, value))
+            {
+                OnPropertyChanged(nameof(EditAvatarSource));
+                OnPropertyChanged(nameof(HasEditAvatar));
+            }
+        }
+    }
+    public string EditInitials => BuildInitials(EditDisplayName);
+    public ImageSource? EditAvatarSource => CreateAvatarSource(EditAvatarUrl);
+    public bool HasEditAvatar => EditAvatarSource != null;
     public string EditFavoritePlatform { get => _editFavoritePlatform; set => SetProperty(ref _editFavoritePlatform, value); }
 
     public bool IsBusy
@@ -150,18 +226,22 @@ public class ProfileViewModel : ViewModelBase
     }
 
     public ICommand EditProfileCommand { get; }
+    public ICommand ToggleEditProfileCommand { get; }
     public ICommand SaveProfileCommand { get; }
     public ICommand CancelEditCommand { get; }
     public ICommand SelectShowcaseGameCommand { get; }
+    public ICommand CrownShowcaseGameCommand { get; }
+    public ICommand ChooseAvatarCommand { get; }
     public ICommand ShowKpiInfoCommand { get; }
     public ICommand OpenGameCommand { get; }
+    public ICommand OpenShowcaseGameCommand { get; }
     public ICommand OpenJournalCommand { get; }
 
     // ------------------------------------------------------------------ loading
 
     public async Task RefreshAsync()
     {
-        if (IsBusy)
+        if (IsBusy || IsEditing)
         {
             return;
         }
@@ -178,11 +258,26 @@ public class ProfileViewModel : ViewModelBase
             BuildStatistics(logs);
             BuildHistogram();
             BuildShowcase();
+            BuildBadges(logs);
 
             RecentLogs.Clear();
-            foreach (PlayLog log in logs.Take(3))
+            PlayLog[] latestGames = logs
+                .Where(log => log.Game != null)
+                .GroupBy(log => log.GameId)
+                .Select(group => group.OrderByDescending(log => log.LoggedDate).ThenByDescending(log => log.Id).First())
+                .OrderByDescending(log => log.LoggedDate)
+                .ThenByDescending(log => log.Id)
+                .Take(4)
+                .ToArray();
+            for (int index = 0; index < latestGames.Length; index++)
             {
-                RecentLogs.Add(log);
+                RecentLogs.Add(new RecentPlay(index, latestGames[index]));
+            }
+
+            RecentReviews.Clear();
+            foreach (PlayLog log in logs.Where(log => !string.IsNullOrWhiteSpace(log.ReviewText)).Take(4))
+            {
+                RecentReviews.Add(log);
             }
 
             NotifyProfileChanged();
@@ -200,18 +295,22 @@ public class ProfileViewModel : ViewModelBase
     private void BuildStatistics(IReadOnlyList<PlayLog> logs)
     {
         int total = _games.Count;
+        int played = _games.Count(game => game.Status == GameStatus.Played);
         int completed = _games.Count(game => game.Status == GameStatus.Completed);
+        int abandoned = _games.Count(game => game.Status == GameStatus.Abandoned);
         int mastered = _games.Count(game => game.IsMastered);
         int backlog = _games.Count(game => game.Status == GameStatus.Backlog);
         double hoursLogged = logs.Sum(log => log.HoursSession);
 
         TotalLibraryText = total.ToString();
+        PlayedText = played.ToString();
         CompletedText = completed.ToString();
+        AbandonedText = abandoned.ToString();
         MasteredText = mastered.ToString();
         HoursLoggedText = $"{hoursLogged:0.#}";
         BacklogClearText = total == 0 ? "0%" : $"{(total - backlog) * 100d / total:0}%";
 
-        (string rank, string details) = ResolveRank(completed);
+        (string rank, string details) = PlayerRank.Resolve(completed);
         RankTitle = rank;
         RankDetails = details;
     }
@@ -232,7 +331,7 @@ public class ProfileViewModel : ViewModelBase
         for (int i = 0; i < counts.Length; i++)
         {
             double height = counts[i] == 0 ? MinBarHeight : 10 + (MaxBarHeight - 10) * counts[i] / max;
-            RatingBuckets.Add(new RatingBucket(((i + 1) / 2d).ToString("0.0"), counts[i], height));
+            RatingBuckets.Add(new RatingBucket(i, ((i + 1) / 2d).ToString("0.0"), counts[i], height));
         }
 
         AverageRatingText = ratings.Length == 0 ? "AVG ★ —" : $"AVG ★ {ratings.Average():0.0}";
@@ -241,43 +340,50 @@ public class ProfileViewModel : ViewModelBase
 
     private void BuildShowcase()
     {
-        int[] ids = ParseShowcaseIds(_profile.ShowcaseGameIdsCsv);
+        int[] ids = IsEditing
+            ? _draftShowcaseIds
+            : ParseShowcaseIds(_profile.ShowcaseGameIdsCsv);
+        int? crownedGameId = IsEditing ? _draftCrownedGameId : _profile.CrownedGameId;
 
         Showcase.Clear();
         for (int slot = 0; slot < SlotCount; slot++)
         {
             Game? game = ids[slot] > 0 ? _games.FirstOrDefault(item => item.Id == ids[slot]) : null;
-            Showcase.Add(new ShowcaseSlot(slot, game));
+            Showcase.Add(new ShowcaseSlot(slot, game, game != null && game.Id == crownedGameId));
         }
     }
 
-    /// <summary>Rank grows with the number of completed games.</summary>
-    private static (string Rank, string Details) ResolveRank(int completed)
+    private void BuildBadges(IReadOnlyList<PlayLog> logs)
     {
-        (int Threshold, string Name)[] tiers =
-        [
-            (0, "ROOKIE"),
-            (2, "CHALLENGER"),
-            (5, "VETERAN"),
-            (10, "ELITE"),
-            (20, "MASTER"),
-            (40, "LEGEND")
-        ];
+        int completed = _games.Count(game => game.Status == GameStatus.Completed);
+        int reviews = logs.Count(log => !string.IsNullOrWhiteSpace(log.ReviewText));
+        double hours = logs.Sum(log => log.HoursSession);
+        int platforms = _games.Select(game => game.Platform)
+            .Where(platform => !string.IsNullOrWhiteSpace(platform))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Count();
 
-        int current = 0;
-        for (int i = 0; i < tiers.Length; i++)
+        Badges.Clear();
+        AddBadge("🎮", "First Cartridge", "Add your first game", _games.Count >= 1, "#00B4FF");
+        AddBadge("⚔️", "Backlog Slayer", "Complete 3 games", completed >= 3, "#FF4081");
+        AddBadge("🏆", "Platinum Hunter", "Master a game to 100%", _games.Any(game => game.IsMastered), "#FFC83D");
+        AddBadge("✍️", "Game Critic", "Write 2 diary reviews", reviews >= 2, "#7C4DFF");
+        AddBadge("⏱️", "Marathoner", "Log 25+ hours", hours >= 25, "#38BDF8");
+        AddBadge("🕹️", "Multi-Platform", "Play on 3 platforms", platforms >= 3, "#00E676");
+    }
+
+    private void AddBadge(string icon, string title, string description, bool unlocked, string color)
+    {
+        Badges.Add(new AchievementBadge
         {
-            if (completed >= tiers[i].Threshold)
-            {
-                current = i;
-            }
-        }
-
-        string details = current == tiers.Length - 1
-            ? $"{completed} completed · max rank"
-            : $"{completed} completed · {tiers[current + 1].Threshold - completed} to {tiers[current + 1].Name}";
-
-        return (tiers[current].Name, details);
+            Icon = icon,
+            Title = title,
+            Description = description,
+            IsUnlocked = unlocked,
+            AccentColor = Color.FromArgb(unlocked ? color : "#5E6B83"),
+            GridColumn = Badges.Count % 2,
+            GridRow = Badges.Count / 2
+        });
     }
 
     // ------------------------------------------------------------------ showcase
@@ -301,7 +407,7 @@ public class ProfileViewModel : ViewModelBase
             return;
         }
 
-        int[] ids = ParseShowcaseIds(_profile.ShowcaseGameIdsCsv);
+        int[] ids = (int[])_draftShowcaseIds.Clone();
         bool slotHasGame = ids[index] > 0 && _games.Any(game => game.Id == ids[index]);
 
         List<Game> options = _games.OrderBy(game => game.Title).ToList();
@@ -318,8 +424,14 @@ public class ProfileViewModel : ViewModelBase
             return;
         }
 
+        int? crownedGameId = _draftCrownedGameId;
         if (choice == RemoveText)
         {
+            if (ids[index] == crownedGameId)
+            {
+                crownedGameId = null;
+            }
+
             ids[index] = 0;
         }
         else
@@ -337,20 +449,39 @@ public class ProfileViewModel : ViewModelBase
                 // The game is already pinned elsewhere: swap the two slots instead of duplicating it.
                 ids[existingSlot] = ids[index];
             }
+            else if (ids[index] == crownedGameId)
+            {
+                crownedGameId = null;
+            }
 
             ids[index] = newId;
         }
 
-        try
+        _draftShowcaseIds = ids;
+        _draftCrownedGameId = crownedGameId;
+        BuildShowcase();
+    }
+
+    private void CrownShowcaseGame(ShowcaseSlot? slot)
+    {
+        if (slot?.Game == null)
         {
-            _profile.ShowcaseGameIdsCsv = string.Join(",", ids);
-            await _gameRepository.UpdateUserProfileAsync(_profile);
-            BuildShowcase();
+            return;
         }
-        catch (Exception exception)
+
+        _draftCrownedGameId = _draftCrownedGameId == slot.Game.Id ? null : slot.Game.Id;
+        BuildShowcase();
+    }
+
+    private async Task OpenShowcaseSlotAsync(ShowcaseSlot? slot)
+    {
+        if (slot?.Game == null)
         {
-            await ShowAlertAsync("Помилка PostgreSQL", $"Не вдалося зберегти вітрину: {exception.Message}");
+            StartEditing();
+            return;
         }
+
+        await OpenGameAsync(slot.Game);
     }
 
     private static int[] ParseShowcaseIds(string? csv)
@@ -369,16 +500,37 @@ public class ProfileViewModel : ViewModelBase
 
     private void StartEditing()
     {
+        if (IsEditing)
+        {
+            return;
+        }
+
         EditDisplayName = _profile.DisplayName;
         EditHandle = _profile.Handle;
         EditBio = _profile.Bio;
         EditAvatarUrl = _profile.AvatarUrl ?? string.Empty;
         EditFavoritePlatform = _profile.FavoritePlatform;
+        _draftShowcaseIds = ParseShowcaseIds(_profile.ShowcaseGameIdsCsv);
+        _draftCrownedGameId = _profile.CrownedGameId;
         IsEditing = true;
+        BuildShowcase();
+    }
+
+    private void CancelEditing()
+    {
+        _draftShowcaseIds = ParseShowcaseIds(_profile.ShowcaseGameIdsCsv);
+        _draftCrownedGameId = _profile.CrownedGameId;
+        IsEditing = false;
+        BuildShowcase();
     }
 
     private async Task SaveProfileAsync()
     {
+        if (IsBusy)
+        {
+            return;
+        }
+
         string name = EditDisplayName.Trim();
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -393,35 +545,78 @@ public class ProfileViewModel : ViewModelBase
             return;
         }
 
-        string? avatarUrl = null;
-        if (!string.IsNullOrWhiteSpace(EditAvatarUrl))
+        string? avatarUrl = string.IsNullOrWhiteSpace(EditAvatarUrl) ? null : EditAvatarUrl.Trim();
+        if (avatarUrl != null &&
+            !(Uri.TryCreate(avatarUrl, UriKind.Absolute, out Uri? avatarUri) &&
+              (avatarUri.Scheme == Uri.UriSchemeHttp || avatarUri.Scheme == Uri.UriSchemeHttps)) &&
+            !File.Exists(avatarUrl))
         {
-            string trimmed = EditAvatarUrl.Trim();
-            if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri) ||
-                (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
-            {
-                await ShowAlertAsync("Помилка", "Avatar URL має бути повним посиланням http(s)://…");
-                return;
-            }
-
-            avatarUrl = trimmed;
+            await ShowAlertAsync("Помилка", "Avatar URL має бути прямим посиланням http(s)://… або виберіть локальне фото.");
+            return;
         }
 
+        IsBusy = true;
         try
         {
-            _profile.DisplayName = name;
-            _profile.Handle = "@" + handle;
-            _profile.Bio = EditBio.Trim();
-            _profile.AvatarUrl = avatarUrl;
-            _profile.FavoritePlatform = string.IsNullOrWhiteSpace(EditFavoritePlatform) ? "PC" : EditFavoritePlatform.Trim();
+            int? crownedGameId = _draftCrownedGameId.HasValue && _draftShowcaseIds.Contains(_draftCrownedGameId.Value)
+                ? _draftCrownedGameId
+                : null;
+            var updatedProfile = new UserProfile
+            {
+                Id = _profile.Id,
+                DisplayName = name,
+                Handle = "@" + handle,
+                Bio = EditBio.Trim(),
+                AvatarUrl = avatarUrl,
+                FavoritePlatform = string.IsNullOrWhiteSpace(EditFavoritePlatform) ? "PC" : EditFavoritePlatform.Trim(),
+                ShowcaseGameIdsCsv = string.Join(",", _draftShowcaseIds),
+                CrownedGameId = crownedGameId
+            };
 
-            await _gameRepository.UpdateUserProfileAsync(_profile);
+            await _gameRepository.UpdateUserProfileAsync(updatedProfile);
+            _profile = updatedProfile;
+            _draftCrownedGameId = crownedGameId;
             IsEditing = false;
+            BuildShowcase();
             NotifyProfileChanged();
         }
         catch (Exception exception)
         {
             await ShowAlertAsync("Помилка PostgreSQL", $"Не вдалося зберегти профіль: {exception.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task ChooseAvatarAsync()
+    {
+        try
+        {
+            IReadOnlyList<FileResult>? photos = await MediaPicker.Default.PickPhotosAsync();
+            FileResult? photo = photos?.FirstOrDefault();
+            if (photo == null)
+            {
+                return;
+            }
+
+            string extension = Path.GetExtension(photo.FileName);
+            if (string.IsNullOrWhiteSpace(extension))
+            {
+                extension = ".jpg";
+            }
+
+            string path = Path.Combine(FileSystem.AppDataDirectory, $"avatar-{Guid.NewGuid():N}{extension}");
+            await using Stream input = await photo.OpenReadAsync();
+            await using FileStream output = File.Create(path);
+            await input.CopyToAsync(output);
+
+            EditAvatarUrl = path;
+        }
+        catch (Exception exception)
+        {
+            await ShowAlertAsync("Помилка", $"Не вдалося відкрити зображення: {exception.Message}");
         }
     }
 
@@ -431,12 +626,10 @@ public class ProfileViewModel : ViewModelBase
     {
         await ShowAlertAsync(
             "Як рахується статистика",
-            "Total Library — усі ігри в бібліотеці.\n" +
-            "Completed — ігри зі статусом Completed.\n" +
-            "100% Mastered — ігри, позначені як 100% / Platinum.\n" +
-            "Hours Logged — сума годин усіх записів щоденника (не поле «години» гри).\n\n" +
-            "Backlog Clear % = (усі ігри − ігри в Backlog) ÷ усі ігри × 100. " +
-            "Показує, яку частку бібліотеки ви вже почали, пройшли або закинули.\n\n" +
+            "Total — усі ігри в бібліотеці.\n" +
+            "Played, Completed and Abandoned — ігри у відповідних статусах.\n" +
+            "100% — ігри, позначені як mastered / platinum.\n" +
+            "Hours — сума годин усіх записів щоденника.\n\n" +
             "Ранг залежить від кількості пройдених ігор:\n" +
             "ROOKIE 0–1 · CHALLENGER 2–4 · VETERAN 5–9 · ELITE 10–19 · MASTER 20–39 · LEGEND 40+\n\n" +
             "AVG ★ — середня оцінка лише серед ігор, які ви оцінили (0 = без оцінки не враховується).");
@@ -470,17 +663,33 @@ public class ProfileViewModel : ViewModelBase
         return initials.ToUpperInvariant();
     }
 
+    private static ImageSource? CreateAvatarSource(string? avatar)
+    {
+        if (string.IsNullOrWhiteSpace(avatar))
+        {
+            return null;
+        }
+
+        return Uri.TryCreate(avatar, UriKind.Absolute, out Uri? uri) &&
+               (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+            ? ImageSource.FromUri(uri)
+            : File.Exists(avatar) ? ImageSource.FromFile(avatar) : null;
+    }
+
     private void NotifyProfileChanged()
     {
         OnPropertyChanged(nameof(DisplayName));
         OnPropertyChanged(nameof(Handle));
         OnPropertyChanged(nameof(Bio));
         OnPropertyChanged(nameof(HasBio));
+        OnPropertyChanged(nameof(HasNoBio));
         OnPropertyChanged(nameof(AvatarUrl));
+        OnPropertyChanged(nameof(AvatarSource));
         OnPropertyChanged(nameof(HasAvatar));
         OnPropertyChanged(nameof(Initials));
         OnPropertyChanged(nameof(FavoritePlatform));
         OnPropertyChanged(nameof(HasRecentLogs));
         OnPropertyChanged(nameof(HasNoRecentLogs));
+        OnPropertyChanged(nameof(HasNoRecentReviews));
     }
 }

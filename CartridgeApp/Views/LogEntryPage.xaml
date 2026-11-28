@@ -2,150 +2,271 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:CartridgeApp.ViewModels"
+             xmlns:converters="clr-namespace:CartridgeApp.Converters"
              x:Class="CartridgeApp.Views.LogEntryPage"
              x:DataType="viewmodels:LogEntryViewModel"
              Title="Log Play"
              BackgroundColor="{StaticResource XmbBackground}">
 
-    <ScrollView BackgroundColor="{StaticResource XmbBackground}">
-        <Grid MaximumWidthRequest="720" HorizontalOptions="Center" Padding="20,16">
-            <VerticalStackLayout Spacing="14">
+    <ContentPage.Resources>
+        <converters:RatingToStarsConverter x:Key="RatingToStarsConverter" />
+        <converters:BoolSwitchConverter x:Key="BoolSwitchConverter" />
+    </ContentPage.Resources>
 
-                <!-- Game header -->
-                <Border StrokeShape="RoundRectangle 10"
-                        Stroke="{StaticResource XmbBorderBrush}"
-                        StrokeThickness="1"
-                        Background="{StaticResource XmbSurfaceBrush}"
-                        Padding="16,12">
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
-                        <Border Grid.Column="0"
-                                WidthRequest="58"
-                                HeightRequest="82"
-                                StrokeShape="RoundRectangle 6"
+    <ScrollView BackgroundColor="{StaticResource XmbBackground}">
+        <Grid MaximumWidthRequest="1480" HorizontalOptions="Fill" Padding="32,20">
+            <VerticalStackLayout Spacing="16">
+
+                <Button Text="← Back"
+                        Style="{StaticResource BackButton}"
+                        Clicked="OnBackClicked" />
+
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="NEW LOG ENTRY" Style="{StaticResource SectionLabel}" TextColor="{StaticResource XmbAccent}" />
+                    <Label Text="{Binding GameTitle}"
+                           FontSize="26"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource XmbText}" />
+                </VerticalStackLayout>
+
+                <Grid ColumnDefinitions="360,*" ColumnSpacing="24">
+
+                    <!-- ================= LEFT: inputs ================= -->
+                    <VerticalStackLayout Grid.Column="1" Spacing="16">
+
+                        <Border StrokeShape="RoundRectangle 12"
                                 Stroke="{StaticResource XmbBorderBrush}"
                                 StrokeThickness="1"
-                                Background="{StaticResource XmbSurfaceDeepBrush}"
-                                Padding="0">
-                            <Grid WidthRequest="58" HeightRequest="82">
-                                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="1" Padding="3">
-                                    <Label Text="💿" FontSize="18" HorizontalTextAlignment="Center" />
-                                    <Label Text="{Binding GameTitle}"
-                                           FontSize="7"
-                                           FontAttributes="Bold"
-                                           MaxLines="2"
-                                           LineBreakMode="TailTruncation"
-                                           HorizontalTextAlignment="Center"
-                                           TextColor="{StaticResource XmbText}" />
-                                    <Label Text="{Binding Platform}"
-                                           FontSize="7"
-                                           LineBreakMode="TailTruncation"
-                                           HorizontalTextAlignment="Center"
-                                           TextColor="{StaticResource XmbMuted}" />
-                                </VerticalStackLayout>
-                                <Image WidthRequest="58"
-                                       HeightRequest="82"
-                                       Aspect="AspectFill"
-                                       ZIndex="1"
-                                       Source="{Binding CoverUrl}"
-                                       IsVisible="{Binding HasCover}" />
+                                Background="{StaticResource XmbSurfaceBrush}"
+                                Padding="24,20">
+                            <VerticalStackLayout Spacing="12">
+                                <Label Text="ДАТА" Style="{StaticResource SectionLabel}" />
+                                <Border StrokeShape="RoundRectangle 10"
+                                        Stroke="{StaticResource XmbInputBorderBrush}"
+                                        StrokeThickness="1"
+                                        BackgroundColor="{StaticResource XmbInputSurface}"
+                                        Padding="14,8">
+                                    <DatePicker Date="{Binding LoggedDate}"
+                                                Format="dd.MM.yyyy"
+                                                BackgroundColor="Transparent" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border StrokeShape="RoundRectangle 12"
+                                Stroke="{StaticResource XmbBorderBrush}"
+                                StrokeThickness="1"
+                                Background="{StaticResource XmbSurfaceBrush}"
+                                Padding="24,20">
+                            <Grid ColumnDefinitions="*,Auto"
+                                  RowDefinitions="Auto,Auto"
+                                  ColumnSpacing="12"
+                                  RowSpacing="12">
+                                <Label Grid.Row="0" Grid.Column="0" Text="Години за сесію" VerticalOptions="Center" />
+                                <Border Grid.Row="0"
+                                        Grid.Column="1"
+                                        StrokeShape="RoundRectangle 10"
+                                        Stroke="{StaticResource XmbInputBorderBrush}"
+                                        StrokeThickness="1"
+                                        BackgroundColor="{StaticResource XmbInputSurface}"
+                                        Padding="4,2">
+                                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                                        <Button Text="−"
+                                                WidthRequest="34"
+                                                HeightRequest="32"
+                                                Padding="0"
+                                                Style="{StaticResource QuickActionButton}"
+                                                Command="{Binding DecreaseHoursCommand}" />
+                                        <Label Text="{Binding HoursSession, StringFormat='{}{0:0.0} h'}"
+                                               WidthRequest="58"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalTextAlignment="Center"
+                                               FontAttributes="Bold"
+                                               TextColor="{StaticResource XmbAccent}" />
+                                        <Button Text="+"
+                                                WidthRequest="34"
+                                                HeightRequest="32"
+                                                Padding="0"
+                                                Style="{StaticResource QuickActionButton}"
+                                                Command="{Binding IncreaseHoursCommand}" />
+                                    </HorizontalStackLayout>
+                                </Border>
+
+                                <Label Grid.Row="1" Grid.Column="0" Text="Replay (повторне проходження)" VerticalOptions="Center" />
+                                <Switch Grid.Row="1" Grid.Column="1"
+                                        IsToggled="{Binding IsReplay}"
+                                        HorizontalOptions="End"
+                                        VerticalOptions="Center" />
                             </Grid>
                         </Border>
-                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                            <Label Text="NEW LOG ENTRY" Style="{StaticResource SectionLabel}" />
-                            <Label Text="{Binding GameTitle}"
-                                   FontSize="20"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource XmbText}" />
-                        </VerticalStackLayout>
-                    </Grid>
-                </Border>
 
-                <!-- Date + status -->
-                <Border StrokeShape="RoundRectangle 10"
-                        Stroke="{StaticResource XmbBorderBrush}"
-                        StrokeThickness="1"
-                        Background="{StaticResource XmbSurfaceBrush}"
-                        Padding="16,12">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="ДАТА" Style="{StaticResource SectionLabel}" />
-                        <Border StrokeShape="RoundRectangle 8"
+                        <Border StrokeShape="RoundRectangle 12"
                                 Stroke="{StaticResource XmbBorderBrush}"
                                 StrokeThickness="1"
-                                Background="{StaticResource XmbSurfaceDeepBrush}"
-                                Padding="12,0">
-                            <DatePicker Date="{Binding LoggedDate}" Format="dd.MM.yyyy" />
+                                Background="{StaticResource XmbSurfaceBrush}"
+                                Padding="24,20">
+                            <VerticalStackLayout Spacing="12">
+                                <Label Text="ВІДГУК / НОТАТКА" Style="{StaticResource SectionLabel}" />
+                                <Border StrokeShape="RoundRectangle 10"
+                                        Stroke="{StaticResource XmbInputBorderBrush}"
+                                        StrokeThickness="1"
+                                        BackgroundColor="{StaticResource XmbInputSurface}"
+                                        Padding="14,8">
+                                    <Editor Placeholder="Що відбулося за сесію? Короткий відгук…"
+                                            Text="{Binding ReviewText}"
+                                            AutoSize="TextChanges"
+                                            HeightRequest="160"
+                                            BackgroundColor="Transparent" />
+                                </Border>
+                            </VerticalStackLayout>
                         </Border>
 
-                        <Label Text="СТАТУС ПІСЛЯ СЕСІЇ" Style="{StaticResource SectionLabel}" Margin="0,6,0,0" />
-                        <Border StrokeShape="RoundRectangle 8"
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <Button Grid.Column="0"
+                                    Text="Скасувати"
+                                    Command="{Binding CancelCommand}"
+                                    Style="{StaticResource GhostButton}" />
+                            <Button Grid.Column="1"
+                                    Text="Зберегти запис"
+                                    Command="{Binding SaveCommand}"
+                                    Style="{StaticResource SpinButton}" />
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <!-- ================= RIGHT: live poster + quick status / rating ================= -->
+                    <VerticalStackLayout Grid.Column="0" Spacing="16">
+
+                        <Border StrokeShape="RoundRectangle 12"
                                 Stroke="{StaticResource XmbBorderBrush}"
                                 StrokeThickness="1"
-                                Background="{StaticResource XmbSurfaceDeepBrush}"
-                                Padding="12,0">
-                            <Picker ItemsSource="{Binding Statuses}" SelectedItem="{Binding Status}" />
+                                Background="{StaticResource XmbSurfaceBrush}"
+                                Padding="24,20">
+                            <VerticalStackLayout Spacing="12">
+                                <Label Text="GAME" Style="{StaticResource SectionLabel}" />
+
+                                <Border WidthRequest="240"
+                                        HeightRequest="350"
+                                        HorizontalOptions="Center"
+                                        StrokeShape="RoundRectangle 12"
+                                        Stroke="{StaticResource XmbBorderBrush}"
+                                        StrokeThickness="1"
+                                        Background="{StaticResource XmbSurfaceDeepBrush}"
+                                        Padding="0">
+                                    <Grid WidthRequest="240" HeightRequest="350">
+                                        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8" Padding="14">
+                                            <Label Text="💿" FontSize="44" HorizontalTextAlignment="Center" />
+                                            <Label Text="{Binding GameTitle}"
+                                                   FontSize="15"
+                                                   FontAttributes="Bold"
+                                                   MaxLines="3"
+                                                   LineBreakMode="TailTruncation"
+                                                   HorizontalTextAlignment="Center"
+                                                   TextColor="{StaticResource XmbText}" />
+                                            <Label Text="{Binding Platform}"
+                                                   FontSize="11"
+                                                   FontAttributes="Bold"
+                                                   CharacterSpacing="2"
+                                                   HorizontalTextAlignment="Center"
+                                                   TextColor="{StaticResource XmbMuted}" />
+                                        </VerticalStackLayout>
+                                        <Image WidthRequest="240"
+                                               HeightRequest="350"
+                                               Aspect="AspectFill"
+                                               ZIndex="1"
+                                               Source="{Binding CoverUrl}"
+                                               IsVisible="{Binding HasCover}" />
+                                    </Grid>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border StrokeShape="RoundRectangle 12"
+                                Stroke="{StaticResource XmbBorderBrush}"
+                                StrokeThickness="1"
+                                Background="{StaticResource XmbSurfaceBrush}"
+                                Padding="24,20">
+                            <VerticalStackLayout Spacing="14">
+                                <Label Text="СТАТУС ПІСЛЯ СЕСІЇ" Style="{StaticResource SectionLabel}" />
+                                <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="8">
+                                    <Button Grid.Column="0"
+                                            Text="BACKLOG"
+                                            Style="{StaticResource ChipButton}"
+                                            HorizontalOptions="Fill"
+                                            Padding="2,0"
+                                            FontSize="9"
+                                            BackgroundColor="{Binding IsStatusBacklog, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                                            BorderColor="{Binding IsStatusBacklog, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                                            TextColor="{Binding IsStatusBacklog, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                                            Command="{Binding SetStatusCommand}"
+                                            CommandParameter="Backlog" />
+                                    <Button Grid.Column="1"
+                                            Text="PLAYING"
+                                            Style="{StaticResource ChipButton}"
+                                            HorizontalOptions="Fill"
+                                            Padding="2,0"
+                                            FontSize="9"
+                                            BackgroundColor="{Binding IsStatusPlaying, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                                            BorderColor="{Binding IsStatusPlaying, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                                            TextColor="{Binding IsStatusPlaying, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                                            Command="{Binding SetStatusCommand}"
+                                            CommandParameter="Playing" />
+                                    <Button Grid.Column="2"
+                                            Text="PLAYED"
+                                            Style="{StaticResource ChipButton}"
+                                            HorizontalOptions="Fill"
+                                            Padding="2,0"
+                                            FontSize="9"
+                                            BackgroundColor="{Binding IsStatusPlayed, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                                            BorderColor="{Binding IsStatusPlayed, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                                            TextColor="{Binding IsStatusPlayed, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                                            Command="{Binding SetStatusCommand}"
+                                            CommandParameter="Played" />
+                                    <Button Grid.Column="3"
+                                            Text="COMPLETED"
+                                            Style="{StaticResource ChipButton}"
+                                            HorizontalOptions="Fill"
+                                            Padding="2,0"
+                                            FontSize="8"
+                                            BackgroundColor="{Binding IsStatusCompleted, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                                            BorderColor="{Binding IsStatusCompleted, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                                            TextColor="{Binding IsStatusCompleted, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                                            Command="{Binding SetStatusCommand}"
+                                            CommandParameter="Completed" />
+                                    <Button Grid.Column="4"
+                                            Text="ABANDONED"
+                                            Style="{StaticResource ChipButton}"
+                                            HorizontalOptions="Fill"
+                                            Padding="1,0"
+                                            FontSize="8"
+                                            BackgroundColor="{Binding IsStatusAbandoned, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                                            BorderColor="{Binding IsStatusAbandoned, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                                            TextColor="{Binding IsStatusAbandoned, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                                            Command="{Binding SetStatusCommand}"
+                                            CommandParameter="Abandoned" />
+                                </Grid>
+
+                                <Label Text="ОЦІНКА ГРИ (0.5 – 5.0)" Style="{StaticResource SectionLabel}" Margin="0,6,0,0" />
+                                <Label Text="{Binding GameRating, Converter={StaticResource RatingToStarsConverter}, ConverterParameter=badge}"
+                                       FontSize="22"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource XmbGold}" />
+                                <FlexLayout Wrap="Wrap" Direction="Row">
+                                    <Button Text="−0.5"
+                                            Command="{Binding DecreaseRatingCommand}"
+                                            Style="{StaticResource GhostButton}"
+                                            Margin="0,0,8,8" />
+                                    <Button Text="+0.5"
+                                            Command="{Binding IncreaseRatingCommand}"
+                                            Style="{StaticResource GhostButton}"
+                                            Margin="0,0,8,8" />
+                                    <Button Text="Без оцінки"
+                                            Command="{Binding ClearRatingCommand}"
+                                            Style="{StaticResource DangerOutlineButton}"
+                                            Margin="0,0,8,8" />
+                                </FlexLayout>
+                            </VerticalStackLayout>
                         </Border>
                     </VerticalStackLayout>
-                </Border>
-
-                <!-- Hours + replay -->
-                <Border StrokeShape="RoundRectangle 10"
-                        Stroke="{StaticResource XmbBorderBrush}"
-                        StrokeThickness="1"
-                        Background="{StaticResource XmbSurfaceBrush}"
-                        Padding="16,12">
-                    <Grid ColumnDefinitions="*,Auto,64"
-                          RowDefinitions="Auto,Auto"
-                          ColumnSpacing="12"
-                          RowSpacing="12">
-                        <Label Grid.Row="0" Grid.Column="0" Text="Години за сесію" VerticalOptions="Center" />
-                        <Stepper Grid.Row="0" Grid.Column="1"
-                                 Minimum="0" Maximum="24" Increment="0.5"
-                                 Value="{Binding HoursSession}" />
-                        <Label Grid.Row="0" Grid.Column="2"
-                               Text="{Binding HoursSession, StringFormat='{}{0:0.0} h'}"
-                               FontAttributes="Bold"
-                               HorizontalTextAlignment="End"
-                               VerticalOptions="Center"
-                               TextColor="{StaticResource XmbAccent}" />
-
-                        <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Replay (повторне проходження)" VerticalOptions="Center" />
-                        <Switch Grid.Row="1" Grid.Column="2"
-                                IsToggled="{Binding IsReplay}"
-                                HorizontalOptions="End"
-                                VerticalOptions="Center" />
-                    </Grid>
-                </Border>
-
-                <!-- Review -->
-                <Border StrokeShape="RoundRectangle 10"
-                        Stroke="{StaticResource XmbBorderBrush}"
-                        StrokeThickness="1"
-                        Background="{StaticResource XmbSurfaceBrush}"
-                        Padding="16,12">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="ВІДГУК / НОТАТКА" Style="{StaticResource SectionLabel}" />
-                        <Border StrokeShape="RoundRectangle 8"
-                                Stroke="{StaticResource XmbBorderBrush}"
-                                StrokeThickness="1"
-                                Background="{StaticResource XmbSurfaceDeepBrush}"
-                                Padding="12,4">
-                            <Editor Placeholder="Що відбулося за сесію? Короткий відгук…"
-                                    Text="{Binding ReviewText}"
-                                    AutoSize="TextChanges"
-                                    HeightRequest="140" />
-                        </Border>
-                    </VerticalStackLayout>
-                </Border>
-
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                    <Button Grid.Column="0"
-                            Text="Скасувати"
-                            Command="{Binding CancelCommand}"
-                            Style="{StaticResource GhostButton}" />
-                    <Button Grid.Column="1"
-                            Text="Зберегти запис"
-                            Command="{Binding SaveCommand}"
-                            Style="{StaticResource SpinButton}" />
                 </Grid>
             </VerticalStackLayout>
         </Grid>

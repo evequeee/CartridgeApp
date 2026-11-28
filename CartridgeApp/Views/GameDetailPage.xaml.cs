@@ -22,6 +22,11 @@ public partial class GameDetailPage : ContentPage, IQueryAttributable
         }
     }
 
+    private async void OnBackClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("..");
+    }
+
     protected override async void OnAppearing()
     {
         base.OnAppearing();

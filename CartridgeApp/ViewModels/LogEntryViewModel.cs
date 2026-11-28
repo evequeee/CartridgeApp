@@ -20,11 +20,24 @@ public class LogEntryViewModel : ViewModelBase
     private bool _isReplay;
     private string _reviewText = string.Empty;
     private bool _isSaving;
+    private double _gameRating;
 
     public LogEntryViewModel(IGameRepository gameRepository)
     {
         _gameRepository = gameRepository;
         SaveCommand = new Command(async () => await SaveAsync());
+        SetStatusCommand = new Command<string>(name =>
+        {
+            if (Enum.TryParse(name, true, out GameStatus status))
+            {
+                Status = status;
+            }
+        });
+        IncreaseRatingCommand = new Command(() => GameRating += 0.5);
+        DecreaseRatingCommand = new Command(() => GameRating -= 0.5);
+        ClearRatingCommand = new Command(() => GameRating = 0);
+        IncreaseHoursCommand = new Command(() => HoursSession += 0.5);
+        DecreaseHoursCommand = new Command(() => HoursSession -= 0.5);
         CancelCommand = new Command(async () => await Shell.Current.GoToAsync(".."));
     }
 
@@ -44,7 +57,30 @@ public class LogEntryViewModel : ViewModelBase
     public GameStatus Status
     {
         get => _status;
-        set => SetProperty(ref _status, value);
+        set
+        {
+            if (SetProperty(ref _status, value))
+            {
+                OnPropertyChanged(nameof(IsStatusBacklog));
+                OnPropertyChanged(nameof(IsStatusPlaying));
+                OnPropertyChanged(nameof(IsStatusPlayed));
+                OnPropertyChanged(nameof(IsStatusCompleted));
+                OnPropertyChanged(nameof(IsStatusAbandoned));
+            }
+        }
+    }
+
+    public bool IsStatusBacklog => Status == GameStatus.Backlog;
+    public bool IsStatusPlaying => Status == GameStatus.Playing;
+    public bool IsStatusPlayed => Status == GameStatus.Played;
+    public bool IsStatusCompleted => Status == GameStatus.Completed;
+    public bool IsStatusAbandoned => Status == GameStatus.Abandoned;
+
+    /// <summary>The game's overall rating (0.0 = not rated), adjustable from the log form in steps of 0.5.</summary>
+    public double GameRating
+    {
+        get => _gameRating;
+        set => SetProperty(ref _gameRating, Math.Round(Math.Clamp(value, 0d, 5d) * 2d, MidpointRounding.AwayFromZero) / 2d);
     }
 
     /// <summary>Hours played in this session, step 0.5.</summary>
@@ -67,14 +103,21 @@ public class LogEntryViewModel : ViewModelBase
     }
 
     public ICommand SaveCommand { get; }
+    public ICommand SetStatusCommand { get; }
+    public ICommand IncreaseRatingCommand { get; }
+    public ICommand DecreaseRatingCommand { get; }
+    public ICommand ClearRatingCommand { get; }
+    public ICommand IncreaseHoursCommand { get; }
+    public ICommand DecreaseHoursCommand { get; }
     public ICommand CancelCommand { get; }
 
     public void LoadGame(Game game)
     {
         _game = game;
+        GameRating = game.Rating;
         Status = game.Status;
         // Playing an already finished game again is most likely a replay.
-        IsReplay = game.Status == GameStatus.Completed;
+        IsReplay = game.Status is GameStatus.Played or GameStatus.Completed;
 
         OnPropertyChanged(nameof(GameTitle));
         OnPropertyChanged(nameof(Platform));
@@ -118,6 +161,7 @@ public class LogEntryViewModel : ViewModelBase
 
             // Keep the game card in sync with the diary: new status and the total hours (whole hours, rounded up from .5).
             _game.Status = Status;
+            _game.Rating = GameRating;
             _game.HoursPlayed += (int)Math.Round(HoursSession, MidpointRounding.AwayFromZero);
             await _gameRepository.UpdateGameAsync(_game);
 

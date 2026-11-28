@@ -25,6 +25,7 @@ public class GameDetailViewModel : ViewModelBase
 
         LogPlayCommand = new Command(async () => await LogPlayAsync());
         EditGameCommand = new Command(async () => await EditGameAsync());
+        DeleteGameCommand = new Command(async () => await DeleteGameAsync());
         ToggleLikeCommand = new Command(async () => await UpdateGameAsync(game => game.IsLiked = !game.IsLiked));
         ToggleMasteredCommand = new Command(async () => await UpdateGameAsync(game => game.IsMastered = !game.IsMastered));
         ToggleFavoriteCommand = new Command(async () => await UpdateGameAsync(game => game.IsFavorite = !game.IsFavorite));
@@ -64,6 +65,7 @@ public class GameDetailViewModel : ViewModelBase
 
     public ICommand LogPlayCommand { get; }
     public ICommand EditGameCommand { get; }
+    public ICommand DeleteGameCommand { get; }
     public ICommand ToggleLikeCommand { get; }
     public ICommand ToggleMasteredCommand { get; }
     public ICommand ToggleFavoriteCommand { get; }
@@ -147,6 +149,37 @@ public class GameDetailViewModel : ViewModelBase
         {
             ["Game"] = _game
         });
+    }
+
+    private async Task DeleteGameAsync()
+    {
+        if (_game.Id == 0)
+        {
+            return;
+        }
+
+        bool confirmed = await Shell.Current.DisplayAlertAsync(
+            "Delete Game",
+            $"Delete \"{_game.Title}\" and its play diary entries?",
+            "Delete",
+            "Cancel");
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        try
+        {
+            await _gameRepository.DeleteGameAsync(_game);
+        }
+        catch (Exception exception)
+        {
+            await ShowAlertAsync("Помилка PostgreSQL", $"Не вдалося видалити гру: {exception.Message}");
+            return;
+        }
+
+        await Shell.Current.GoToAsync("..");
     }
 
     /// <summary>Applies a change, shows it immediately and saves it; on failure the previous values are restored.</summary>

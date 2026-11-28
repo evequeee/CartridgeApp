@@ -5,10 +5,11 @@ namespace CartridgeApp.Models;
 
 public enum GameStatus
 {
-    Backlog,
-    Playing,
-    Completed,
-    Abandoned
+    Backlog = 0,
+    Playing = 1,
+    Played = 4,
+    Completed = 2,
+    Abandoned = 3
 }
 
 public class Game

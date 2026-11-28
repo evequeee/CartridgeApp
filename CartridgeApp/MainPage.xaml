@@ -4,8 +4,10 @@
              xmlns:viewmodels="clr-namespace:CartridgeApp.ViewModels"
              xmlns:models="clr-namespace:CartridgeApp.Models"
              xmlns:converters="clr-namespace:CartridgeApp.Converters"
+             xmlns:views="clr-namespace:CartridgeApp.Views"
              x:Class="CartridgeApp.MainPage"
              x:DataType="viewmodels:MainViewModel"
+             Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource XmbBackground}">
 
     <ContentPage.Resources>
@@ -14,73 +16,62 @@
         <converters:BoolSwitchConverter x:Key="BoolSwitchConverter" />
     </ContentPage.Resources>
 
-    <!-- Root: library content + roulette overlay stacked in one cell -->
-    <Grid>
+    <!-- Root: top bar, library content, and the roulette overlay on top of both -->
+    <Grid RowDefinitions="Auto,*">
+
+        <views:AppHeader Grid.Row="0" ActiveTab="Library" />
 
         <!-- ================= LIBRARY ================= -->
-        <Grid MaximumWidthRequest="1050"
-              HorizontalOptions="Center"
-              Padding="24,20"
+        <Grid Grid.Row="1"
+              MaximumWidthRequest="1480"
+              HorizontalOptions="Fill"
+              Padding="32,20"
               RowDefinitions="Auto,Auto,Auto,*"
               RowSpacing="16">
 
-            <!-- ===== HUD HEADER ===== -->
+            <!-- ===== HERO BANNER: roulette ===== -->
             <Border Grid.Row="0"
-                    StrokeShape="RoundRectangle 12"
+                    StrokeShape="RoundRectangle 14"
                     Stroke="{StaticResource XmbBorderBrush}"
                     StrokeThickness="1"
                     Background="{StaticResource XmbSurfaceBrush}"
-                    Padding="20,16">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                    Padding="28,24">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
 
-                    <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="2">
+                    <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="10">
                         <Label Text="CARTRIDGE ROULETTE"
-                               FontSize="20"
+                               FontSize="32"
                                FontAttributes="Bold"
-                               CharacterSpacing="2"
+                               CharacterSpacing="1"
                                LineBreakMode="TailTruncation"
                                TextColor="{StaticResource XmbText}" />
-                        <HorizontalStackLayout Spacing="8">
-                            <Label Text="{Binding BacklogCount, StringFormat='Беклог: {0}'}"
-                                   FontSize="14"
-                                   VerticalOptions="Center"
-                                   TextColor="{StaticResource XmbAccent}" />
+                        <HorizontalStackLayout Spacing="10">
+                            <Border StrokeShape="RoundRectangle 6"
+                                    StrokeThickness="0"
+                                    Background="{StaticResource XmbAccentBrush}"
+                                    Padding="12,5"
+                                    HorizontalOptions="Start">
+                                <Label Text="{Binding BacklogCount, StringFormat='Беклог: {0}'}"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource XmbBackground}" />
+                            </Border>
                             <ActivityIndicator IsRunning="{Binding IsBusy}"
                                                IsVisible="{Binding IsBusy}"
-                                               WidthRequest="16"
-                                               HeightRequest="16"
+                                               WidthRequest="18"
+                                               HeightRequest="18"
                                                VerticalOptions="Center"
                                                Color="{StaticResource XmbAccent}" />
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
 
-                    <HorizontalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="10">
-
+                    <HorizontalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="12">
                         <Button Text="🎲 SPIN BACKLOG"
                                 Command="{Binding SpinCommand}"
                                 Style="{StaticResource SpinButton}" />
-
-                        <Border StrokeShape="RoundRectangle 10"
-                                Stroke="{StaticResource XmbBorderBrush}"
-                                StrokeThickness="1"
-                                Background="{StaticResource XmbSurfaceDeepBrush}"
-                                Padding="12,0"
-                                HeightRequest="44"
-                                ToolTipProperties.Text="Крутити рулетку лише серед улюблених">
-                            <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
-                                <Label Text="★ Favs"
-                                       FontAttributes="Bold"
-                                       VerticalOptions="Center"
-                                       TextColor="{StaticResource XmbGold}" />
-                                <Switch IsToggled="{Binding SpinOnlyFavorites}"
-                                        VerticalOptions="Center" />
-                            </HorizontalStackLayout>
-                        </Border>
-
                         <Button Text="+ Add Game"
                                 Command="{Binding AddGameCommand}"
                                 Style="{StaticResource GhostButton}" />
-
                         <Button Text="Clear"
                                 Command="{Binding ClearAllCommand}"
                                 Style="{StaticResource DangerOutlineButton}" />
@@ -88,16 +79,16 @@
                 </Grid>
             </Border>
 
-            <!-- ===== CONTROL BAR, ROW 1: search + sort (fixed 190) + view toggle ===== -->
-            <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto" ColumnSpacing="12">
+            <!-- ===== CONTROL BAR, ROW 1: search + sort + view toggle ===== -->
+            <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto" ColumnSpacing="14">
 
                 <Border Grid.Column="0"
                         StrokeShape="RoundRectangle 12"
-                        Stroke="{StaticResource XmbBorderBrush}"
-                        StrokeThickness="1"
+                        Stroke="{StaticResource XmbSurfaceDeepBrush}"
+                        StrokeThickness="0"
                         Background="{StaticResource XmbSurfaceBrush}"
-                        Padding="8,0"
-                        HeightRequest="48">
+                        Padding="10,0"
+                        HeightRequest="60">
                     <SearchBar Placeholder="Search games..."
                                Text="{Binding SearchQuery}"
                                VerticalOptions="Center"
@@ -107,32 +98,40 @@
                                BackgroundColor="Transparent" />
                 </Border>
 
+                <!-- Fixed-width sort control keeps its selected value readable. -->
                 <Border Grid.Column="1"
-                        WidthRequest="190"
+                        WidthRequest="230"
                         StrokeShape="RoundRectangle 12"
                         Stroke="{StaticResource XmbBorderBrush}"
                         StrokeThickness="1"
                         Background="{StaticResource XmbSurfaceBrush}"
-                        Padding="14,0"
-                        HeightRequest="48">
-                    <Picker Title="Sort by"
-                            ItemsSource="{Binding SortOptions}"
-                            SelectedItem="{Binding SelectedSortOption}"
-                            VerticalOptions="Center"
-                            HorizontalOptions="Fill"
-                            TextColor="{StaticResource XmbText}"
-                            TitleColor="{StaticResource XmbMuted}"
-                            BackgroundColor="Transparent" />
+                        Padding="14,4"
+                        HeightRequest="60">
+                    <VerticalStackLayout Spacing="0" VerticalOptions="Center">
+                        <Label Text="SORT BY"
+                               FontSize="10"
+                               TextColor="{StaticResource XmbMuted}" />
+                        <Picker ItemsSource="{Binding SortOptions}"
+                                SelectedItem="{Binding SelectedSortOption}"
+                                TextColor="{StaticResource XmbText}"
+                                TitleColor="{StaticResource XmbMuted}"
+                                BackgroundColor="Transparent"
+                                HorizontalOptions="Fill"
+                                VerticalOptions="Center"
+                                HeightRequest="38"
+                                MinimumHeightRequest="30" />
+                    </VerticalStackLayout>
                 </Border>
 
+                <!-- Segmented toggle -->
                 <Border Grid.Column="2"
                         StrokeShape="RoundRectangle 12"
                         Stroke="{StaticResource XmbBorderBrush}"
                         StrokeThickness="1"
                         Background="{StaticResource XmbSurfaceBrush}"
-                        Padding="6,0"
-                        HeightRequest="48">
-                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                        Padding="8,0"
+                        HeightRequest="60">
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
                         <Button Text="▦ Grid Posters"
                                 Style="{StaticResource ChipButton}"
                                 BackgroundColor="{Binding IsGridView, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
@@ -151,9 +150,9 @@
                 </Border>
             </Grid>
 
-            <!-- ===== CONTROL BAR, ROW 2: filter chips ===== -->
+            <!-- ===== CONTROL BAR, ROW 2: filter pills + Favs switch ===== -->
             <ScrollView Grid.Row="2" Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
-                <HorizontalStackLayout Spacing="8">
+                <HorizontalStackLayout Spacing="10">
                     <Button Text="All"
                             Style="{StaticResource ChipButton}"
                             BackgroundColor="{Binding IsFilterAll, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
@@ -175,6 +174,13 @@
                             TextColor="{Binding IsFilterPlaying, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
                             Command="{Binding SetQuickFilterCommand}"
                             CommandParameter="Playing" />
+                    <Button Text="Played"
+                            Style="{StaticResource ChipButton}"
+                            BackgroundColor="{Binding IsFilterPlayed, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                            BorderColor="{Binding IsFilterPlayed, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                            TextColor="{Binding IsFilterPlayed, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                            Command="{Binding SetQuickFilterCommand}"
+                            CommandParameter="Played" />
                     <Button Text="Completed"
                             Style="{StaticResource ChipButton}"
                             BackgroundColor="{Binding IsFilterCompleted, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
@@ -182,6 +188,13 @@
                             TextColor="{Binding IsFilterCompleted, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
                             Command="{Binding SetQuickFilterCommand}"
                             CommandParameter="Completed" />
+                    <Button Text="Abandoned"
+                            Style="{StaticResource ChipButton}"
+                            BackgroundColor="{Binding IsFilterAbandoned, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
+                            BorderColor="{Binding IsFilterAbandoned, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbBorder'}"
+                            TextColor="{Binding IsFilterAbandoned, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
+                            Command="{Binding SetQuickFilterCommand}"
+                            CommandParameter="Abandoned" />
                     <Button Text="♥ Liked"
                             Style="{StaticResource ChipButton}"
                             BackgroundColor="{Binding IsFilterLiked, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbSurfaceDeep'}"
@@ -196,10 +209,27 @@
                             TextColor="{Binding IsFilterMastered, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbBackground|XmbMuted'}"
                             Command="{Binding SetQuickFilterCommand}"
                             CommandParameter="Mastered" />
+
+                    <!-- ★ Favs: restricts the roulette to favorites -->
+                    <Border StrokeShape="RoundRectangle 18"
+                            Stroke="{StaticResource XmbBorderBrush}"
+                            StrokeThickness="1"
+                            Background="{StaticResource XmbSurfaceDeepBrush}"
+                            Padding="12,0"
+                            HeightRequest="36"
+                            ToolTipProperties.Text="Крутити рулетку лише серед улюблених">
+                        <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                            <Switch IsToggled="{Binding SpinOnlyFavorites}" VerticalOptions="Center" />
+                            <Label Text="★ Favs"
+                                   FontAttributes="Bold"
+                                   VerticalOptions="Center"
+                                   TextColor="{StaticResource XmbGold}" />
+                        </HorizontalStackLayout>
+                    </Border>
                 </HorizontalStackLayout>
             </ScrollView>
 
-            <!-- ===== POSTER GRID (2:3 posters) ===== -->
+            <!-- ===== POSTER GRID: fluid cards, no fixed width, so nothing is cut off on the right ===== -->
             <CollectionView x:Name="PostersView"
                             Grid.Row="3"
                             ItemsSource="{Binding FilteredGames}"
@@ -207,9 +237,9 @@
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout x:Name="PosterLayout"
                                      Orientation="Vertical"
-                                     Span="4"
-                                     HorizontalItemSpacing="16"
-                                     VerticalItemSpacing="16" />
+                                     Span="5"
+                                     HorizontalItemSpacing="18"
+                                     VerticalItemSpacing="20" />
                 </CollectionView.ItemsLayout>
 
                 <CollectionView.EmptyView>
@@ -227,27 +257,24 @@
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Game">
-                        <!-- Poster tile 216x324 (2:3) -->
-                        <Border WidthRequest="216"
-                                HeightRequest="324"
-                                HorizontalOptions="Center"
+                        <Border HorizontalOptions="Fill"
                                 Padding="0"
-                                StrokeShape="RoundRectangle 12"
-                                Stroke="{StaticResource XmbBorderBrush}"
-                                StrokeThickness="1"
-                                Background="{StaticResource XmbSurfaceDeepBrush}">
+                                StrokeShape="RoundRectangle 14"
+                                StrokeThickness="0"
+                                Background="{StaticResource XmbSurfaceBrush}">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=OpenGameDetailCommand}"
                                                       CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
 
-                            <Grid WidthRequest="216" HeightRequest="324">
-
-                                <!-- Placeholder poster (always underneath): icon + title + platform -->
-                                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8" Padding="18">
-                                    <Label Text="💿" FontSize="48" HorizontalTextAlignment="Center" />
+                            <Grid HeightRequest="340" HorizontalOptions="Fill">
+                                <VerticalStackLayout VerticalOptions="Center"
+                                                     HorizontalOptions="Center"
+                                                     Spacing="8"
+                                                     Padding="14">
+                                    <Label Text="💿" FontSize="44" HorizontalTextAlignment="Center" />
                                     <Label Text="{Binding Title}"
-                                           FontSize="16"
+                                           FontSize="15"
                                            FontAttributes="Bold"
                                            MaxLines="3"
                                            LineBreakMode="TailTruncation"
@@ -261,66 +288,102 @@
                                            TextColor="{StaticResource XmbMuted}" />
                                 </VerticalStackLayout>
 
-                                <!-- Cover art on top of the placeholder -->
-                                <Image WidthRequest="216"
-                                       HeightRequest="324"
-                                       Aspect="AspectFill"
+                                <Image Aspect="AspectFill"
+                                       HorizontalOptions="Fill"
+                                       VerticalOptions="Fill"
+                                       HeightRequest="340"
                                        ZIndex="1"
                                        Source="{Binding CoverUrl}"
                                        IsVisible="{Binding HasCover}" />
 
-                                <!-- Status bar -->
-                                <BoxView HeightRequest="4"
-                                         VerticalOptions="Start"
-                                         ZIndex="2"
-                                         BackgroundColor="{Binding Status, Converter={StaticResource StatusColorConverter}}" />
-
-                                <!-- Like + 100% indicators -->
-                                <HorizontalStackLayout HorizontalOptions="End"
-                                                       VerticalOptions="Start"
-                                                       Margin="0,14,10,0"
-                                                       Spacing="6"
-                                                       ZIndex="2">
-                                    <Label Text="♥"
-                                           FontSize="20"
-                                           VerticalOptions="Center"
-                                           IsVisible="{Binding IsLiked}"
-                                           TextColor="{StaticResource XmbLike}" />
-                                    <Border StrokeShape="RoundRectangle 8"
-                                            Stroke="{StaticResource XmbVioletBrush}"
-                                            StrokeThickness="1"
-                                            Background="{StaticResource XmbOverlayBrush}"
-                                            Padding="8,3"
-                                            IsVisible="{Binding IsMastered}">
-                                        <Label Text="🏆 100%"
-                                               FontSize="11"
-                                               FontAttributes="Bold"
-                                               TextColor="{StaticResource XmbViolet}" />
-                                    </Border>
-                                </HorizontalStackLayout>
-
-                                <!-- Info strip -->
-                                <Border VerticalOptions="End"
+                                <Border HorizontalOptions="Start"
+                                        VerticalOptions="Start"
+                                        Margin="12"
                                         ZIndex="2"
                                         StrokeThickness="0"
-                                        Padding="12,10"
+                                        StrokeShape="RoundRectangle 8"
+                                        Padding="10,5"
                                         Background="{StaticResource XmbOverlayBrush}">
-                                    <VerticalStackLayout Spacing="2">
-                                        <Label Text="{Binding Title}"
-                                               FontSize="14"
+                                    <Label Text="{Binding Status}"
+                                           FontSize="10"
+                                           FontAttributes="Bold"
+                                           CharacterSpacing="1"
+                                           TextTransform="Uppercase"
+                                           TextColor="{Binding Status, Converter={StaticResource StatusColorConverter}}" />
+                                </Border>
+
+                                <HorizontalStackLayout HorizontalOptions="End"
+                                                       VerticalOptions="Start"
+                                                       Margin="0,10,10,0"
+                                                       Spacing="6"
+                                                       ZIndex="3">
+                                    <Button Text="{Binding IsLiked, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='♥|♡'}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=ToggleLikeCommand}"
+                                            CommandParameter="{Binding .}"
+                                            Style="{StaticResource QuickActionButton}"
+                                            WidthRequest="34"
+                                            HeightRequest="34"
+                                            BackgroundColor="{StaticResource XmbQuickDelete}"
+                                            TextColor="{StaticResource XmbLike}" />
+                                    <Button Text="✕"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MainViewModel}}, Path=RemoveGameCommand}"
+                                            CommandParameter="{Binding .}"
+                                            Style="{StaticResource QuickActionButton}"
+                                            WidthRequest="34"
+                                            HeightRequest="34"
+                                            BackgroundColor="{StaticResource XmbQuickDelete}"
+                                            TextColor="{StaticResource XmbDeleteText}" />
+                                </HorizontalStackLayout>
+
+                                <Border HorizontalOptions="Fill"
+                                        VerticalOptions="End"
+                                        Margin="8"
+                                        Padding="12,10"
+                                        ZIndex="2"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 10"
+                                        Background="{StaticResource XmbOverlayBrush}">
+                                    <Grid ColumnDefinitions="*,Auto"
+                                          RowDefinitions="Auto,Auto"
+                                          RowSpacing="5">
+                                        <Label Grid.Row="0"
+                                               Grid.ColumnSpan="2"
+                                               Text="{Binding Title}"
+                                               FontSize="15"
                                                FontAttributes="Bold"
+                                               MaxLines="2"
                                                LineBreakMode="TailTruncation"
                                                TextColor="{StaticResource XmbText}" />
-                                        <HorizontalStackLayout Spacing="8">
+                                        <HorizontalStackLayout Grid.Row="1"
+                                                               Grid.Column="0"
+                                                               Spacing="8"
+                                                               VerticalOptions="Center">
                                             <Label Text="{Binding Rating, Converter={StaticResource RatingToStarsConverter}}"
                                                    FontSize="12"
+                                                   VerticalOptions="Center"
                                                    TextColor="{StaticResource XmbGold}" />
                                             <Label Text="{Binding Platform}"
                                                    FontSize="11"
                                                    VerticalOptions="Center"
+                                                   LineBreakMode="TailTruncation"
                                                    TextColor="{StaticResource XmbMuted}" />
                                         </HorizontalStackLayout>
-                                    </VerticalStackLayout>
+                                        <HorizontalStackLayout Grid.Row="1"
+                                                               Grid.Column="1"
+                                                               Spacing="5"
+                                                               VerticalOptions="Center">
+                                            <Ellipse WidthRequest="7"
+                                                     HeightRequest="7"
+                                                     VerticalOptions="Center"
+                                                     Fill="{Binding Status, Converter={StaticResource StatusColorConverter}}" />
+                                            <Label Text="{Binding Status}"
+                                                   FontSize="10"
+                                                   FontAttributes="Bold"
+                                                   TextTransform="Uppercase"
+                                                   VerticalOptions="Center"
+                                                   TextColor="{Binding Status, Converter={StaticResource StatusColorConverter}}" />
+                                        </HorizontalStackLayout>
+                                    </Grid>
                                 </Border>
                             </Grid>
                         </Border>
@@ -348,6 +411,7 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Game">
                         <Border Margin="0,0,0,10"
+                                HorizontalOptions="Fill"
                                 Padding="0"
                                 StrokeShape="RoundRectangle 12"
                                 Stroke="{StaticResource XmbBorderBrush}"
@@ -360,7 +424,7 @@
                                          WidthRequest="4"
                                          BackgroundColor="{Binding Status, Converter={StaticResource StatusColorConverter}}" />
 
-                                <!-- Box art 58x82 -->
+                                <!-- Box art 58x82 (fixed container, so fixed image size is safe here) -->
                                 <Border Grid.Column="1"
                                         Margin="14,12,0,12"
                                         WidthRequest="58"
@@ -426,8 +490,8 @@
 
                                     <HorizontalStackLayout Spacing="10">
                                         <Border StrokeShape="RoundRectangle 6"
-                                                Stroke="{StaticResource XmbAccentBrush}"
-                                                StrokeThickness="1"
+                                                Stroke="{StaticResource XmbSurfaceDeepBrush}"
+                                                StrokeThickness="0"
                                                 Background="{StaticResource XmbSurfaceDeepBrush}"
                                                 Padding="8,2"
                                                 VerticalOptions="Center">
@@ -523,8 +587,9 @@
             </CollectionView>
         </Grid>
 
-        <!-- ================= ROULETTE OVERLAY ================= -->
-        <Grid IsVisible="{Binding IsRouletteOpen}"
+        <!-- ================= ROULETTE OVERLAY (covers the top bar too) ================= -->
+        <Grid Grid.RowSpan="2"
+              IsVisible="{Binding IsRouletteOpen}"
               BackgroundColor="{StaticResource XmbScrim}"
               ZIndex="10">
 
@@ -532,14 +597,13 @@
                     Margin="24"
                     HorizontalOptions="Center"
                     VerticalOptions="Center"
-                    StrokeShape="RoundRectangle 12"
+                    StrokeShape="RoundRectangle 14"
                     Stroke="{StaticResource XmbAccentBrush}"
                     StrokeThickness="1"
                     Background="{StaticResource XmbSurfaceBrush}"
                     Padding="24,20">
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="24">
 
-                    <!-- Big poster 180x270 with placeholder underneath -->
                     <Border Grid.Column="0"
                             WidthRequest="180"
                             HeightRequest="270"

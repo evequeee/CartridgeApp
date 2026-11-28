@@ -57,8 +57,24 @@ public class GameFormViewModel : INotifyPropertyChanged
     public GameStatus Status
     {
         get => _status;
-        set => SetProperty(ref _status, value);
+        set
+        {
+            if (SetProperty(ref _status, value))
+            {
+                OnPropertyChanged(nameof(IsStatusBacklog));
+                OnPropertyChanged(nameof(IsStatusPlaying));
+                OnPropertyChanged(nameof(IsStatusPlayed));
+                OnPropertyChanged(nameof(IsStatusCompleted));
+                OnPropertyChanged(nameof(IsStatusAbandoned));
+            }
+        }
     }
+
+    public bool IsStatusBacklog => Status == GameStatus.Backlog;
+    public bool IsStatusPlaying => Status == GameStatus.Playing;
+    public bool IsStatusPlayed => Status == GameStatus.Played;
+    public bool IsStatusCompleted => Status == GameStatus.Completed;
+    public bool IsStatusAbandoned => Status == GameStatus.Abandoned;
 
     /// <summary>0.0 = not rated, otherwise 0.5 .. 5.0 in steps of 0.5.</summary>
     public double Rating
@@ -123,6 +139,7 @@ public class GameFormViewModel : INotifyPropertyChanged
     public IReadOnlyList<GameStatus> Statuses { get; } = Enum.GetValues<GameStatus>();
 
     public ICommand SaveGameCommand { get; }
+    public ICommand SetStatusCommand { get; }
     public ICommand DecreaseRatingCommand { get; }
     public ICommand IncreaseRatingCommand { get; }
     public ICommand ClearRatingCommand { get; }
@@ -135,6 +152,13 @@ public class GameFormViewModel : INotifyPropertyChanged
     {
         _gameRepository = gameRepository;
         SaveGameCommand = new Command(async () => await SaveGameAsync());
+        SetStatusCommand = new Command<string>(name =>
+        {
+            if (Enum.TryParse(name, true, out GameStatus status))
+            {
+                Status = status;
+            }
+        });
         DecreaseRatingCommand = new Command(() => Rating -= RatingStep);
         IncreaseRatingCommand = new Command(() => Rating += RatingStep);
         ClearRatingCommand = new Command(() => Rating = 0);

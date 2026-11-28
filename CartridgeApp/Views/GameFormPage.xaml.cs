@@ -14,6 +14,11 @@ public partial class GameFormPage : ContentPage, IQueryAttributable
         BindingContext = viewModel;
     }
 
+    private async void OnBackClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("..");
+    }
+
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
         if (query.TryGetValue("Game", out object? value) && value is Game game)

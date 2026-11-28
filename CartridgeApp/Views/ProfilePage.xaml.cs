@@ -16,6 +16,20 @@ public partial class ProfilePage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.RefreshAsync();
+        if (!_viewModel.IsEditing)
+        {
+            await _viewModel.RefreshAsync();
+        }
+    }
+
+    protected override bool OnBackButtonPressed()
+    {
+        if (_viewModel.IsEditing)
+        {
+            _viewModel.CancelEditCommand.Execute(null);
+            return true;
+        }
+
+        return base.OnBackButtonPressed();
     }
 }

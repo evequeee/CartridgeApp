@@ -51,6 +51,9 @@ public class JsonBackupService : IBackupService
                 ? new GameRef()
                 : new GameRef { Title = pinned.Title, Platform = pinned.Platform });
         }
+        Game? crownedGame = profile.CrownedGameId is int crownedId
+            ? games.FirstOrDefault(game => game.Id == crownedId)
+            : null;
 
         var package = new BackupPackage
         {
@@ -77,7 +80,11 @@ public class JsonBackupService : IBackupService
                 Bio = profile.Bio,
                 AvatarUrl = profile.AvatarUrl,
                 FavoritePlatform = profile.FavoritePlatform,
-                ShowcaseGames = showcase
+                ShowcaseGames = showcase,
+                CrownedGameId = profile.CrownedGameId,
+                CrownedGame = crownedGame == null
+                    ? null
+                    : new GameRef { Title = crownedGame.Title, Platform = crownedGame.Platform }
             }
         };
 
@@ -166,6 +173,24 @@ public class JsonBackupService : IBackupService
                     : 0);
             }
 
+            int? crownedGameId = null;
+            GameRef? crownedReference = parsed.Profile.CrownedGame;
+            if (crownedReference != null &&
+                !string.IsNullOrWhiteSpace(crownedReference.Title) &&
+                gameIdsByKey.TryGetValue(GameKey(crownedReference.Title, crownedReference.Platform), out int remappedCrownedId))
+            {
+                crownedGameId = remappedCrownedId;
+            }
+            else if (parsed.Profile.CrownedGameId is int oldCrownedId)
+            {
+                Game? originalCrownedGame = parsed.Games.FirstOrDefault(game => game.Id == oldCrownedId);
+                if (originalCrownedGame != null &&
+                    gameIdsByKey.TryGetValue(GameKey(originalCrownedGame.Title, originalCrownedGame.Platform), out int fallbackCrownedId))
+                {
+                    crownedGameId = fallbackCrownedId;
+                }
+            }
+
             await _gameRepository.UpdateUserProfileAsync(new UserProfile
             {
                 DisplayName = string.IsNullOrWhiteSpace(parsed.Profile.DisplayName) ? "Player One" : parsed.Profile.DisplayName,
@@ -173,7 +198,8 @@ public class JsonBackupService : IBackupService
                 Bio = parsed.Profile.Bio ?? string.Empty,
                 AvatarUrl = parsed.Profile.AvatarUrl,
                 FavoritePlatform = string.IsNullOrWhiteSpace(parsed.Profile.FavoritePlatform) ? "PC / PS5" : parsed.Profile.FavoritePlatform,
-                ShowcaseGameIdsCsv = string.Join(",", slotIds)
+                ShowcaseGameIdsCsv = string.Join(",", slotIds),
+                CrownedGameId = crownedGameId
             });
         }
 
@@ -283,6 +309,8 @@ public class ProfileBackup
     public string? AvatarUrl { get; set; }
     public string FavoritePlatform { get; set; } = string.Empty;
     public List<GameRef> ShowcaseGames { get; set; } = new();
+    public int? CrownedGameId { get; set; }
+    public GameRef? CrownedGame { get; set; }
 }
 
 public class GameRef

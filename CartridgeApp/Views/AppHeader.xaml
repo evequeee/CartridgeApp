@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:CartridgeApp.ViewModels"
+             xmlns:converters="clr-namespace:CartridgeApp.Converters"
+             x:Class="CartridgeApp.Views.AppHeader"
+             x:DataType="viewmodels:AppHeaderViewModel">
+
+    <ContentView.Resources>
+        <converters:BoolSwitchConverter x:Key="BoolSwitchConverter" />
+    </ContentView.Resources>
+
+    <Grid BackgroundColor="{StaticResource XmbSurface}" RowDefinitions="Auto,Auto">
+
+        <Grid Grid.Row="0"
+              MaximumWidthRequest="1480"
+              HorizontalOptions="Fill"
+              Padding="32,10,32,0"
+              ColumnDefinitions="*,Auto">
+
+            <!-- Tabs with a cyan underline under the active one -->
+            <HorizontalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="End">
+
+                <VerticalStackLayout Spacing="0">
+                    <Button Text="LIBRARY"
+                            Style="{StaticResource NavTabButton}"
+                            TextColor="{Binding IsLibraryActive, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbMuted'}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Library" />
+                    <BoxView HeightRequest="2"
+                             Margin="14,0"
+                             BackgroundColor="{Binding IsLibraryActive, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbTransparent'}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="0">
+                    <Button Text="JOURNAL"
+                            Style="{StaticResource NavTabButton}"
+                            TextColor="{Binding IsJournalActive, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbMuted'}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Journal" />
+                    <BoxView HeightRequest="2"
+                             Margin="14,0"
+                             BackgroundColor="{Binding IsJournalActive, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbTransparent'}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="0">
+                    <Button Text="PROFILE"
+                            Style="{StaticResource NavTabButton}"
+                            TextColor="{Binding IsProfileActive, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbMuted'}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Profile" />
+                    <BoxView HeightRequest="2"
+                             Margin="14,0"
+                             BackgroundColor="{Binding IsProfileActive, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbTransparent'}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="0">
+                    <Button Text="ANALYTICS"
+                            Style="{StaticResource NavTabButton}"
+                            TextColor="{Binding IsAnalyticsActive, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbMuted'}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Analytics" />
+                    <BoxView HeightRequest="2"
+                             Margin="14,0"
+                             BackgroundColor="{Binding IsAnalyticsActive, Converter={StaticResource BoolSwitchConverter}, ConverterParameter='XmbAccent|XmbTransparent'}" />
+                </VerticalStackLayout>
+            </HorizontalStackLayout>
+
+            <!-- Profile widget: click opens the PROFILE tab -->
+            <Border Grid.Column="1"
+                    HorizontalOptions="End"
+                    Margin="0,0,0,10"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="0"
+                    Background="{StaticResource XmbSurfaceBrush}"
+                    Padding="6,4"
+                    ToolTipProperties.Text="Відкрити профіль">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigateCommand}" CommandParameter="Profile" />
+                </Border.GestureRecognizers>
+
+                <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="12">
+
+                    <Grid Grid.Column="0"
+                          WidthRequest="46"
+                          HeightRequest="46"
+                          VerticalOptions="Center"
+                          HorizontalOptions="Center">
+                        <Ellipse WidthRequest="40"
+                                 HeightRequest="40"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center"
+                                 Fill="{StaticResource XmbAvatarFill}"
+                                 Stroke="{StaticResource XmbAccentBrush}"
+                                 StrokeThickness="2" />
+                        <Label Text="{Binding Initials}"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               TextColor="{StaticResource XmbAccent}" />
+                        <Image WidthRequest="40"
+                               HeightRequest="40"
+                               Aspect="AspectFill"
+                               ZIndex="1"
+                               Source="{Binding AvatarSource}"
+                               IsVisible="{Binding HasAvatar}">
+                            <Image.Clip>
+                                <EllipseGeometry Center="20,20" RadiusX="20" RadiusY="20" />
+                            </Image.Clip>
+                        </Image>
+                    </Grid>
+
+                    <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                        <Label Text="{Binding DisplayName}"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource XmbText}" />
+                        <Label Text="{Binding Handle}"
+                               FontSize="11"
+                               TextColor="{StaticResource XmbAccent}" />
+                        <Border StrokeShape="RoundRectangle 6"
+                                Stroke="{StaticResource XmbVioletBrush}"
+                                StrokeThickness="1"
+                                Background="{StaticResource XmbSurfaceDeepBrush}"
+                                Padding="8,2"
+                                HorizontalOptions="Start">
+                            <Label Text="{Binding RankText}"
+                                   FontSize="10"
+                                   FontAttributes="Bold"
+                                   CharacterSpacing="1"
+                                   TextColor="{StaticResource XmbViolet}" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Thin glass line under the whole bar -->
+        <BoxView Grid.Row="1" HeightRequest="1" BackgroundColor="{StaticResource XmbBorder}" />
+    </Grid>
+</ContentView>
